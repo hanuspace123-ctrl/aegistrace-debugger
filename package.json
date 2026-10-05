@@ -1,0 +1,22 @@
+{
+  "name": "aegistrace-debugger",
+  "version": "1.0.0",
+  "description": "AegisTrace - Visual API Engine Debugger with Realistic Microservices",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test_services.js",
+    "test:load": "node load_test.js",
+    "test:chaos": "node chaos_test.js",
+    "test:all": "node stability_test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "AegisTrace Team",
+  "license": "MIT"
+}

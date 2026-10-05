@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+run_debugger.bat
+*.log
+.system_generated
+.gemini
+stability_report.md

@@ -1,0 +1,348 @@
+{
+  "tenants": {
+    "tenant-aegis": {
+      "id": "tenant-aegis",
+      "name": "Aegis Enterprise Cloud",
+      "tier": "Enterprise SLA (99.99%)",
+      "metrics": {
+        "totalRuns": 356,
+        "errorRuns": 16,
+        "preservedRevenue": 911314.3000000045,
+        "totalHoursSaved": 12.5,
+        "avgMttr": 0.85
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-acme": {
+      "id": "tenant-acme",
+      "name": "Acme Corp eCommerce",
+      "tier": "Standard SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-google": {
+      "id": "tenant-google",
+      "name": "Google Cloud Workspace (alex.rivera.cloud)",
+      "tier": "Google Enterprise OAuth",
+      "metrics": {
+        "totalRuns": 10,
+        "errorRuns": 0,
+        "preservedRevenue": 300,
+        "totalHoursSaved": 1.5,
+        "avgMttr": 0.5
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-9m9e": {
+      "id": "tenant-hanuspace123-17910-9m9e",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanu-arvind-yahoo--rvp8": {
+      "id": "tenant-hanu-arvind-yahoo--rvp8",
+      "name": "richa global",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 150,
+        "totalHoursSaved": 0.75,
+        "avgMttr": 2.08
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-hsug": {
+      "id": "tenant-hanuspace123-17910-hsug",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-byst": {
+      "id": "tenant-hanuspace123-17910-byst",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-g0p0": {
+      "id": "tenant-hanuspace123-17910-g0p0",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-uxny": {
+      "id": "tenant-hanuspace123-17910-uxny",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-x5pr": {
+      "id": "tenant-hanuspace123-17910-x5pr",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-64mu": {
+      "id": "tenant-hanuspace123-17910-64mu",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-oyj7": {
+      "id": "tenant-hanuspace123-17910-oyj7",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17910-4fhk": {
+      "id": "tenant-hanuspace123-17910-4fhk",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17911-l0ti": {
+      "id": "tenant-hanuspace123-17911-l0ti",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17911-y4cs": {
+      "id": "tenant-hanuspace123-17911-y4cs",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17911-yx3u": {
+      "id": "tenant-hanuspace123-17911-yx3u",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    }
+  },
+  "users": [
+    {
+      "id": "usr_admin",
+      "email": "admin@aegistrace.com",
+      "password": "password123",
+      "name": "Alex Rivera",
+      "role": "Site Reliability Director",
+      "tenantId": "tenant-aegis"
+    },
+    {
+      "id": "usr_acme",
+      "email": "dev@acmecorp.com",
+      "password": "password123",
+      "name": "Jordan Vance",
+      "role": "Lead Architect",
+      "tenantId": "tenant-acme"
+    },
+    {
+      "id": "usr_g_mock_goo",
+      "email": "alex.rivera.cloud@gmail.com",
+      "name": "Alex Rivera (Google Cloud)",
+      "role": "Google SSO User",
+      "tenantId": "tenant-google"
+    },
+    {
+      "id": "usr_1791017759864_ppgn",
+      "email": "hanuspace123_1791017759862@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-9m9e"
+    },
+    {
+      "id": "usr_g_mock_goo",
+      "email": "hanuspace123@gmail.com",
+      "name": "Hanu Space",
+      "role": "Google SSO User",
+      "tenantId": "tenant-google"
+    },
+    {
+      "id": "usr_1791018213242_ya3j",
+      "email": "hanu.arvind@yahoo.co.in",
+      "password": "1977siana21.08",
+      "name": "ARVIND KUMAR",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanu-arvind-yahoo--rvp8"
+    },
+    {
+      "id": "usr_1791018862630_9lkv",
+      "email": "hanuspace123_1791018862628@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-hsug"
+    },
+    {
+      "id": "usr_1791018928448_li3j",
+      "email": "hanuspace123_1791018928447@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-byst"
+    },
+    {
+      "id": "usr_1791019110144_qdao",
+      "email": "hanuspace123_1791019110143@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-g0p0"
+    },
+    {
+      "id": "usr_1791019533344_5gy8",
+      "email": "hanuspace123_1791019533338@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-uxny"
+    },
+    {
+      "id": "usr_1791020329232_1xi7",
+      "email": "hanuspace123_1791020329226@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-x5pr"
+    },
+    {
+      "id": "usr_1791030619589_yvvh",
+      "email": "hanuspace123_1791030619587@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-64mu"
+    },
+    {
+      "id": "usr_1791030940328_p1bt",
+      "email": "hanuspace123_1791030940325@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-oyj7"
+    },
+    {
+      "id": "usr_1791031026080_sw8l",
+      "email": "hanuspace123_1791031026078@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17910-4fhk"
+    },
+    {
+      "id": "usr_1791171030763_f5sv",
+      "email": "hanuspace123_1791171030762@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17911-l0ti"
+    },
+    {
+      "id": "usr_1791171308042_6414",
+      "email": "hanuspace123_1791171308041@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17911-y4cs"
+    },
+    {
+      "id": "usr_1791171395075_fahs",
+      "email": "hanuspace123_1791171395073@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17911-yx3u"
+    }
+  ]
+}
