@@ -166,7 +166,7 @@ function verifyToken(token) {
     }
 }
 
-// Authentication Middleware
+// Authentication Middleware (Supports both Authenticated Multi-Tenant & Public Live Demo modes)
 function requireAuth(req, res, next) {
     const authHeader = req.headers['authorization'];
     let token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
@@ -174,33 +174,30 @@ function requireAuth(req, res, next) {
         token = req.query.token;
     }
 
-    const payload = verifyToken(token);
-    if (!payload) {
-        if (req.headers['x-aegis-internal'] === 'true') {
-            req.user = USERS[0] || { id: 'usr_admin', email: 'admin@aegistrace.com', name: 'Alex Rivera', role: 'Site Reliability Director', tenantId: 'tenant-aegis' };
-            req.tenantId = 'tenant-aegis';
-            req.tenant = TENANTS['tenant-aegis'];
-            return next();
+    // If a token was explicitly provided, validate it strictly
+    if (token) {
+        const payload = verifyToken(token);
+        if (!payload) {
+            return res.status(401).json({ error: 'INVALID_TOKEN', message: 'Session expired or invalid token' });
         }
-        return res.status(401).json({
-            status: 'UNAUTHORIZED',
-            error: 'AUTHENTICATION_REQUIRED',
-            message: 'Valid Bearer token is required to access AegisTrace APIs. Please log in.'
-        });
+        req.user = payload;
+        req.tenantId = payload.tenantId;
+        req.tenant = TENANTS[payload.tenantId] || TENANTS['tenant-aegis'];
+        return next();
     }
 
-    req.user = payload;
-    req.tenantId = payload.tenantId;
-    req.tenant = TENANTS[payload.tenantId];
-
-    if (!req.tenant) {
-        return res.status(403).json({
-            status: 'FORBIDDEN',
-            error: 'TENANT_NOT_FOUND',
-            message: 'Tenant associated with user token does not exist.'
-        });
-    }
-
+    // PUBLIC LIVE DEMO MODE: Automatically grant public guest access to default tenant when unauthenticated
+    const defaultTenant = TENANTS['tenant-aegis'] || Object.values(TENANTS)[0];
+    req.user = {
+        id: 'usr_public_guest',
+        email: 'guest@aegistrace.public',
+        name: 'Public Demo Guest',
+        role: 'Public Evaluator',
+        tenantId: defaultTenant.id,
+        isPublicGuest: true
+    };
+    req.tenantId = defaultTenant.id;
+    req.tenant = defaultTenant;
     next();
 }
 
@@ -1078,6 +1075,15 @@ app.post('/api/remediate', requireAuth, async (req, res) => {
 });
 
 // --- SYSTEM ORCHESTRATION & HEALTH CHECK ---
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        gateway: 'AegisTrace Gateway',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.get('/api/system/status', async (req, res) => {
     const results = {};
     for (const [key, svc] of Object.entries(SERVICES)) {

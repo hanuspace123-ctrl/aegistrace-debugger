@@ -44,12 +44,14 @@ This single command automatically:
 2. Starts the **AegisTrace Gateway & Web Dashboard** on port `8000`.
 3. Opens your browser to `http://localhost:8000` *(or your assigned public HTTPS URL when deployed to Railway or Render)*.
 
-#### Logging In
-When the security portal opens, you can sign in with:
-- **1-Click Test Preset**: Click **Aegis Enterprise** (`admin@aegistrace.com` / `password123`) or **Acme Corp** (`dev@acmecorp.com` / `password123`).
-- **Sign in with Google**: 1-click Google SSO or your own Google Cloud Client ID.
-- **Sign Up**: Register with any valid email (`name@domain.com`) to get your own isolated tenant workspace.
-- **1-Minute Tour**: Click **Take a 1-Minute Quick Tour** on the login screen to learn about the features before signing in!
+#### Public Live Demo Access (Instant & Zero-Barrier)
+AegisTrace is configured for **Public Evaluation Access**:
+- **Instant Public Access**: Anyone visiting the URL immediately sees and interacts with the full live dashboard, pipeline tracer, fault sandbox, and AI copilot without any login barrier!
+- **Switch to Private Tenant Workspace (On-Demand)**: Click **Sign In / Switch Tenant** in the top-right header to test multi-tenant data isolation:
+  - **1-Click Test Preset**: Click **Aegis Enterprise** (`admin@aegistrace.com` / `password123`) or **Acme Corp** (`dev@acmecorp.com` / `password123`).
+  - **Sign in with Google**: 1-click Google SSO or your own Google Cloud Client ID.
+  - **Sign Up**: Register with any valid email (`name@domain.com`) to get your own isolated tenant workspace.
+  - **Public Guest**: Click **Continue as Public Guest** at any time to return to the public evaluation workspace.
 
 ---
 

@@ -230,6 +230,10 @@ async function runTests() {
     // 7. Gateway Proxy & Health Check
     console.log('\n--- 7. Gateway Proxy & Health Check (Port 8000) ---');
     try {
+        const resHealth = await fetch(`${GATEWAY_URL}/health`);
+        const dataHealth = await resHealth.json();
+        assert(resHealth.status === 200 && dataHealth.status === 'OK', 'Cloud /health endpoint returns 200 OK');
+
         const resStatus = await fetch(`${GATEWAY_URL}/api/system/status`);
         const dataStatus = await resStatus.json();
         assert(resStatus.status === 200 && dataStatus.gateway === 'AegisTrace Gateway', 'Gateway /api/system/status reports HEALTHY');
@@ -237,19 +241,25 @@ async function runTests() {
         assert(false, `Gateway status test error: ${e.message}`);
     }
 
-    // 8. Authentication & Multi-Tenant Isolation Tests
-    console.log('\n--- 8. Authentication & Multi-Tenancy Tests ---');
+    // 8. Public Demo Mode, Authentication & Multi-Tenant Isolation Tests
+    console.log('\n--- 8. Public Demo Mode, Authentication & Multi-Tenancy Tests ---');
     try {
-        // 8.1 Route protection: Unauthenticated request should be rejected with 401
-        const resUnauth = await fetch(`${GATEWAY_URL}/api/events`);
-        assert(resUnauth.status === 401, 'Unauthenticated request to /api/events returns 401 Unauthorized');
+        // 8.1 Public Demo Mode: Unauthenticated requests grant seamless public evaluation access (200 OK)
+        const resPublicEvents = await fetch(`${GATEWAY_URL}/api/events`);
+        assert(resPublicEvents.status === 200, 'Public Guest request to /api/events succeeds with 200 OK (Public Live Demo mode)');
 
-        const resUnauthProxy = await fetch(`${GATEWAY_URL}/api/checkout`, {
+        const resPublicProxy = await fetch(`${GATEWAY_URL}/api/checkout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customer: 'Intruder', sku: 'SKU-8829' })
+            body: JSON.stringify({ customer: 'Public Guest', sku: 'SKU-8829' })
         });
-        assert(resUnauthProxy.status === 401, 'Unauthenticated request to /api/checkout returns 401 Unauthorized');
+        assert(resPublicProxy.status === 200, 'Public Guest request to /api/checkout succeeds with 200 OK');
+
+        // 8.2 Forged / Invalid Token rejection (401 Unauthorized)
+        const resInvalidToken = await fetch(`${GATEWAY_URL}/api/events`, {
+            headers: { 'Authorization': 'Bearer invalid_forged_token.signature' }
+        });
+        assert(resInvalidToken.status === 401, 'Corrupted or forged token returns 401 Unauthorized');
 
         // 8.2 Invalid credentials test
         const resBadLogin = await fetch(`${GATEWAY_URL}/api/auth/login`, {

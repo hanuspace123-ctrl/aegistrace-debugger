@@ -745,9 +745,10 @@
         </main>
     </div>
 
-    <!-- Authentication / Login Modal Overlay -->
-    <div class="login-modal-overlay" id="login-modal">
-        <div class="login-card">
+    <!-- Authentication / Login Modal Overlay (Hidden by default for Public Demo Access) -->
+    <div class="login-modal-overlay hidden" id="login-modal">
+        <div class="login-card" style="position: relative;">
+            <button type="button" id="btn-close-login" title="Continue in Public Demo Mode" style="position: absolute; top: 0.9rem; right: 0.9rem; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.2rem 0.5rem; border-radius: 4px;">&times;</button>
             <div class="login-brand">
                 <div class="logo-icon login-logo">
                     <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -800,6 +801,9 @@
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                         Sign In & Access Dashboard
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-public-guest" style="width: 100%; margin-top: 0.6rem; font-size: 0.76rem; border-color: rgba(6, 182, 212, 0.4); color: #38bdf8;">
+                        🌐 Continue as Public Guest (Demo Mode)
                     </button>
                 </form>
 

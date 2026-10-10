@@ -8,7 +8,8 @@
     "test": "node test_services.js",
     "test:load": "node load_test.js",
     "test:chaos": "node chaos_test.js",
-    "test:all": "node stability_test.js"
+    "test:all": "node stability_test.js",
+    "tunnel": "ssh -o StrictHostKeyChecking=no -R 80:127.0.0.1:8000 serveo.net"
   },
   "dependencies": {
     "cors": "^2.8.5",

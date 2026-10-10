@@ -207,6 +207,58 @@
         "avgMttr": 0
       },
       "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17916-2x65": {
+      "id": "tenant-hanuspace123-17916-2x65",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17916-go3c": {
+      "id": "tenant-hanuspace123-17916-go3c",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17916-ue8z": {
+      "id": "tenant-hanuspace123-17916-ue8z",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17916-qjdv": {
+      "id": "tenant-hanuspace123-17916-qjdv",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
     }
   },
   "users": [
@@ -343,6 +395,38 @@
       "name": "Hanu Space",
       "role": "Workspace Admin",
       "tenantId": "tenant-hanuspace123-17911-yx3u"
+    },
+    {
+      "id": "usr_1791637809339_oaok",
+      "email": "hanuspace123_1791637809336@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17916-2x65"
+    },
+    {
+      "id": "usr_1791637854905_swne",
+      "email": "hanuspace123_1791637854904@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17916-go3c"
+    },
+    {
+      "id": "usr_1791637875694_v0w9",
+      "email": "hanuspace123_1791637875692@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17916-ue8z"
+    },
+    {
+      "id": "usr_1791637920392_l2kh",
+      "email": "hanuspace123_1791637920389@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17916-qjdv"
     }
   ]
 }

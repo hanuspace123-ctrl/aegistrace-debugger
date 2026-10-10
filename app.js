@@ -600,6 +600,8 @@ const dom = {
     userDisplay: document.getElementById('user-display'),
     btnLogout: document.getElementById('btn-logout'),
     loginModal: document.getElementById('login-modal'),
+    btnCloseLogin: document.getElementById('btn-close-login'),
+    btnPublicGuest: document.getElementById('btn-public-guest'),
     loginForm: document.getElementById('login-form'),
     loginEmail: document.getElementById('login-email'),
     loginPassword: document.getElementById('login-password'),
@@ -668,10 +670,9 @@ async function authFetch(url, options = {}) {
 
 function handleUnauthorized() {
     state.authToken = '';
-    state.currentUser = null;
-    state.currentTenant = null;
     localStorage.removeItem('aegis_auth_token');
-    showLoginModal('Session expired or authentication required. Please sign in.');
+    enterPublicDemoMode();
+    logConsole('[AUTH] Operating in Public Live Demo Mode.', 'info');
 }
 
 function showLoginModal(errorText = null) {
@@ -801,40 +802,84 @@ async function signup(name, email, password, organizationName) {
     }
 }
 
+function enterPublicDemoMode() {
+    state.authToken = '';
+    state.currentUser = {
+        id: 'usr_public_guest',
+        email: 'guest@aegistrace.public',
+        name: 'Public Demo Guest',
+        role: 'Public Evaluator',
+        isPublicGuest: true
+    };
+    state.currentTenant = {
+        id: 'tenant-aegis',
+        name: 'Aegis Enterprise (Public Live Demo)',
+        tier: 'Public Evaluation SLA (99.99%)'
+    };
+    updateTenantUI();
+    hideLoginModal();
+    loadTenantData();
+}
+
 function updateTenantUI() {
-    if (state.currentTenant && dom.tenantName) {
-        dom.tenantName.textContent = state.currentTenant.name;
-    }
-    if (state.currentUser && dom.userDisplay) {
-        dom.userDisplay.textContent = `${state.currentUser.email} (${state.currentUser.role || 'Member'})`;
+    if (state.currentUser?.isPublicGuest) {
+        if (dom.tenantName) dom.tenantName.textContent = '🌐 Public Live Demo';
+        if (dom.userDisplay) dom.userDisplay.textContent = 'Guest Evaluator (Public Mode)';
+        if (dom.btnLogout) {
+            dom.btnLogout.innerHTML = `
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.2rem;">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Sign In / Switch Tenant
+            `;
+            dom.btnLogout.title = 'Switch Tenant or Sign In to private workspace';
+        }
+    } else {
+        if (state.currentTenant && dom.tenantName) {
+            dom.tenantName.textContent = state.currentTenant.name;
+        }
+        if (state.currentUser && dom.userDisplay) {
+            dom.userDisplay.textContent = `${state.currentUser.email} (${state.currentUser.role || 'Member'})`;
+        }
+        if (dom.btnLogout) {
+            dom.btnLogout.innerHTML = `
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.2rem;">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Sign Out
+            `;
+            dom.btnLogout.title = 'Sign Out to Public Demo mode';
+        }
     }
 }
 
 async function checkAuthSession() {
-    if (!state.authToken) {
-        showLoginModal();
-        return false;
+    if (state.authToken) {
+        try {
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${state.authToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                state.currentUser = data.user;
+                state.currentTenant = data.tenant;
+                updateTenantUI();
+                hideLoginModal();
+                await loadTenantData();
+                return true;
+            }
+        } catch (e) {
+            console.warn('[AUTH] Error checking saved session:', e);
+        }
     }
 
-    try {
-        const res = await fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${state.authToken}` }
-        });
-        if (!res.ok) {
-            handleUnauthorized();
-            return false;
-        }
-        const data = await res.json();
-        state.currentUser = data.user;
-        state.currentTenant = data.tenant;
-        updateTenantUI();
-        hideLoginModal();
-        await loadTenantData();
-        return true;
-    } catch (e) {
-        handleUnauthorized();
-        return false;
-    }
+    // Default to Public Live Demo Mode
+    enterPublicDemoMode();
+    return true;
 }
 
 async function login(email, password) {
@@ -955,8 +1000,6 @@ window.handleGoogleCredentialResponse = function(response) {
 
 function logout() {
     state.authToken = '';
-    state.currentUser = null;
-    state.currentTenant = null;
     localStorage.removeItem('aegis_auth_token');
 
     state.totalRuns = 0;
@@ -967,8 +1010,9 @@ function logout() {
     updateBusinessMetricsUI();
     dom.consoleLogs.innerHTML = '';
 
+    enterPublicDemoMode();
     showLoginModal();
-    logConsole('[AUTH] User signed out.', 'system');
+    logConsole('[AUTH] Switched to Public Live Demo Mode.', 'system');
 }
 
 async function loadTenantData() {
@@ -1503,6 +1547,23 @@ function registerEventListeners() {
                 initRealGoogleBtn(cid);
                 logConsole('Google Client ID saved. Initialized GIS authentication.', 'success');
             }
+        });
+    }
+
+    if (dom.btnCloseLogin) {
+        dom.btnCloseLogin.addEventListener('click', () => {
+            hideLoginModal();
+            if (!state.currentUser) {
+                enterPublicDemoMode();
+            }
+        });
+    }
+
+    if (dom.btnPublicGuest) {
+        dom.btnPublicGuest.addEventListener('click', () => {
+            hideLoginModal();
+            enterPublicDemoMode();
+            logConsole('[AUTH] Switched to Public Live Demo Mode.', 'system');
         });
     }
 
