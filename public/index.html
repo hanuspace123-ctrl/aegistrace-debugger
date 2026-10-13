@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Trace // E-Commerce Automated Visual Debugger</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Identity Services (Sign in with Google) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Brand Section -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>AegisTrace</h1>
+                    <span class="sub-brand">Visual API Engine Debugger</span>
+                </div>
+            </div>
+
+            <!-- Global Status Widget -->
+            <div class="system-status-container">
+                <div class="status-pill status-healthy" id="global-status">
+                    <span class="status-indicator-dot"></span>
+                    <span class="status-text">SYSTEM OPERATIONAL</span>
+                </div>
+            </div>
+
+            <!-- Auto-Pilot Primary Toggle -->
+            <div class="header-controls">
+                <button class="btn btn-pitch" id="btn-pitch">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right: 0.2rem;">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    Start Investor Pitch Demo
+                </button>
+                <div class="toggle-group" data-tooltip="Streams background orders continuously to simulate live traffic." data-tooltip-pos="bottom">
+                    <span class="toggle-label">Auto-Pilot</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autopilot-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-group" data-tooltip="Automatically diagnoses and repairs failures to keep error rate &le; 1.0%." data-tooltip-pos="bottom">
+                    <span class="toggle-label">Auto-Remediation</span>
+                    <label class="switch">
+                        <input type="checkbox" id="remediation-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-group" data-tooltip="Execution speed per pipeline stage (100ms - 2000ms)." data-tooltip-pos="bottom">
+                    <span class="toggle-label">Speed: <span id="delay-val">400</span>ms</span>
+                    <input type="range" id="delay-slider" min="100" max="2000" step="100" value="400" class="speed-slider">
+                </div>
+                <button class="btn btn-secondary" id="btn-reset" title="Reset all telemetry metrics and active counters">Reset Stats</button>
+                <button class="btn btn-secondary btn-help" id="btn-open-help" title="Open Onboarding Guide &amp; 1-Minute Tour">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Quick Guide
+                </button>
+
+                <!-- Tenant & User Info Widget -->
+                <div class="tenant-user-widget" id="tenant-user-widget">
+                    <span class="tenant-badge" id="tenant-badge">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.25rem;">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                            <line x1="9" y1="22" x2="9" y2="22.01"/>
+                            <line x1="15" y1="22" x2="15" y2="22.01"/>
+                        </svg>
+                        <span id="tenant-name">Aegis Enterprise</span>
+                    </span>
+                    <span class="user-pill" id="user-pill">
+                        <span id="user-display">admin@aegistrace.com</span>
+                    </span>
+                    <button class="btn btn-secondary btn-small" id="btn-logout" title="Sign Out / Switch Tenant">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.2rem;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Workspace -->
+        <main class="dashboard-grid">
+            <!-- Left Column: Telemetry & Controls -->
+            <section class="left-panel">
+                <!-- Simulation & Fault Injection controls -->
+                <div class="panel-card controls-card">
+                    <div class="card-header">
+                        <h2>Fault Injection Lab &amp; Sandbox <span class="info-tip" data-tooltip="Simulate distributed outages to test self-healing resilience.">?</span></h2>
+                        <span class="sub-header-desc">Simulate failures to see the debugger trace and self-heal automatically</span>
+                    </div>
+                    <div class="sandbox-grid">
+                        <div class="scenario-buttons">
+                            <h3>Pre-configured Scenarios</h3>
+                            <div class="btn-grid">
+                                <button class="btn btn-scenario active" data-scenario="healthy" id="scen-healthy" data-tooltip="Healthy traffic: all 5 microservices respond with HTTP 200 OK.">
+                                    <span class="badge badge-success-dot"></span> Healthy Traffic Loop
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="out-of-stock" id="scen-stock" data-tooltip="Depleted stock (422): Auto-remediation restocks safety buffer (+100 items).">
+                                    <span class="badge badge-error-dot"></span> Inventory Depletion (422)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="card-declined" id="scen-declined" data-tooltip="Declined card (402): Auto-remediation dispatches SMS checkout retry token.">
+                                    <span class="badge badge-error-dot"></span> Card Declined (402)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="gateway-timeout" id="scen-timeout" data-tooltip="Stripe timeout (504): Auto-remediation fails over to secondary Adyen gateway.">
+                                    <span class="badge badge-error-dot"></span> Payment Gateway Timeout (504)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="fulfillment-db-crash" id="scen-db" data-tooltip="Postgres pool 20/20 full (500): Auto-remediation recycles handles & expands pool.">
+                                    <span class="badge badge-error-dot"></span> DB Pool Exhausted (500)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="logistics-api-down" id="scen-logistics" data-tooltip="Carrier DNS down (503): Auto-remediation buffers shipment to RabbitMQ queue.">
+                                    <span class="badge badge-error-dot"></span> Logistics Service Down (503)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Manual Transaction Generator -->
+                        <div class="custom-generator">
+                            <h3>Custom Order Builder</h3>
+                            <form id="order-form" onsubmit="return false;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="order-customer">Customer</label>
+                                        <input type="text" id="order-customer" value="Alex Rivera" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="order-sku">Product Item</label>
+                                        <select id="order-sku">
+                                            <option value="SKU-8829">MacBook Pro M3 (In Stock)</option>
+                                            <option value="SKU-4402">iPhone 17 Pro Max (Out of Stock)</option>
+                                            <option value="SKU-9901">AirPods Max 2 (In Stock)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="order-card">Credit Card Number</label>
+                                        <input type="text" id="order-card" value="4111 •••• •••• 1111" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="order-zip">Shipping ZIP Code</label>
+                                        <input type="text" id="order-zip" value="90210" required>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="btn-submit-order" style="width: 100%; margin-top: 0.5rem;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    Inject Custom Transaction
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- High-Traffic Load & Chaos Testing Engine Card -->
+                <div class="panel-card load-engine-card">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <h2>⚡ Load &amp; Chaos Testing Engine</h2>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.68rem; padding: 2px 8px; border-radius: 999px;">Target &le; 1.0% Error</span>
+                        </div>
+                        <span class="sub-header-desc">Simulate concurrent traffic spikes and chaotic microservice outages with automatic self-healing verification</span>
+                    </div>
+
+                    <div class="load-engine-body" style="padding-top: 0.5rem;">
+                        <!-- Configuration Controls -->
+                        <div class="form-row" style="margin-bottom: 0.6rem;">
+                            <div class="form-group">
+                                <label for="load-orders-count">Traffic Volume</label>
+                                <select id="load-orders-count">
+                                    <option value="25">25 Orders (Quick Burst)</option>
+                                    <option value="50" selected>50 Orders (Standard)</option>
+                                    <option value="100">100 Orders (Heavy Spike)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="load-concurrency">Concurrency Pool</label>
+                                <select id="load-concurrency">
+                                    <option value="5">5 Concurrent Workers</option>
+                                    <option value="10" selected>10 Concurrent Workers</option>
+                                    <option value="20">20 Concurrent Workers</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Chaos & Healing Checkboxes -->
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem; background: rgba(255, 255, 255, 0.03); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: var(--text-main);">
+                                <input type="checkbox" id="check-inject-chaos" checked style="accent-color: var(--primary-color);">
+                                <span>🔥 <strong>Inject Chaos Faults</strong> (422 stock, 504 timeout, 500 DB, 503 DNS)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: #34d399;">
+                                <input type="checkbox" id="check-auto-heal" checked style="accent-color: #10b981;">
+                                <span>🛡️ <strong>Autonomous Self-Healing</strong> (Dynamic Recovery &amp; Smart Retries)</span>
+                            </label>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <button class="btn btn-primary" id="btn-run-load-test" style="flex: 1;">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                </svg>
+                                Run Stress Test
+                            </button>
+                            <button class="btn btn-secondary" id="btn-view-stability-report" title="View Full Stability Report" style="font-size: 0.75rem; padding: 0.4rem 0.6rem;">
+                                📄 Report
+                            </button>
+                        </div>
+
+                        <!-- Live Progress State (Hidden by default) -->
+                        <div id="load-progress-container" style="display: none; margin-bottom: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                                <span id="load-progress-status">Simulating concurrent traffic...</span>
+                                <span id="load-progress-pct">0%</span>
+                            </div>
+                            <div class="progress-bar-bg" style="height: 6px;">
+                                <div class="progress-bar-fill" id="load-progress-fill" style="width: 0%; background: linear-gradient(90deg, #6366f1, #10b981);"></div>
+                            </div>
+                        </div>
+
+                        <!-- Live Results Metrics Grid (Hidden until test finishes) -->
+                        <div id="load-results-grid" style="display: none; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 0.35rem;">
+                                <span style="font-size: 0.75rem; font-weight: 700; color: #f3f4f6;">Stress Test Results</span>
+                                <span id="res-badge-target" class="badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    TARGET MET &le; 1.0%
+                                </span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Error Rate</div>
+                                    <div id="res-error-rate" style="font-size: 1.1rem; font-weight: 800; color: #10b981;">0.0%</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Success Rate</div>
+                                    <div id="res-success-rate" style="font-size: 1.1rem; font-weight: 800; color: #60a5fa;">100%</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Throughput</div>
+                                    <div id="res-throughput" style="font-size: 1.1rem; font-weight: 800; color: #f59e0b;">42 req/s</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; margin-top: 0.5rem;">
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Median (p50)</div>
+                                    <div id="res-p50" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">210 ms</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">95th (p95)</div>
+                                    <div id="res-p95" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">340 ms</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Auto-Heals</div>
+                                    <div id="res-heals" style="font-size: 0.85rem; font-weight: 700; color: #a78bfa;">5 Recovered</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Metrics Dashboard -->
+                <div class="panel-card metrics-card">
+                    <div class="card-header">
+                        <h2>System Metrics Monitor <span class="info-tip" data-tooltip="Live telemetry across all active microservices.">?</span></h2>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <span class="metric-label">API Latency <span class="info-tip" data-tooltip="Average round-trip response time across all 5 microservices. Target: &lt; 250ms.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-latency">124</span>
+                                <span class="metric-unit">ms</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-latency" style="width: 25%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <span class="metric-label">Service Error Rate <span class="info-tip" data-tooltip="Percentage of failed transactions. AegisTrace auto-healing keeps this target &le; 1.0%.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-errors">0.0</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-errors" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <span class="metric-label">DB Connection Pool <span class="info-tip" data-tooltip="Active Postgres connection handles in Fulfillment service. Auto-recycled on capacity.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-db-pool">8 / 20</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-db" style="width: 40%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <span class="metric-label">CPU System Load <span class="info-tip" data-tooltip="Simulated CPU utilization across microservice container nodes.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-cpu">18</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-cpu" style="width: 18%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLA & Uptime Monitor Card -->
+                <div class="panel-card uptime-card">
+                    <div class="card-header">
+                        <h2>SLA Target Compliance Monitor</h2>
+                        <span class="badge" id="sla-global-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">SLA COMPLIANT (99.98%)</span>
+                    </div>
+                    <div class="uptime-row-container">
+                        <!-- Checkout -->
+                        <div class="uptime-service-row" data-service="checkout">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Checkout API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-checkout">99.99%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-checkout"></div>
+                        </div>
+                        <!-- Inventory -->
+                        <div class="uptime-service-row" data-service="inventory">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Inventory Service</span>
+                                <span class="uptime-service-pct" id="uptime-pct-inventory">99.98%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-inventory"></div>
+                        </div>
+                        <!-- Payment -->
+                        <div class="uptime-service-row" data-service="payment">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Payment Gateway</span>
+                                <span class="uptime-service-pct" id="uptime-pct-payment">99.96%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-payment"></div>
+                        </div>
+                        <!-- Fulfillment -->
+                        <div class="uptime-service-row" data-service="fulfillment">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Fulfillment API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-fulfillment">99.99%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-fulfillment"></div>
+                        </div>
+                        <!-- Logistics -->
+                        <div class="uptime-service-row" data-service="logistics">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Logistics Carrier API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-logistics">99.97%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-logistics"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middle Column: Pipeline Tracing & Code Inspector -->
+            <section class="middle-panel">
+                <!-- Visual Pipeline -->
+                <div class="panel-card visualizer-card">
+                    <div class="card-header">
+                        <h2>Live Order Pipeline Tracing <span class="info-tip" data-tooltip="Visual trace of orders flowing across 5 microservices in real time.">?</span></h2>
+                        <span class="badge" id="order-id-badge">Order: IDLE</span>
+                    </div>
+                    <div class="pipeline-wrapper">
+                        <!-- Node 1: Checkout -->
+                        <div class="pipeline-node" id="node-checkout" data-service="checkout" data-tooltip="Checkout API (:5001) - Validates cart, pricing, and initiates the distributed trace.">
+                            <div class="node-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1"/>
+                                    <circle cx="20" cy="21" r="1"/>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                </svg>
+                            </div>
+                            <div class="node-name">Checkout API</div>
+                            <div class="node-status-text">IDLE</div>
+                        </div>
+
+                        <!-- Connector 1 -->
+                        <div class="pipeline-connector" id="conn-checkout-inventory">
+                            <div class="connector-line"></div>
+                            <div class="connector-pulse"></div>
+                        </div>
+
+                        <!-- Node 2: Inventory -->
+                        <div class="pipeline-node" id="node-inventory" data-service="inventory" data-tooltip="Inventory Service (:5002) - Checks stock and locks items. Auto-restocks safety buffer on 422.">
+                            <div class="node-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                    <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+                                </svg>
+                            </div>
+                            <div class="node-name">Inventory DB</div>
+                            <div class="node-status-text">IDLE</div>
+                        </div>
+
+                        <!-- Connector 2 -->
+                        <div class="pipeline-connector" id="conn-inventory-payment">
+                            <div class="connector-line"></div>
+                            <div class="connector-pulse"></div>
+                        </div>
+
+                        <!-- Node 3: Payment -->
+                        <div class="pipeline-node" id="node-payment" data-service="payment" data-tooltip="Payment Gateway (:5003) - Charges cards via Stripe adapter. Fails over to Adyen on 504.">
+                            <div class="node-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                    <line x1="1" y1="10" x2="23" y2="10"/>
+                                </svg>
+                            </div>
+                            <div class="node-name">Payment Gateway</div>
+                            <div class="node-status-text">IDLE</div>
+                        </div>
+
+                        <!-- Connector 3 -->
+                        <div class="pipeline-connector" id="conn-payment-fulfillment">
+                            <div class="connector-line"></div>
+                            <div class="connector-pulse"></div>
+                        </div>
+
+                        <!-- Node 4: Fulfillment -->
+                        <div class="pipeline-node" id="node-fulfillment" data-service="fulfillment" data-tooltip="Fulfillment Service (:5004) - Packs orders and manages Postgres pool. Recycles on 500.">
+                            <div class="node-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+                                    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+                                </svg>
+                            </div>
+                            <div class="node-name">Fulfillment API</div>
+                            <div class="node-status-text">IDLE</div>
+                        </div>
+
+                        <!-- Connector 4 -->
+                        <div class="pipeline-connector" id="conn-fulfillment-logistics">
+                            <div class="connector-line"></div>
+                            <div class="connector-pulse"></div>
+                        </div>
+
+                        <!-- Node 5: Logistics -->
+                        <div class="pipeline-node" id="node-logistics" data-service="logistics" data-tooltip="Logistics API (:5005) - Dispatches shipping labels. Buffers to RabbitMQ queue on 503.">
+                            <div class="node-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="3" width="15" height="13"/>
+                                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                                </svg>
+                            </div>
+                            <div class="node-name">Logistics API</div>
+                            <div class="node-status-text">IDLE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Debugger Card -->
+                <div class="panel-card code-debugger-card" id="code-debugger">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--warning-color); margin-right: 0.25rem;">
+                                <polyline points="16 18 22 12 16 6"/>
+                                <polyline points="8 6 2 12 8 18"/>
+                            </svg>
+                            Interactive Code Hotfix Inspector
+                        </h2>
+                        <span class="badge" id="debugger-status-badge">COMPILED</span>
+                    </div>
+                    <div class="code-debugger-body">
+                        <div class="debugger-tabs" id="debugger-tabs">
+                            <button class="tab-btn active" data-file="checkout">checkout.go</button>
+                            <button class="tab-btn" data-file="inventory">inventory_db.go</button>
+                            <button class="tab-btn" data-file="payment">stripe_adapter.js</button>
+                            <button class="tab-btn" data-file="fulfillment">fulfillment.go</button>
+                            <button class="tab-btn" data-file="logistics">logistics_dns.js</button>
+                        </div>
+                        <div class="code-viewport-container">
+                            <div class="file-path-header">
+                                <span id="debugger-file-path">checkout-service/main.go</span>
+                            </div>
+                            <pre class="code-pre"><code class="code-display" id="code-display-area">// Live production code streams...</code></pre>
+                        </div>
+                        <div class="debugger-controls">
+                            <button class="btn btn-secondary" id="btn-toggle-diff" style="flex: 1;" disabled>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                                </svg>
+                                Toggle AI Patch View
+                            </button>
+                            <button class="btn btn-primary" id="btn-apply-hotfix" style="flex: 1.5;" disabled>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Deploy Hotfix (Compile & Apply)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Developer Sandbox Card -->
+                <div class="panel-card curl-sandbox-card">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--info-color); margin-right: 0.25rem;">
+                                <polyline points="4 17 10 11 4 5"/>
+                                <line x1="12" y1="19" x2="20" y2="19"/>
+                            </svg>
+                            REST API Developer Sandbox
+                        </h2>
+                        <span class="badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info-color); border: 1px solid rgba(6, 182, 212, 0.2);">Active Listener</span>
+                    </div>
+                    <div class="curl-sandbox-body">
+                        <span class="sub-header-desc" style="display: block; margin-bottom: 0.75rem;">Simulate external client requests by running these commands in your local command prompt:</span>
+                        <div class="curl-commands-list">
+                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Healthy Loop Transaction</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-healthy" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=VC Client&sku=SKU-8829"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-healthy').textContent); alert('Copied healthy loop transaction command!');">Copy</button>
+                                </div>
+                            </div>
+                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Inventory Depletion Anomaly</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-deplete" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=cURL Client&sku=SKU-4402"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-deplete').textContent); alert('Copied inventory depletion command!');">Copy</button>
+                                </div>
+                            </div>
+                            <div class="curl-command-item">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Outage Scenario (Timeout)</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-timeout" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/scenario -d "scenario=gateway-timeout"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-timeout').textContent); alert('Copied timeout scenario inject command!');">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: AI Assistant, Diagnostics & Console Logs -->
+            <section class="right-panel">
+                <!-- Business Impact Preserved -->
+                <div class="panel-card business-card">
+                    <div class="card-header">
+                        <h2>Business Preserved Metrics <span class="info-tip" data-tooltip="Value rescued by AegisTrace autonomous self-healing.">?</span></h2>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">LIVEPreserved</span>
+                    </div>
+                    <div class="business-grid">
+                        <div class="biz-box">
+                            <span class="biz-label">Preserved Revenue <span class="info-tip" data-tooltip="Total dollars protected from failed checkouts by automated self-healing.">?</span></span>
+                            <span class="biz-value text-green">$<span id="biz-revenue">0.00</span></span>
+                        </div>
+                        <div class="biz-box">
+                            <span class="biz-label">MTTR (Self-Heal Time) <span class="info-tip" data-tooltip="Mean Time To Recover: Average seconds AegisTrace takes to diagnose and repair an outage.">?</span></span>
+                            <span class="biz-value text-cyan" id="biz-mttr">0.00s</span>
+                        </div>
+                        <div class="biz-box">
+                            <span class="biz-label">Eng. Hours Saved <span class="info-tip" data-tooltip="Estimated developer on-call engineering hours saved by autonomous remediation.">?</span></span>
+                            <span class="biz-value text-purple" id="biz-hours">0.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aegis AI Copilot Card -->
+                <div class="panel-card ai-copilot-card" id="ai-copilot">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary-color); margin-right: 0.25rem;" class="logo-icon">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                <path d="M2 12h20"/>
+                            </svg>
+                            Aegis AI Copilot
+                        </h2>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="badge" id="ai-mode-badge" style="background: rgba(124, 58, 237, 0.15); color: var(--primary-color); border: 1px solid rgba(124, 58, 237, 0.3);">SIMULATED MODE</span>
+                            <button id="btn-toggle-ai-settings" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0.1rem;" title="Gemini Settings">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ai-copilot-body" style="display: flex; flex-direction: column; gap: 0.75rem; height: 350px;">
+                        <!-- API Key overlay -->
+                        <div class="ai-settings-panel hidden" id="ai-settings-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--surface-border); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem;">
+                            <h4 style="margin-bottom: 0.25rem; font-weight: 600;">Gemini 3.5 API Routing</h4>
+                            <p style="color: var(--text-muted); font-size: 0.65rem; margin-bottom: 0.5rem;">Connect a real LLM by entering your Gemini API key below. Inputs are saved in your local web storage.</p>
+                            <div class="settings-input-row" style="display: flex; gap: 0.5rem;">
+                                <input type="password" id="gemini-api-key" placeholder="Enter Gemini API Key..." style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.7rem; color: var(--text-main); outline: none;">
+                                <button class="btn btn-primary" id="btn-save-ai-key" style="padding: 0.3rem 0.75rem; font-size: 0.7rem;">Save Key</button>
+                            </div>
+                            <span class="key-status-label" id="key-status-label" style="font-size: 0.6rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Operating locally.</span>
+                        </div>
+
+                        <!-- Chat message feed -->
+                        <div class="chat-feed" id="chat-feed" style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; max-height: 230px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">
+                            <div class="chat-bubble ai">
+                                <div class="chat-meta" style="font-size: 0.6rem; color: var(--primary-color); font-weight: 600; margin-bottom: 0.15rem;">AEGIS COPIOT • SYSTEM ACTIVE</div>
+                                <div class="chat-text" style="font-size: 0.75rem; color: #e2e8f0; line-height: 1.4;">Welcome! I am the Aegis AI Assistant. I scan active traces, logs, and database metrics. How can I help you debug your ecommerce pipelines today?</div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt chips -->
+                        <div class="prompt-chips" id="prompt-chips" style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                            <button class="chip" data-prompt="What caused the active system failure?" style="font-family: var(--font-sans); background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #c084fc; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(124, 58, 237, 0.18)'" onmouseout="this.style.background='rgba(124, 58, 237, 0.08)'">Explain Failure</button>
+                            <button class="chip" data-prompt="Show me the proposed hotfix." style="font-family: var(--font-sans); background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #22d3ee; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(6, 182, 212, 0.18)'" onmouseout="this.style.background='rgba(6, 182, 212, 0.08)'">Recommend Fix</button>
+                            <button class="chip" data-prompt="Explain system SLA state." style="font-family: var(--font-sans); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #34d399; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.18)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">SLA Impact</button>
+                            <button class="chip" data-prompt="Give me a quick system health summary." style="font-family: var(--font-sans); background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #fbbf24; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.18)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.08)'">Health Summary</button>
+                        </div>
+
+                        <!-- Chat input form -->
+                        <form class="chat-input-form" id="chat-input-form" onsubmit="return false;" style="display: flex; gap: 0.35rem;">
+                            <input type="text" id="chat-input" placeholder="Ask Aegis AI Assistant..." autocomplete="off" style="flex-grow: 1; background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.75rem; color: var(--text-main); outline: none;">
+                            <button type="submit" class="btn btn-primary" id="btn-chat-send" style="padding: 0.4rem; border-radius: 6px; width: 34px; height: 34px;">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="transform: rotate(45deg);">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Automated RCA Diagnostic Panel -->
+                <div class="panel-card rca-card" id="rca-panel">
+                    <div class="card-header">
+                        <h2>Auto-Diagnostic Report</h2>
+                        <span class="badge badge-pulse" id="rca-header-badge">WAITING FOR FAILURE</span>
+                    </div>
+                    <div class="rca-body-empty" id="rca-empty-state">
+                        <div class="rca-empty-icon">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </div>
+                        <p>No active anomalies detected. System is operating within normal telemetry parameters.</p>
+                    </div>
+                    <div class="rca-body-content hidden" id="rca-report-state">
+                        <div class="rca-alert-banner">
+                            <div class="rca-alert-title">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" class="rca-critical-icon">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <span>CRITICAL FAILURE IDENTIFIED</span>
+                            </div>
+                        </div>
+
+                        <div class="rca-meta-grid">
+                            <div class="meta-item">
+                                <span class="meta-label">Failing Service</span>
+                                <span class="meta-value text-red" id="rca-service-name">INVENTORY-API</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Status Code</span>
+                                <span class="meta-value text-red" id="rca-status-code">HTTP 422</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Error Signature</span>
+                                <span class="meta-value font-code" id="rca-error-signature">ERR_OUT_OF_STOCK</span>
+                            </div>
+                        </div>
+
+                        <div class="rca-section">
+                            <h3>Absolute Root Cause Analysis</h3>
+                            <p class="rca-text" id="rca-root-cause">Database inventory lock failed for Item SKU-4402 because current stock count is equal to zero (0). Client attempted checkout of an out-of-stock item because frontend catalog inventory caching failed to synchronize with warehouse database.</p>
+                        </div>
+
+                        <div class="rca-section">
+                            <h3>Auto-Remediation Status</h3>
+                            <div class="remediation-timeline">
+                                <div class="timeline-step step-complete" id="step-detect">
+                                    <div class="step-bullet">✓</div>
+                                    <div class="step-details">
+                                        <div class="step-title">Anomaly Detected</div>
+                                        <div class="step-desc">Tracer engine flagged latency/error spike on API node.</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="step-action">
+                                    <div class="step-bullet">⚙</div>
+                                    <div class="step-details">
+                                        <div class="step-title" id="action-step-title">Triggering Auto-Heal</div>
+                                        <div class="step-desc" id="action-step-desc">Executing local repair scripts...</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="step-verify">
+                                    <div class="step-bullet">●</div>
+                                    <div class="step-details">
+                                        <div class="step-title">Verification Trace</div>
+                                        <div class="step-desc">Re-running pipeline test transaction.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rca-section" id="manual-steps-section">
+                            <h3>Manual Troubleshooting Checklist</h3>
+                            <ul class="rca-list" id="rca-manual-list">
+                                <li>Check redis-cache instance size.</li>
+                                <li>Confirm inventory table triggers.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time Console Terminal -->
+                <div class="panel-card terminal-card">
+                    <div class="card-header">
+                        <h2>Live Telemetry & Logs Console</h2>
+                        <button class="btn btn-small" id="btn-clear-console">Clear</button>
+                    </div>
+                    <div class="terminal-body" id="console-logs">
+                        <div class="console-line system">[SYSTEM] AegisTrace Debugger Engine Initialized.</div>
+                        <div class="console-line system">[SYSTEM] Monitoring active. Waiting for transaction streams...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Authentication / Login Modal Overlay (Hidden by default for Public Demo Access) -->
+    <div class="login-modal-overlay hidden" id="login-modal">
+        <div class="login-card" style="position: relative;">
+            <button type="button" id="btn-close-login" title="Continue in Public Demo Mode" style="position: absolute; top: 0.9rem; right: 0.9rem; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.2rem 0.5rem; border-radius: 4px;">&times;</button>
+            <div class="login-brand">
+                <div class="logo-icon login-logo">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h2>AegisTrace Security Portal</h2>
+                <p class="login-sub">Enterprise Multi-Tenant API Engine Debugger</p>
+            </div>
+
+            <!-- Auth Tabs: Sign In / Create Account -->
+            <div class="auth-tabs" id="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-login" data-tab="login">Sign In</button>
+                <button type="button" class="auth-tab-btn" id="tab-signup" data-tab="signup">Create Account (Sign Up)</button>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="login-error-banner hidden" id="login-error">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span id="login-error-text">Invalid email or password</span>
+            </div>
+
+            <!-- Success Banner -->
+            <div class="login-success-banner hidden" id="login-success">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span id="login-success-text">Account created successfully!</span>
+            </div>
+
+            <!-- SECTION 1: SIGN IN -->
+            <div id="section-login">
+                <form id="login-form" onsubmit="return false;">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" placeholder="admin@aegistrace.com or any valid email" required autocomplete="email">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.1rem;">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login-submit" id="btn-login-submit">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.35rem;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Sign In & Access Dashboard
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-public-guest" style="width: 100%; margin-top: 0.6rem; font-size: 0.76rem; border-color: rgba(6, 182, 212, 0.4); color: #38bdf8;">
+                        🌐 Continue as Public Guest (Demo Mode)
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 0.75rem;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Don't have an account? </span>
+                    <a href="#" id="link-go-to-signup" style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-decoration: none;">Create free account</a>
+                </div>
+
+                <!-- Google OAuth 2.0 Section -->
+                <div class="oauth-divider">
+                    <span>OR SIGN IN WITH</span>
+                </div>
+
+                <div class="google-auth-container">
+                    <!-- User's Real Google Account 1-Click Sign-In -->
+                    <button type="button" class="btn btn-google-sso" id="btn-google-hanu">
+                        <svg viewBox="0 0 24 24" width="18" height="18" style="margin-right: 8px;">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>Sign in with Google: <strong>hanuspace123@gmail.com</strong></span>
+                    </button>
+
+                    <!-- Custom Google Account Input -->
+                    <div class="google-custom-row" id="google-custom-row" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.4rem;">
+                        <input type="email" id="google-custom-email" placeholder="Enter your Gmail (e.g. user@gmail.com)" style="flex: 1; padding: 0.5rem 0.75rem; background: #080b12; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.75rem;">
+                        <button type="button" class="btn btn-secondary" id="btn-google-custom" style="padding: 0.5rem 0.85rem; font-size: 0.75rem; white-space: nowrap;">Sign In</button>
+                    </div>
+
+                    <!-- Google Client ID Dynamic Settings Container (optional for real Google Cloud ID) -->
+                    <div style="width: 100%; margin-top: 0.5rem; text-align: center;">
+                        <button type="button" id="btn-toggle-client-id" style="background: none; border: none; color: #94a3b8; font-size: 0.68rem; text-decoration: underline; cursor: pointer;">
+                            ⚙️ Connect Real Google Cloud Client ID (Optional)
+                        </button>
+                        <div id="client-id-drawer" class="hidden" style="margin-top: 0.5rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.75rem; text-align: left;">
+                            <label style="font-size: 0.65rem; color: #cbd5e1; display: block; margin-bottom: 0.35rem;">Paste Google OAuth Client ID (.apps.googleusercontent.com):</label>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <input type="text" id="input-google-client-id" placeholder="123456789-xyz.apps.googleusercontent.com" style="flex: 1; padding: 0.4rem; font-size: 0.7rem; background: #05070c; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #fff;">
+                                <button type="button" id="btn-save-client-id" class="btn btn-primary" style="padding: 0.4rem 0.65rem; font-size: 0.7rem;">Save</button>
+                            </div>
+                            <div id="real-gis-container" style="margin-top: 0.5rem;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Demo Tenant Logins -->
+                <div class="demo-logins-section">
+                    <span class="demo-logins-title">Quick Test Logins (1-Click Multi-Tenancy):</span>
+                    <div class="demo-buttons-grid">
+                        <button class="btn btn-demo-tenant" id="btn-demo-aegis" type="button">
+                            <span class="demo-badge">Tenant 1</span>
+                            <div class="demo-details">
+                                <strong>Aegis Enterprise</strong>
+                                <span>admin@aegistrace.com / password123</span>
+                            </div>
+                        </button>
+                        <button class="btn btn-demo-tenant" id="btn-demo-acme" type="button">
+                            <span class="demo-badge demo-badge-alt">Tenant 2</span>
+                            <div class="demo-details">
+                                <strong>Acme Corp eCommerce</strong>
+                                <span>dev@acmecorp.com / password123</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SIGN UP (CREATE NEW ACCOUNT) -->
+            <div id="section-signup" class="hidden">
+                <form id="signup-form" onsubmit="return false;">
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" placeholder="e.g. Hanu Space" required autocomplete="name">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="signup-email">Valid Email Address</label>
+                        <input type="email" id="signup-email" placeholder="e.g. hanuspace123@gmail.com" required autocomplete="email">
+                        <small style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">Must be a valid email format (e.g. user@domain.com)</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="signup-password">Choose Password</label>
+                        <input type="password" id="signup-password" placeholder="At least 4 characters" minlength="4" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.1rem;">
+                        <label for="signup-org">Organization / Workspace Name (Optional)</label>
+                        <input type="text" id="signup-org" placeholder="e.g. Hanu Tech or My eCommerce">
+                        <small style="font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">We will automatically create your dedicated multi-tenant workspace</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login-submit" id="btn-signup-submit" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #10b981;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.35rem;">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                        Create Account & Launch Console
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 0.85rem;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Already have an account? </span>
+                    <a href="#" id="link-go-to-login" style="font-size: 0.75rem; color: #a78bfa; font-weight: 600; text-decoration: none;">Sign in here</a>
+                </div>
+            </div>
+
+            <!-- 1-Minute Quick Tour Link -->
+            <div style="text-align: center; margin-top: 1.1rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.07);">
+                <span style="font-size: 0.72rem; color: #94a3b8;">New to AegisTrace? </span>
+                <button type="button" id="btn-login-tour" style="background: none; border: none; color: #38bdf8; font-size: 0.72rem; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 0;">
+                    Take a 1-Minute Quick Tour &rarr;
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stability Report Modal -->
+    <div class="login-modal-overlay" id="modal-stability" style="display: none; align-items: center; justify-content: center;">
+        <div class="login-card" style="max-width: 720px; width: 92%; max-height: 88vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #10b981;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0;">AegisTrace System Stability &amp; Resilience Report</h3>
+                        <p style="font-size: 0.72rem; color: #34d399; margin: 0; font-family: var(--font-mono);">SLA Target: Error Rate &le; 1.0% | Status: CERTIFIED COMPLIANT</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-stability" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <div id="stability-report-content" style="flex: 1; overflow-y: auto; background: rgba(0, 0, 0, 0.4); padding: 1rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06); font-family: var(--font-mono); font-size: 0.76rem; line-height: 1.5; color: #e5e7eb; white-space: pre-wrap; margin-bottom: 1rem;">
+                Loading stability report...
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Report saved as <code style="color: #60a5fa;">stability_report.md</code></span>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" id="btn-download-report" style="font-size: 0.78rem;">
+                        ⬇️ Download Markdown
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btn-done-stability" style="font-size: 0.78rem;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome / Onboarding & Quick Documentation Modal -->
+    <div class="login-modal-overlay" id="onboarding-modal" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card onboarding-card">
+            <!-- Modal Header -->
+            <div class="onboarding-header">
+                <div class="onboarding-brand-title">
+                    <div class="logo-icon" style="background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Welcome to AegisTrace</h2>
+                        <span class="onboarding-sub">60-Second Onboarding &amp; Feature Guide</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-onboarding" title="Close Guide">&times;</button>
+            </div>
+
+            <!-- Onboarding Nav Tabs -->
+            <div class="onboarding-nav-tabs">
+                <button type="button" class="onboarding-tab-btn active" data-tab="overview">
+                    🌟 Main Features
+                </button>
+                <button type="button" class="onboarding-tab-btn" data-tab="walkthrough">
+                    🚀 3-Step Quick Start
+                </button>
+                <button type="button" class="onboarding-tab-btn" data-tab="cheatsheet">
+                    📖 Metrics &amp; Faults Guide
+                </button>
+            </div>
+
+            <!-- Tab 1: Overview & Highlights -->
+            <div class="onboarding-tab-content active" id="tab-content-overview">
+                <div class="onboarding-intro-box">
+                    <p>
+                        <strong>AegisTrace</strong> is an autonomous visual API debugger and self-healing resilience engine for e-commerce microservices. It watches your live orders, flags distributed outages in real time, and deploys intelligent hotfixes to keep the Service Error Rate <strong>&le; 1.0%</strong>.
+                    </p>
+                </div>
+
+                <div class="onboarding-feature-grid">
+                    <!-- Feature 1 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #60a5fa; background: rgba(59, 130, 246, 0.15);">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <div class="feature-body">
+                            <h4>1. Live Order Pipeline Tracing</h4>
+                            <p>Follow transactions in real time as they traverse 5 microservices: <strong>Checkout (:5001) &rarr; Inventory (:5002) &rarr; Payment (:5003) &rarr; Fulfillment (:5004) &rarr; Logistics (:5005)</strong> with glowing pulse indicators.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                            </svg>
+                        </div>
+                        <div class="feature-body">
+                            <h4>2. Fault Injection Lab</h4>
+                            <p>Simulate real-world outages with 1 click: inventory stockouts (422), card declines (402), Stripe timeouts (504), Postgres DB pool exhaustion (500), and carrier DNS failures (503).</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #10b981; background: rgba(16, 185, 129, 0.15);">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <polyline points="9 12 11 14 15 10"/>
+                            </svg>
+                        </div>
+                        <div class="feature-body">
+                            <h4>3. Autonomous Auto-Remediation</h4>
+                            <p>Watch the engine diagnose failures, execute hotfixes in under 2 seconds (buffer restocks, Adyen failover, socket recycling, RabbitMQ queueing), and re-verify pipeline health.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #a78bfa; background: rgba(167, 139, 250, 0.15);">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                        </div>
+                        <div class="feature-body">
+                            <h4>4. Metrics &amp; Stress Testing</h4>
+                            <p>Monitor real-time Latency, Error Rate (&le; 1.0%), and Preserved Revenue ($). Run high-concurrency load tests (up to 100 orders) and generate certification reports.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: 3-Step Interactive Walkthrough -->
+            <div class="onboarding-tab-content" id="tab-content-walkthrough">
+                <div class="walkthrough-steps-container">
+                    <div class="walkthrough-step">
+                        <div class="step-number-badge">1</div>
+                        <div class="step-info">
+                            <h4>Run Your First Order</h4>
+                            <p>Orders stream continuously when <strong>Auto-Pilot</strong> is toggled ON. You can also craft custom purchases using the <strong>Custom Order Builder</strong>.</p>
+                            <button type="button" class="btn btn-primary btn-small" id="btn-tour-run-order" style="margin-top: 0.45rem;">
+                                ▶️ Run Live Demo Order
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="walkthrough-step">
+                        <div class="step-number-badge">2</div>
+                        <div class="step-info">
+                            <h4>Inject a Failure Scenario</h4>
+                            <p>In the <strong>Fault Injection Lab</strong>, click any red failure button (like <strong>Inventory Depletion</strong> or <strong>Payment Timeout</strong>) to simulate a broken dependency.</p>
+                            <button type="button" class="btn btn-secondary btn-small" id="btn-tour-inject-fault" style="margin-top: 0.45rem; color: #f87171; border-color: rgba(248, 113, 113, 0.4);">
+                                🔥 Test Fault: Stockout (422)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="walkthrough-step">
+                        <div class="step-number-badge">3</div>
+                        <div class="step-info">
+                            <h4>Watch Autonomous Self-Healing</h4>
+                            <p>Observe the pipeline node turn red, inspect the <strong>Auto-Diagnostic Report (RCA)</strong>, and watch the self-healing timeline: <em>Detect &rarr; Trigger Fix &rarr; Verify Trace</em>. The node recovers to green, and the error rate stays <strong>&le; 1.0%</strong>!</p>
+                        </div>
+                    </div>
+
+                    <div class="walkthrough-step">
+                        <div class="step-number-badge">4</div>
+                        <div class="step-info">
+                            <h4>Stress Test Under Concurrency</h4>
+                            <p>Go to the <strong>⚡ Load &amp; Chaos Engine</strong> card. Select 50 orders at 10 concurrency, check Chaos Faults and Auto-Healing, and click <strong>Run Stress Test</strong> to prove resilience.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Metrics & Faults Cheatsheet -->
+            <div class="onboarding-tab-content" id="tab-content-cheatsheet">
+                <div class="cheatsheet-section">
+                    <h4 style="color: #60a5fa; font-size: 0.82rem; margin-bottom: 0.5rem;">📊 Key Telemetry Metrics Explained</h4>
+                    <table class="onboarding-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Target / Healthy Range</th>
+                                <th>What It Means</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>API Latency</strong></td>
+                                <td><span style="color: #34d399;">&lt; 250 ms</span></td>
+                                <td>Average round-trip response time across all 5 microservices for order completion.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Error Rate</strong></td>
+                                <td><span style="color: #34d399;">&le; 1.0% (strictly)</span></td>
+                                <td>Percentage of failed orders. AegisTrace auto-remediation keeps this at 0.0% &ndash; 0.5%.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DB Connection Pool</strong></td>
+                                <td><span style="color: #34d399;">8 / 20 handles</span></td>
+                                <td>Active Postgres handles in Fulfillment service. Automatically recycles zombie connections.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Preserved Revenue</strong></td>
+                                <td><span style="color: #34d399;">$$ Accumulated</span></td>
+                                <td>Total dollar value of customer orders rescued by automated self-healing instead of failing.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MTTR (Self-Heal)</strong></td>
+                                <td><span style="color: #34d399;">&lt; 1.5 seconds</span></td>
+                                <td>Mean Time To Recover &mdash; how quickly AegisTrace diagnoses and repairs an active failure.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="color: #f59e0b; font-size: 0.82rem; margin-top: 1rem; margin-bottom: 0.5rem;">⚡ Failure Scenarios &amp; Auto-Remediations</h4>
+                    <table class="onboarding-table">
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Status Code</th>
+                                <th>Automatic Self-Healing Policy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Inventory Depletion</strong></td>
+                                <td><code>422 Unprocessable</code></td>
+                                <td>Restocks safety buffer (+100 items) via <code>sync_stock_cache.sh</code>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Card Declined</strong></td>
+                                <td><code>402 Payment Req.</code></td>
+                                <td>Dispatches real-time SMS checkout retry token to customer.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gateway Timeout</strong></td>
+                                <td><code>504 Timeout</code></td>
+                                <td>Fails over from Stripe to Adyen gateway adapter with 5000ms timeout.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DB Pool Exhausted</strong></td>
+                                <td><code>500 Internal Error</code></td>
+                                <td>Terminates zombie connections and expands connection pool limit to 50.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logistics Service Down</strong></td>
+                                <td><code>503 Unavailable</code></td>
+                                <td>Reroutes shipments to local persistent RabbitMQ deferred queue buffer.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="onboarding-footer">
+                <label class="onboarding-remember-checkbox">
+                    <input type="checkbox" id="check-dont-show-onboarding">
+                    <span>Don't show this welcome guide automatically on startup</span>
+                </label>
+                <div class="onboarding-footer-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-skip-onboarding">Got It / Skip</button>
+                    <button type="button" class="btn btn-primary" id="btn-start-demo-action">
+                        🚀 Try Live Demo Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1244,15 +1244,36 @@ app.post('/api/system/reset', requireAuth, async (req, res) => {
 });
 
 // --- SERVE STATIC FRONTEND ---
+app.use(express.static(path.join(__dirname, 'public'), {
+    index: 'index.html',
+    etag: false,
+    maxAge: 0
+}));
 app.use(express.static(path.join(__dirname), {
     index: 'index.html',
     etag: false,
     maxAge: 0
 }));
 
+app.get('/app.js', (req, res) => {
+    const p = fs.existsSync(path.join(__dirname, 'public', 'app.js')) ?
+        path.join(__dirname, 'public', 'app.js') : path.join(__dirname, 'app.js');
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(p);
+});
+
+app.get('/style.css', (req, res) => {
+    const p = fs.existsSync(path.join(__dirname, 'public', 'style.css')) ?
+        path.join(__dirname, 'public', 'style.css') : path.join(__dirname, 'style.css');
+    res.setHeader('Content-Type', 'text/css');
+    res.sendFile(p);
+});
+
 // Fallback to index.html
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    const p = fs.existsSync(path.join(__dirname, 'public', 'index.html')) ?
+        path.join(__dirname, 'public', 'index.html') : path.join(__dirname, 'index.html');
+    res.sendFile(p);
 });
 
 let servicesStarted = false;
