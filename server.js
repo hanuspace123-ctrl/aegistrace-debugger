@@ -228,10 +228,123 @@ const SERVICES = {
     logistics: { port: logisticsPort, name: 'Logistics API', url: `http://127.0.0.1:${logisticsPort}` }
 };
 
-// Generic proxy helper using Node built-in fetch with tenant header forwarding
+const EventEmitter = require('events');
+
+const SERVICE_APPS = {
+    checkout: checkoutService.app,
+    inventory: inventoryService.app,
+    payment: paymentService.app,
+    fulfillment: fulfillmentService.app,
+    logistics: logisticsService.app
+};
+
+// In-process mock dispatcher for serverless runtimes (e.g. Vercel) where child ports cannot listen
+function invokeApp(targetApp, { method = 'GET', url = '/', headers = {}, body = null }) {
+    return new Promise((resolve, reject) => {
+        const req = new EventEmitter();
+        req.method = method;
+        req.url = url;
+        req.originalUrl = url;
+        req.headers = { ...headers };
+        if (body) {
+            req.headers['content-type'] = req.headers['content-type'] || 'application/json';
+            try {
+                req.body = typeof body === 'string' ? JSON.parse(body) : body;
+            } catch {
+                req.body = body;
+            }
+        } else {
+            req.body = {};
+        }
+
+        let statusCode = 200;
+        let responseHeaders = {};
+        let responseBody = '';
+
+        const res = new EventEmitter();
+        res.statusCode = 200;
+        res.setHeader = (name, value) => { responseHeaders[name.toLowerCase()] = value; return res; };
+        res.getHeader = (name) => responseHeaders[name.toLowerCase()];
+        res.status = (code) => { statusCode = code; res.statusCode = code; return res; };
+        res.json = (data) => {
+            statusCode = res.statusCode || statusCode;
+            resolve({
+                ok: statusCode >= 200 && statusCode < 300,
+                status: statusCode,
+                json: async () => data,
+                text: async () => JSON.stringify(data)
+            });
+            return res;
+        };
+        res.send = (data) => {
+            statusCode = res.statusCode || statusCode;
+            resolve({
+                ok: statusCode >= 200 && statusCode < 300,
+                status: statusCode,
+                json: async () => typeof data === 'string' ? JSON.parse(data) : data,
+                text: async () => String(data)
+            });
+            return res;
+        };
+        res.end = (chunk) => {
+            statusCode = res.statusCode || statusCode;
+            resolve({
+                ok: statusCode >= 200 && statusCode < 300,
+                status: statusCode,
+                json: async () => responseBody ? JSON.parse(responseBody) : {},
+                text: async () => responseBody
+            });
+            return res;
+        };
+
+        targetApp(req, res, (err) => {
+            if (err) return reject(err);
+            resolve({
+                ok: false,
+                status: 404,
+                json: async () => ({ error: 'NOT_FOUND' }),
+                text: async () => 'Not Found'
+            });
+        });
+    });
+}
+
+async function callService(serviceKey, path, options = {}) {
+    if (!process.env.VERCEL) {
+        try {
+            const svc = SERVICES[serviceKey];
+            if (svc) {
+                return await fetch(`${svc.url}${path}`, options);
+            }
+        } catch {
+            // Fall through to in-process invocation if fetch fails
+        }
+    }
+    const targetApp = SERVICE_APPS[serviceKey];
+    if (!targetApp) throw new Error(`Unknown microservice [${serviceKey}]`);
+    return await invokeApp(targetApp, {
+        method: options.method || 'GET',
+        url: path,
+        headers: options.headers || {},
+        body: options.body
+    });
+}
+
+// Generic proxy helper using Node built-in fetch or in-process dispatcher
 async function proxyToService(targetUrl, req, res) {
     try {
-        const response = await fetch(targetUrl, {
+        let serviceKey = Object.keys(SERVICES).find(k => targetUrl.startsWith(SERVICES[k].url));
+        let subPath = serviceKey ? (targetUrl.substring(SERVICES[serviceKey].url.length) || '/') : targetUrl;
+        if (!serviceKey) {
+            const match = targetUrl.match(/:(500[1-5])/);
+            if (match) {
+                const portMap = { 5001: 'checkout', 5002: 'inventory', 5003: 'payment', 5004: 'fulfillment', 5005: 'logistics' };
+                serviceKey = portMap[match[1]];
+                subPath = targetUrl.replace(/^https?:\/\/[^\/]+/, '') || '/';
+            }
+        }
+
+        const response = await callService(serviceKey, subPath, {
             method: req.method,
             headers: {
                 'Content-Type': 'application/json',
@@ -619,11 +732,13 @@ app.post('/api/pipeline/execute', requireAuth, async (req, res) => {
         const stageStart = Date.now();
         let attempts = 0;
         const maxAttempts = autoHeal ? 2 : 1;
+        const subPath = url.replace(/^https?:\/\/[^\/]+/, '') || '/';
+        const remSubPath = remediateUrl ? (remediateUrl.replace(/^https?:\/\/[^\/]+/, '') || '/') : null;
 
         while (attempts < maxAttempts) {
             attempts++;
             try {
-                const response = await fetch(url, {
+                const response = await callService(name, subPath, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -640,9 +755,9 @@ app.post('/api/pipeline/execute', requireAuth, async (req, res) => {
                     return { ok: true, data };
                 }
 
-                if (autoHeal && remediateUrl && attempts < maxAttempts) {
+                if (autoHeal && remSubPath && attempts < maxAttempts) {
                     console.log(`[Self-Healing] Stage [${name}] failed with ${response.status}. Invoking remediation at ${remediateUrl}...`);
-                    await fetch(remediateUrl, { method: 'POST' }).catch(() => {});
+                    await callService(name, remSubPath, { method: 'POST' }).catch(() => {});
                     selfHealed = true;
                     if (!healedServices.includes(name)) healedServices.push(name);
 
@@ -1055,10 +1170,10 @@ app.post('/api/remediate', requireAuth, async (req, res) => {
 
     try {
         await Promise.all([
-            fetch(`${SERVICES.inventory.url}/inventory/remediate`, { method: 'POST' }),
-            fetch(`${SERVICES.payment.url}/payment/remediate`, { method: 'POST' }),
-            fetch(`${SERVICES.fulfillment.url}/fulfillment/remediate`, { method: 'POST' }),
-            fetch(`${SERVICES.logistics.url}/logistics/remediate`, { method: 'POST' })
+            callService('inventory', '/inventory/remediate', { method: 'POST' }),
+            callService('payment', '/payment/remediate', { method: 'POST' }),
+            callService('fulfillment', '/fulfillment/remediate', { method: 'POST' }),
+            callService('logistics', '/logistics/remediate', { method: 'POST' })
         ]);
     } catch (e) {
         console.error('[API] Remediation forwarding warning:', e.message);
@@ -1088,7 +1203,7 @@ app.get('/api/system/status', async (req, res) => {
     const results = {};
     for (const [key, svc] of Object.entries(SERVICES)) {
         try {
-            const r = await fetch(`${svc.url}/health`);
+            const r = await callService(key, '/health');
             results[key] = await r.json();
         } catch (e) {
             results[key] = { service: svc.name, status: 'UNREACHABLE', error: e.message };
@@ -1117,9 +1232,9 @@ app.post('/api/system/reset', requireAuth, async (req, res) => {
     req.tenant.pendingEvents = [];
     req.tenant.activeScenario = 'healthy';
 
-    for (const svc of Object.values(SERVICES)) {
+    for (const key of Object.keys(SERVICES)) {
         try {
-            await fetch(`${svc.url}/reset`, { method: 'POST' });
+            await callService(key, '/reset', { method: 'POST' });
         } catch (e) {
             // Ignore reset error on individual services
         }
