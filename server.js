@@ -1140,6 +1140,36 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+let servicesStarted = false;
+let startServicesPromise = null;
+
+async function ensureServicesStarted() {
+    if (servicesStarted) return;
+    if (startServicesPromise) return startServicesPromise;
+    startServicesPromise = (async () => {
+        try {
+            await checkoutService.start(SERVICES.checkout.port);
+            await inventoryService.start(SERVICES.inventory.port);
+            await paymentService.start(SERVICES.payment.port);
+            await fulfillmentService.start(SERVICES.fulfillment.port);
+            await logisticsService.start(SERVICES.logistics.port);
+            servicesStarted = true;
+        } catch (e) {
+            console.warn('[Microservices] Startup notice:', e.message);
+            servicesStarted = true;
+        }
+    })();
+    return startServicesPromise;
+}
+
+// In serverless environments (e.g. Vercel), ensure microservices are ready on first request
+app.use(async (req, res, next) => {
+    if (!servicesStarted) {
+        await ensureServicesStarted();
+    }
+    next();
+});
+
 // --- STARTUP LOGIC ---
 async function startAll() {
     console.log('===================================================');
@@ -1147,11 +1177,8 @@ async function startAll() {
     console.log('  Secure Multi-Tenant Gateway & Microservices     ');
     console.log('===================================================');
 
-    await checkoutService.start(SERVICES.checkout.port);
-    await inventoryService.start(SERVICES.inventory.port);
-    await paymentService.start(SERVICES.payment.port);
-    await fulfillmentService.start(SERVICES.fulfillment.port);
-    await logisticsService.start(SERVICES.logistics.port);
+    await ensureServicesStarted();
+    servicesStarted = true;
 
     const publicUrl = process.env.PUBLIC_URL ||
                       process.env.RENDER_EXTERNAL_URL ||

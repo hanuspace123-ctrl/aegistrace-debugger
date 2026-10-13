@@ -259,6 +259,19 @@
         "avgMttr": 0
       },
       "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-17918-k0oy": {
+      "id": "tenant-hanuspace123-17918-k0oy",
+      "name": "Hanu Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
     }
   },
   "users": [
@@ -427,6 +440,14 @@
       "name": "Hanu Space",
       "role": "Workspace Admin",
       "tenantId": "tenant-hanuspace123-17916-qjdv"
+    },
+    {
+      "id": "usr_1791869752055_ph3k",
+      "email": "hanuspace123_1791869752052@gmail.com",
+      "password": "secretPassword2026",
+      "name": "Hanu Space",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-17918-k0oy"
     }
   ]
 }
