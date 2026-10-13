@@ -1204,4 +1204,11 @@ if (require.main === module) {
     });
 }
 
-module.exports = { app, startAll, USERS, TENANTS, SERVICES, createToken, verifyToken };
+module.exports = app;
+app.app = app;
+app.startAll = startAll;
+app.USERS = USERS;
+app.TENANTS = TENANTS;
+app.SERVICES = SERVICES;
+app.createToken = createToken;
+app.verifyToken = verifyToken;
