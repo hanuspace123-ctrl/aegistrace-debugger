@@ -2156,23 +2156,35 @@ input:checked + .slider:before {
    ========================================================================== */
 .mobile-nav-tabs {
     display: none;
-    gap: 0.4rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0.35rem 0.25rem;
-    background: rgba(17, 24, 39, 0.6);
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    background: rgba(17, 24, 39, 0.75);
     backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--surface-border);
     border-radius: 8px;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-tabs-scroll {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
     scrollbar-width: none;
 }
 
-.mobile-nav-tabs::-webkit-scrollbar {
+.mobile-tabs-scroll::-webkit-scrollbar {
     display: none;
 }
 
 .mobile-tab-btn {
-    flex: 1;
+    flex-shrink: 0;
     min-width: 82px;
     min-height: 40px;
     padding: 0.45rem 0.65rem;
@@ -2188,6 +2200,7 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
 .mobile-tab-btn.active {
@@ -2195,6 +2208,66 @@ input:checked + .slider:before {
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(6, 182, 212, 0.2) 100%);
     border-color: rgba(124, 58, 237, 0.6);
     box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+}
+
+.btn-toggle-mobile-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.65rem;
+    min-height: 40px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    touch-action: manipulation;
+}
+
+.btn-toggle-mobile-mode:hover {
+    background: rgba(51, 65, 85, 0.95);
+    border-color: rgba(124, 58, 237, 0.5);
+    color: #fff;
+}
+
+.pipeline-scroll-hint {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.75rem;
+    margin: 0.5rem 0 0.25rem 0;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.btn-toggle-pipeline-layout {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.btn-toggle-pipeline-layout:hover {
+    color: #fff;
+    border-color: rgba(124, 58, 237, 0.5);
+    background: rgba(124, 58, 237, 0.2);
 }
 
 /* ==========================================================================
@@ -2482,6 +2555,79 @@ input:checked + .slider:before {
     .roi-modal-grid {
         grid-template-columns: 1fr !important;
     }
+
+    /* Mobile Tabbed View Engine */
+    .dashboard-grid.mobile-tabbed .left-panel,
+    .dashboard-grid.mobile-tabbed .middle-panel,
+    .dashboard-grid.mobile-tabbed .right-panel {
+        display: none !important;
+    }
+
+    /* Tab: Pipeline */
+    .dashboard-grid.mobile-tabbed.view-pipeline .middle-panel {
+        display: flex !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-pipeline .middle-panel .code-debugger-card,
+    .dashboard-grid.mobile-tabbed.view-pipeline .middle-panel .curl-sandbox-card {
+        display: none !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-pipeline .middle-panel .visualizer-card {
+        display: flex !important;
+    }
+
+    /* Tab: Faults */
+    .dashboard-grid.mobile-tabbed.view-faults .left-panel {
+        display: flex !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-faults .left-panel .metrics-card,
+    .dashboard-grid.mobile-tabbed.view-faults .left-panel .uptime-card {
+        display: none !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-faults .left-panel .controls-card,
+    .dashboard-grid.mobile-tabbed.view-faults .left-panel .load-engine-card {
+        display: flex !important;
+    }
+
+    /* Tab: Metrics & ROI */
+    .dashboard-grid.mobile-tabbed.view-metrics .right-panel,
+    .dashboard-grid.mobile-tabbed.view-metrics .left-panel {
+        display: flex !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-metrics .right-panel > *:not(.business-card),
+    .dashboard-grid.mobile-tabbed.view-metrics .left-panel .controls-card,
+    .dashboard-grid.mobile-tabbed.view-metrics .left-panel .load-engine-card {
+        display: none !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-metrics .business-card,
+    .dashboard-grid.mobile-tabbed.view-metrics .metrics-card,
+    .dashboard-grid.mobile-tabbed.view-metrics .uptime-card {
+        display: flex !important;
+    }
+
+    /* Tab: AI Copilot & RCA */
+    .dashboard-grid.mobile-tabbed.view-copilot .right-panel {
+        display: flex !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-copilot .right-panel .business-card {
+        display: none !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-copilot .right-panel .ai-copilot-card,
+    .dashboard-grid.mobile-tabbed.view-copilot .right-panel .rca-card,
+    .dashboard-grid.mobile-tabbed.view-copilot .right-panel .terminal-card {
+        display: flex !important;
+    }
+
+    /* Tab: Code Hotfix Inspector */
+    .dashboard-grid.mobile-tabbed.view-code .middle-panel {
+        display: flex !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-code .middle-panel .visualizer-card {
+        display: none !important;
+    }
+    .dashboard-grid.mobile-tabbed.view-code .middle-panel .code-debugger-card,
+    .dashboard-grid.mobile-tabbed.view-code .middle-panel .curl-sandbox-card {
+        display: flex !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -2508,8 +2654,8 @@ input:checked + .slider:before {
         justify-content: center;
     }
 
-    /* Keep pipeline horizontal with smooth touch-swipe scroll */
-    .pipeline-wrapper {
+    /* Keep pipeline horizontal with smooth touch-swipe scroll by default */
+    .pipeline-wrapper:not(.vertical-stack) {
         flex-direction: row !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -2517,6 +2663,30 @@ input:checked + .slider:before {
         justify-content: flex-start;
         gap: 0.75rem;
         scrollbar-width: thin;
+    }
+
+    /* When user or screen toggles Vertical Stack mode */
+    .pipeline-wrapper.vertical-stack {
+        flex-direction: column !important;
+        align-items: center !important;
+        overflow-x: visible !important;
+        padding: 1.5rem 0.5rem !important;
+        gap: 1.25rem !important;
+    }
+
+    .pipeline-wrapper.vertical-stack .pipeline-node {
+        width: 100% !important;
+        max-width: 320px !important;
+        min-width: 0 !important;
+    }
+
+    .pipeline-wrapper.vertical-stack .pipeline-connector {
+        transform: rotate(90deg) !important;
+        margin: 0.5rem 0 !important;
+        min-width: 0 !important;
+        width: 36px !important;
+        height: 2px !important;
+        flex-grow: 0 !important;
     }
 
     .pipeline-connector {
@@ -2559,7 +2729,7 @@ input:checked + .slider:before {
     }
 
     .brand-text h1 {
-        font-size: 1.25rem;
+        font-size: clamp(1.1rem, 4vw, 1.35rem);
     }
 
     .positioning-tagline {
@@ -2584,12 +2754,22 @@ input:checked + .slider:before {
         grid-template-columns: 1fr;
     }
 
+    .scenario-buttons {
+        grid-template-columns: 1fr;
+    }
+
     .login-card {
         padding: 1rem !important;
+        width: 95% !important;
+        margin: 0.5rem auto !important;
     }
 
     .btn {
         min-height: 44px; /* Touch target accessibility */
+    }
+
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents auto-zoom on iOS */
     }
 }
 

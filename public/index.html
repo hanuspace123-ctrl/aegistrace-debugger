@@ -115,17 +115,24 @@
             </div>
         </section>
 
-        <!-- Mobile View Navigation Tabs (Visible on screens < 950px) -->
+        <!-- Mobile View Navigation Tabs (Visible on screens <= 950px) -->
         <nav class="mobile-nav-tabs" id="mobile-nav-tabs" aria-label="Mobile Navigation">
-            <button type="button" class="mobile-tab-btn active" data-target="panel-pipeline">⚡ Pipeline</button>
-            <button type="button" class="mobile-tab-btn" data-target="panel-controls">🔥 Fault Lab</button>
-            <button type="button" class="mobile-tab-btn" data-target="panel-metrics">💰 ROI &amp; Metrics</button>
-            <button type="button" class="mobile-tab-btn" data-target="panel-copilot">🤖 Copilot &amp; RCA</button>
-            <button type="button" class="mobile-tab-btn" data-target="panel-telemetry">📡 Telemetry</button>
+            <div class="mobile-tabs-scroll">
+                <button type="button" class="mobile-tab-btn active" data-view="pipeline" data-target="pipeline">⚡ Pipeline</button>
+                <button type="button" class="mobile-tab-btn" data-view="faults" data-target="faults">🔥 Fault Lab</button>
+                <button type="button" class="mobile-tab-btn" data-view="metrics" data-target="metrics">💰 ROI &amp; Metrics</button>
+                <button type="button" class="mobile-tab-btn" data-view="copilot" data-target="copilot">🤖 Copilot &amp; RCA</button>
+                <button type="button" class="mobile-tab-btn" data-view="code" data-target="code">💻 Code Hotfix</button>
+                <button type="button" class="mobile-tab-btn" data-view="telemetry" data-target="telemetry">📡 Telemetry</button>
+            </div>
+            <button type="button" class="btn-toggle-mobile-mode" id="btn-toggle-mobile-mode" title="Toggle between Tabbed View and Full Page View">
+                <span id="mobile-mode-icon">📑</span>
+                <span id="mobile-mode-text">Tabbed</span>
+            </button>
         </nav>
 
         <!-- Main Dashboard Workspace -->
-        <main class="dashboard-grid">
+        <main class="dashboard-grid mobile-tabbed view-pipeline" id="dashboard-grid">
             <!-- Left Column: Telemetry & Controls -->
             <section class="left-panel">
                 <!-- Simulation & Fault Injection controls -->
@@ -426,7 +433,14 @@
                                 </button>
                             </span>
                             <span class="badge" id="order-id-badge">Order: IDLE</span>
+                            <button type="button" class="btn btn-secondary btn-small btn-toggle-pipeline-layout" id="btn-toggle-pipeline-layout" title="Toggle Pipeline Layout (Horizontal Flow / Vertical Stack)">
+                                <span id="pipeline-layout-icon">↕</span> <span id="pipeline-layout-text">Stack</span>
+                            </button>
                         </div>
+                    </div>
+                    <div class="pipeline-scroll-hint" id="pipeline-scroll-hint">
+                        <span>👈 Swipe horizontally to trace all microservices</span>
+                        <span style="color: #60a5fa; font-weight: 600;">5 Order Stages</span>
                     </div>
                     <div class="pipeline-wrapper">
                         <!-- Node 1: Checkout -->

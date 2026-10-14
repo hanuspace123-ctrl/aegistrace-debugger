@@ -789,6 +789,15 @@ const dom = {
 
     // --- MOBILE NAVIGATION ELEMENTS ---
     mobileNavTabs: document.getElementById('mobile-nav-tabs'),
+    btnToggleMobileMode: document.getElementById('btn-toggle-mobile-mode'),
+    mobileModeIcon: document.getElementById('mobile-mode-icon'),
+    mobileModeText: document.getElementById('mobile-mode-text'),
+    dashboardGrid: document.getElementById('dashboard-grid'),
+    btnTogglePipelineLayout: document.getElementById('btn-toggle-pipeline-layout'),
+    pipelineLayoutIcon: document.getElementById('pipeline-layout-icon'),
+    pipelineLayoutText: document.getElementById('pipeline-layout-text'),
+    pipelineScrollHint: document.getElementById('pipeline-scroll-hint'),
+    pipelineWrapper: document.querySelector('.pipeline-wrapper'),
 
     // --- REMEDIATION AUDIT LOG ELEMENTS ---
     remediationAuditLog: document.getElementById('remediation-audit-log'),
@@ -3005,12 +3014,42 @@ function downloadPostMortem() {
 // --- MOBILE NAVIGATION SEGMENTED TABS ENGINE ---
 function initMobileNav() {
     if (!dom.mobileNavTabs) return;
+
+    // Load persisted mobile mode
+    const savedMobileMode = localStorage.getItem('aegis_mobile_view_mode') || 'tabbed';
+    if (dom.dashboardGrid) {
+        if (savedMobileMode === 'tabbed') {
+            dom.dashboardGrid.classList.add('mobile-tabbed');
+            if (dom.mobileModeIcon) dom.mobileModeIcon.textContent = '📑';
+            if (dom.mobileModeText) dom.mobileModeText.textContent = 'Tabbed';
+        } else {
+            dom.dashboardGrid.classList.remove('mobile-tabbed');
+            if (dom.mobileModeIcon) dom.mobileModeIcon.textContent = '📜';
+            if (dom.mobileModeText) dom.mobileModeText.textContent = 'Show All';
+        }
+    }
+
+    // Load persisted pipeline layout
+    const savedPipelineLayout = localStorage.getItem('aegis_pipeline_layout') || 'flow';
+    const pipeline = dom.pipelineWrapper || document.querySelector('.pipeline-wrapper');
+    if (pipeline && pipeline.classList) {
+        if (savedPipelineLayout === 'stack') {
+            pipeline.classList.add('vertical-stack');
+            if (dom.pipelineLayoutIcon) dom.pipelineLayoutIcon.textContent = '↔';
+            if (dom.pipelineLayoutText) dom.pipelineLayoutText.textContent = 'Flow';
+            if (dom.pipelineScrollHint) {
+                dom.pipelineScrollHint.innerHTML = '<span>↕ Vertical microservices stack active (tap ↔ Flow for horizontal scroll)</span><span style="color: #60a5fa; font-weight: 600;">Stacked</span>';
+            }
+        }
+    }
+
+    // Tab buttons click handler
     dom.mobileNavTabs.addEventListener('click', (e) => {
         const btn = e.target.closest('.mobile-tab-btn');
         if (!btn) return;
 
         const view = btn.dataset.view;
-        Array.from(dom.mobileNavTabs.children).forEach(b => b.classList.remove('active'));
+        dom.mobileNavTabs.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         if (view === 'telemetry') {
@@ -3018,26 +3057,84 @@ function initMobileNav() {
             return;
         }
 
-        let targetEl = null;
-        if (view === 'pipeline') {
-            targetEl = document.querySelector('.middle-panel');
-        } else if (view === 'faults') {
-            targetEl = document.querySelector('.left-panel');
-        } else if (view === 'metrics') {
-            targetEl = document.querySelector('.business-card') || document.querySelector('.metrics-card');
-        } else if (view === 'copilot') {
-            targetEl = document.querySelector('.right-panel');
-        }
+        if (dom.dashboardGrid && dom.dashboardGrid.classList.contains('mobile-tabbed')) {
+            // Tabbed view mode: switch active view class
+            dom.dashboardGrid.classList.remove('view-pipeline', 'view-faults', 'view-metrics', 'view-copilot', 'view-code');
+            dom.dashboardGrid.classList.add(`view-${view}`);
+            window.scrollTo({ top: 120, behavior: 'smooth' });
+        } else {
+            // Full page scroll mode: smoothly scroll to element
+            let targetEl = null;
+            if (view === 'pipeline') {
+                targetEl = document.querySelector('.middle-panel');
+            } else if (view === 'faults') {
+                targetEl = document.querySelector('.controls-card') || document.querySelector('.left-panel');
+            } else if (view === 'metrics') {
+                targetEl = document.querySelector('.business-card') || document.querySelector('.metrics-card');
+            } else if (view === 'copilot') {
+                targetEl = document.querySelector('.ai-copilot-card') || document.querySelector('.right-panel');
+            } else if (view === 'code') {
+                targetEl = document.querySelector('#code-debugger') || document.querySelector('.code-debugger-card');
+            }
 
-        if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            targetEl.style.transition = 'box-shadow 0.3s ease';
-            targetEl.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.4)';
-            setTimeout(() => {
-                targetEl.style.boxShadow = '';
-            }, 1200);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                targetEl.style.transition = 'box-shadow 0.3s ease';
+                targetEl.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.4)';
+                setTimeout(() => {
+                    targetEl.style.boxShadow = '';
+                }, 1200);
+            }
         }
     });
+
+    // Toggle Mobile Mode (Tabbed vs Show All)
+    if (dom.btnToggleMobileMode && dom.dashboardGrid) {
+        dom.btnToggleMobileMode.addEventListener('click', () => {
+            const isTabbed = dom.dashboardGrid.classList.toggle('mobile-tabbed');
+            if (isTabbed) {
+                if (dom.mobileModeIcon) dom.mobileModeIcon.textContent = '📑';
+                if (dom.mobileModeText) dom.mobileModeText.textContent = 'Tabbed';
+                dom.btnToggleMobileMode.title = 'Switch to Full Page scroll view';
+                localStorage.setItem('aegis_mobile_view_mode', 'tabbed');
+                logConsole('Switched to Mobile Tabbed view mode.', 'info');
+            } else {
+                if (dom.mobileModeIcon) dom.mobileModeIcon.textContent = '📜';
+                if (dom.mobileModeText) dom.mobileModeText.textContent = 'Show All';
+                dom.btnToggleMobileMode.title = 'Switch to Tabbed view';
+                localStorage.setItem('aegis_mobile_view_mode', 'full');
+                logConsole('Switched to Full Page view mode.', 'info');
+            }
+        });
+    }
+
+    // Toggle Pipeline Layout (Horizontal Flow vs Vertical Stack)
+    if (dom.btnTogglePipelineLayout) {
+        dom.btnTogglePipelineLayout.addEventListener('click', () => {
+            const pipe = dom.pipelineWrapper || document.querySelector('.pipeline-wrapper');
+            if (!pipe) return;
+            const isStack = pipe.classList.toggle('vertical-stack');
+            if (isStack) {
+                if (dom.pipelineLayoutIcon) dom.pipelineLayoutIcon.textContent = '↔';
+                if (dom.pipelineLayoutText) dom.pipelineLayoutText.textContent = 'Flow';
+                dom.btnTogglePipelineLayout.title = 'Switch to Horizontal Flow';
+                if (dom.pipelineScrollHint) {
+                    dom.pipelineScrollHint.innerHTML = '<span>↕ Vertical microservices stack active (tap ↔ Flow for horizontal scroll)</span><span style="color: #60a5fa; font-weight: 600;">Stacked</span>';
+                }
+                localStorage.setItem('aegis_pipeline_layout', 'stack');
+                logConsole('Switched pipeline layout to Vertical Stack.', 'info');
+            } else {
+                if (dom.pipelineLayoutIcon) dom.pipelineLayoutIcon.textContent = '↕';
+                if (dom.pipelineLayoutText) dom.pipelineLayoutText.textContent = 'Stack';
+                dom.btnTogglePipelineLayout.title = 'Switch to Vertical Stack';
+                if (dom.pipelineScrollHint) {
+                    dom.pipelineScrollHint.innerHTML = '<span>👈 Swipe horizontally to trace all microservices</span><span style="color: #60a5fa; font-weight: 600;">5 Order Stages</span>';
+                }
+                localStorage.setItem('aegis_pipeline_layout', 'flow');
+                logConsole('Switched pipeline layout to Horizontal Flow.', 'info');
+            }
+        });
+    }
 }
 
 // --- UPTIME & SLA COMPLIANCE LOGIC ---
