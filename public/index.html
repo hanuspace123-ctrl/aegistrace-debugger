@@ -776,6 +776,31 @@
                                 <span class="badge" id="remediation-status-pill" style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">ACTIVE RESILIENCE</span>
                             </div>
 
+                            <!-- High-level 3-Phase Status Timeline -->
+                            <div class="remediation-timeline" style="margin-bottom: 0.75rem;">
+                                <div class="timeline-step step-complete" id="step-detect">
+                                    <div class="step-bullet">✓</div>
+                                    <div class="step-details">
+                                        <div class="step-title">Anomaly Detected</div>
+                                        <div class="step-desc">Tracer engine flagged latency/error spike on API node.</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="step-action">
+                                    <div class="step-bullet">⚙</div>
+                                    <div class="step-details">
+                                        <div class="step-title" id="action-step-title">Executing Remediation</div>
+                                        <div class="step-desc" id="action-step-desc">Deploying self-healing policy...</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-step" id="step-verify">
+                                    <div class="step-bullet">●</div>
+                                    <div class="step-details">
+                                        <div class="step-title">Verification Trace</div>
+                                        <div class="step-desc">Auto-dispatching synthetic order to confirm fix.</div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Concrete Named Strategy Header -->
                             <div class="remediation-strategy-banner" id="remediation-strategy-banner">
                                 <span class="strategy-pill">POLICY</span>

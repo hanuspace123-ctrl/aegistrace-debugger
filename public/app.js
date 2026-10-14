@@ -2296,12 +2296,12 @@ function handlePipelineFailure(scenarioType) {
         dom.manualStepsSection.classList.add('hidden');
         triggerAutoRemediation(scenarioType);
     } else {
-        dom.manualStepsSection.classList.remove('hidden');
-        dom.stepDetect.className = 'timeline-step step-complete';
-        dom.stepAction.className = 'timeline-step';
-        dom.actionStepTitle.textContent = 'Auto-Heal Offline';
-        dom.actionStepDesc.textContent = 'Enable Auto-Remediation in header to run healing scripts.';
-        dom.stepVerify.className = 'timeline-step';
+        if (dom.manualStepsSection) dom.manualStepsSection.classList.remove('hidden');
+        if (dom.stepDetect) dom.stepDetect.className = 'timeline-step step-complete';
+        if (dom.stepAction) dom.stepAction.className = 'timeline-step';
+        if (dom.actionStepTitle) dom.actionStepTitle.textContent = 'Auto-Heal Offline';
+        if (dom.actionStepDesc) dom.actionStepDesc.textContent = 'Enable Auto-Remediation in header to run healing scripts.';
+        if (dom.stepVerify) dom.stepVerify.className = 'timeline-step';
     }
 
     // Advise the chatbot to explain
@@ -2331,13 +2331,19 @@ function triggerAutoRemediation(scenarioType) {
         renderUptimeBars();
     }
     
-    dom.stepDetect.className = 'timeline-step step-complete';
-    dom.stepDetect.querySelector('.step-bullet').textContent = '✓';
+    if (dom.stepDetect) {
+        dom.stepDetect.className = 'timeline-step step-complete';
+        const b = dom.stepDetect.querySelector('.step-bullet');
+        if (b) b.textContent = '✓';
+    }
     
-    dom.stepAction.className = 'timeline-step step-active';
-    dom.stepAction.querySelector('.step-bullet').textContent = '⚙';
-    dom.actionStepTitle.textContent = policy.name;
-    dom.actionStepDesc.textContent = 'Executing multi-step automated healing policy...';
+    if (dom.stepAction) {
+        dom.stepAction.className = 'timeline-step step-active';
+        const b = dom.stepAction.querySelector('.step-bullet');
+        if (b) b.textContent = '⚙';
+    }
+    if (dom.actionStepTitle) dom.actionStepTitle.textContent = policy.name;
+    if (dom.actionStepDesc) dom.actionStepDesc.textContent = 'Executing multi-step automated healing policy...';
     
     // Display strategy banner & audit log
     if (dom.remediationStrategyBanner) {
@@ -2398,10 +2404,13 @@ function triggerAutoRemediation(scenarioType) {
 
             if (isLast) {
                 setTimeout(() => {
-                    dom.stepAction.className = 'timeline-step step-complete';
-                    dom.stepAction.querySelector('.step-bullet').textContent = '✓';
-                    dom.actionStepTitle.textContent = 'Remediation Applied';
-                    dom.actionStepDesc.textContent = `${policy.name} verified nominal.`;
+                    if (dom.stepAction) {
+                        dom.stepAction.className = 'timeline-step step-complete';
+                        const b = dom.stepAction.querySelector('.step-bullet');
+                        if (b) b.textContent = '✓';
+                    }
+                    if (dom.actionStepTitle) dom.actionStepTitle.textContent = 'Remediation Applied';
+                    if (dom.actionStepDesc) dom.actionStepDesc.textContent = `${policy.name} verified nominal.`;
 
                     if (dom.remediationStatusPill) {
                         dom.remediationStatusPill.textContent = 'RESOLVED & VERIFIED';
@@ -2413,8 +2422,11 @@ function triggerAutoRemediation(scenarioType) {
                     logConsole(`[REMEDY-ENGINE] Policy SUCCESS: ${policy.remedyTitle}`, 'remedy');
                     applyRemediationFix(scenarioType);
 
-                    dom.stepVerify.className = 'timeline-step step-active';
-                    dom.stepVerify.querySelector('.step-bullet').textContent = '⚙';
+                    if (dom.stepVerify) {
+                        dom.stepVerify.className = 'timeline-step step-active';
+                        const b = dom.stepVerify.querySelector('.step-bullet');
+                        if (b) b.textContent = '⚙';
+                    }
 
                     logConsole(`[REMEDY-ENGINE] Triggering automated verification trace on pipeline...`, 'remedy');
 
@@ -2565,8 +2577,11 @@ async function runVerificationOrder(orderContext) {
                 state.pipelineActive = false;
                 state.remediationInProgress = false;
                 
-                dom.stepVerify.className = 'timeline-step step-complete';
-                dom.stepVerify.querySelector('.step-bullet').textContent = '✓';
+                if (dom.stepVerify) {
+                    dom.stepVerify.className = 'timeline-step step-complete';
+                    const b = dom.stepVerify.querySelector('.step-bullet');
+                    if (b) b.textContent = '✓';
+                }
                 
                 logConsole(`[REMEDY-ENGINE] Verification SUCCESS. All services responsive. System restored to normal state.`, 'success');
                 
@@ -3023,31 +3038,6 @@ function initMobileNav() {
             }, 1200);
         }
     });
-}
-                
-                // Clear code debugger fault status on verification success
-                state.hotfixAvailable = false;
-                state.showCodeDiff = false;
-                dom.btnToggleDiff.disabled = true;
-                dom.btnApplyHotfix.disabled = true;
-                dom.debuggerStatusBadge.textContent = 'COMPILED';
-                dom.debuggerStatusBadge.className = 'badge';
-                syncCodeView();
-
-                setTimeout(() => {
-                    if (!state.pipelineActive && !state.remediationInProgress) {
-                        dom.rcaReportState.classList.add('hidden');
-                        dom.rcaEmptyState.classList.remove('hidden');
-                        dom.rcaHeaderBadge.textContent = 'WAITING FOR FAILURE';
-                        dom.rcaHeaderBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                        dom.rcaHeaderBadge.style.color = 'var(--text-muted)';
-                    }
-                }, Math.round(state.stepDelay * 5.7));
-            }
-        }, pacing);
-    }
-    
-    next();
 }
 
 // --- UPTIME & SLA COMPLIANCE LOGIC ---
