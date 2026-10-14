@@ -21,7 +21,7 @@
                 </div>
                 <div class="brand-text">
                     <h1>AegisTrace</h1>
-                    <span class="sub-brand">Visual API Engine Debugger</span>
+                    <span class="sub-brand">Visual API Resilience &amp; Self-Healing Debugger</span>
                 </div>
             </div>
 
@@ -93,6 +93,36 @@
                 </div>
             </div>
         </header>
+
+        <!-- Positioning Banner & Direct Action Triggers -->
+        <section class="positioning-banner" id="positioning-banner">
+            <div class="positioning-content">
+                <span class="positioning-pill">REVENUE PATH PROTECTION</span>
+                <p class="positioning-tagline">
+                    <strong>AegisTrace protects the revenue path.</strong> Detect, diagnose, and self-heal checkout &amp; fulfillment failures in seconds &mdash; not hours &mdash; while quantifying the revenue you just saved.
+                </p>
+            </div>
+            <div class="positioning-actions">
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-apm-comp" title="Compare AegisTrace against traditional APMs like Datadog and Dynatrace">
+                    ⚖️ Why AegisTrace vs APM
+                </button>
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-telemetry-modal" title="Connect external OpenTelemetry (OTLP) endpoint or webhook">
+                    📡 Connect Real Telemetry (OTLP)
+                </button>
+                <button type="button" class="btn btn-primary btn-small btn-banner-action" id="btn-open-roi-modal" title="Calculate revenue saved based on Order Volume, AOV, and Conversion Rate">
+                    💰 ROI Calculator
+                </button>
+            </div>
+        </section>
+
+        <!-- Mobile View Navigation Tabs (Visible on screens < 950px) -->
+        <nav class="mobile-nav-tabs" id="mobile-nav-tabs" aria-label="Mobile Navigation">
+            <button type="button" class="mobile-tab-btn active" data-target="panel-pipeline">⚡ Pipeline</button>
+            <button type="button" class="mobile-tab-btn" data-target="panel-controls">🔥 Fault Lab</button>
+            <button type="button" class="mobile-tab-btn" data-target="panel-metrics">💰 ROI &amp; Metrics</button>
+            <button type="button" class="mobile-tab-btn" data-target="panel-copilot">🤖 Copilot &amp; RCA</button>
+            <button type="button" class="mobile-tab-btn" data-target="panel-telemetry">📡 Telemetry</button>
+        </nav>
 
         <!-- Main Dashboard Workspace -->
         <main class="dashboard-grid">
@@ -382,8 +412,21 @@
                 <!-- Visual Pipeline -->
                 <div class="panel-card visualizer-card">
                     <div class="card-header">
-                        <h2>Live Order Pipeline Tracing <span class="info-tip" data-tooltip="Visual trace of orders flowing across 5 microservices in real time.">?</span></h2>
-                        <span class="badge" id="order-id-badge">Order: IDLE</span>
+                        <div>
+                            <h2>Live Order Pipeline Tracing <span class="info-tip" data-tooltip="Visual trace of orders flowing across 5 microservices in real time.">?</span></h2>
+                            <span class="sub-header-desc">Distributed W3C tracecontext propagation across order microservices</span>
+                        </div>
+                        <div class="pipeline-header-badges">
+                            <span class="badge trace-id-badge" id="trace-id-badge" title="W3C Correlation Trace ID propagated across all 5 microservices">
+                                <span class="trace-icon">🔗</span>
+                                <span class="trace-label">Trace:</span>
+                                <strong id="current-trace-id">trace_idle</strong>
+                                <button type="button" class="btn-copy-trace" id="btn-copy-trace" title="Copy Trace ID to Clipboard">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                </button>
+                            </span>
+                            <span class="badge" id="order-id-badge">Order: IDLE</span>
+                        </div>
                     </div>
                     <div class="pipeline-wrapper">
                         <!-- Node 1: Checkout -->
@@ -565,22 +608,56 @@
                 <!-- Business Impact Preserved -->
                 <div class="panel-card business-card">
                     <div class="card-header">
-                        <h2>Business Preserved Metrics <span class="info-tip" data-tooltip="Value rescued by AegisTrace autonomous self-healing.">?</span></h2>
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">LIVEPreserved</span>
+                        <div>
+                            <h2>Business Preserved Metrics <span class="info-tip" data-tooltip="Direct bottom-line revenue rescued by AegisTrace autonomous self-healing.">?</span></h2>
+                            <span class="sub-header-desc">Quantified financial value and downtime reduction</span>
+                        </div>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">LIVE Preserved</span>
                     </div>
+
+                    <!-- Live Revenue Protection Rolling Ticker -->
+                    <div class="biz-rolling-container">
+                        <div class="biz-rolling-status" id="biz-rolling-status">
+                            <span class="pulse-dot-green"></span>
+                            <span id="biz-rolling-text">Live: <strong>$0.00</strong> protected in last 15 min across 0 auto-healed outages</span>
+                        </div>
+                    </div>
+
                     <div class="business-grid">
                         <div class="biz-box">
                             <span class="biz-label">Preserved Revenue <span class="info-tip" data-tooltip="Total dollars protected from failed checkouts by automated self-healing.">?</span></span>
                             <span class="biz-value text-green">$<span id="biz-revenue">0.00</span></span>
                         </div>
                         <div class="biz-box">
-                            <span class="biz-label">MTTR (Self-Heal Time) <span class="info-tip" data-tooltip="Mean Time To Recover: Average seconds AegisTrace takes to diagnose and repair an outage.">?</span></span>
+                            <span class="biz-label">MTTR (Self-Heal) <span class="info-tip" data-tooltip="Mean Time To Recover: Average seconds AegisTrace takes to diagnose and repair an outage.">?</span></span>
                             <span class="biz-value text-cyan" id="biz-mttr">0.00s</span>
                         </div>
                         <div class="biz-box">
                             <span class="biz-label">Eng. Hours Saved <span class="info-tip" data-tooltip="Estimated developer on-call engineering hours saved by autonomous remediation.">?</span></span>
                             <span class="biz-value text-purple" id="biz-hours">0.0</span>
                         </div>
+                        <div class="biz-box biz-box-risk hidden" id="biz-box-risk">
+                            <span class="biz-label">Active Revenue at Risk <span class="info-tip" data-tooltip="Estimated dollar value of orders in the pipeline during active failure.">?</span></span>
+                            <span class="biz-value text-red" id="biz-revenue-at-risk">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- ROI Incident Cost Summary Callout -->
+                    <div class="biz-incident-cost-banner" id="biz-incident-cost-banner">
+                        <div class="incident-cost-title">💡 Traditional APM Cost Comparison</div>
+                        <p class="incident-cost-text" id="incident-cost-text">
+                            Without AegisTrace, an order path outage averages <strong>45 min MTTR</strong>, costing an estimated <strong>$<span id="biz-traditional-cost">3,850.00</span></strong> in abandoned checkouts and on-call toil.
+                        </p>
+                    </div>
+
+                    <!-- Action Triggers -->
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-open-roi-card" style="flex: 1;">
+                            📊 Configure Revenue Model
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small hidden" id="btn-view-incident-card" style="flex: 1; color: #f87171; border-color: rgba(248, 113, 113, 0.4);">
+                            🚨 View Incident Card
+                        </button>
                     </div>
                 </div>
 
@@ -694,33 +771,41 @@
                         </div>
 
                         <div class="rca-section">
-                            <h3>Auto-Remediation Status</h3>
-                            <div class="remediation-timeline">
-                                <div class="timeline-step step-complete" id="step-detect">
-                                    <div class="step-bullet">✓</div>
-                                    <div class="step-details">
-                                        <div class="step-title">Anomaly Detected</div>
-                                        <div class="step-desc">Tracer engine flagged latency/error spike on API node.</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <h3>Autonomous Remediation Audit Log</h3>
+                                <span class="badge" id="remediation-status-pill" style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">ACTIVE RESILIENCE</span>
+                            </div>
+
+                            <!-- Concrete Named Strategy Header -->
+                            <div class="remediation-strategy-banner" id="remediation-strategy-banner">
+                                <span class="strategy-pill">POLICY</span>
+                                <span id="remediation-strategy-name" style="font-weight: 700; color: #fff;">Adaptive Circuit Breaker &amp; Gateway Failover</span>
+                            </div>
+
+                            <!-- Step-by-Step Remediation Audit Log -->
+                            <div class="remediation-audit-log" id="remediation-audit-log">
+                                <!-- Steps populated dynamically with timestamps, command lines, and checkmarks -->
+                                <div class="audit-step step-complete">
+                                    <div class="audit-step-header">
+                                        <span class="audit-time">[+0ms]</span>
+                                        <span class="audit-status-icon">✓</span>
+                                        <span class="audit-title">Anomaly Detected</span>
                                     </div>
+                                    <div class="audit-desc">Tracer engine flagged latency/error spike on API node.</div>
                                 </div>
-                                <div class="timeline-step" id="step-action">
-                                    <div class="step-bullet">⚙</div>
-                                    <div class="step-details">
-                                        <div class="step-title" id="action-step-title">Triggering Auto-Heal</div>
-                                        <div class="step-desc" id="action-step-desc">Executing local repair scripts...</div>
-                                    </div>
-                                </div>
-                                <div class="timeline-step" id="step-verify">
-                                    <div class="step-bullet">●</div>
-                                    <div class="step-details">
-                                        <div class="step-title">Verification Trace</div>
-                                        <div class="step-desc">Re-running pipeline test transaction.</div>
-                                    </div>
-                                </div>
+                            </div>
+
+                            <div class="rca-actions-row" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                <button type="button" class="btn btn-secondary btn-small" id="btn-rca-open-incident" style="flex: 1; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                                    🚨 Open Incident Card
+                                </button>
+                                <button type="button" class="btn btn-primary btn-small" id="btn-rca-export-postmortem" style="flex: 1;">
+                                    📄 Export Post-Mortem
+                                </button>
                             </div>
                         </div>
 
-                        <div class="rca-section" id="manual-steps-section">
+                        <div class="rca-section hidden" id="manual-steps-section">
                             <h3>Manual Troubleshooting Checklist</h3>
                             <ul class="rca-list" id="rca-manual-list">
                                 <li>Check redis-cache instance size.</li>
@@ -995,7 +1080,7 @@
             <div class="onboarding-tab-content active" id="tab-content-overview">
                 <div class="onboarding-intro-box">
                     <p>
-                        <strong>AegisTrace</strong> is an autonomous visual API debugger and self-healing resilience engine for e-commerce microservices. It watches your live orders, flags distributed outages in real time, and deploys intelligent hotfixes to keep the Service Error Rate <strong>&le; 1.0%</strong>.
+                        <strong>AegisTrace protects the revenue path.</strong> An autonomous visual API debugger and self-healing resilience engine for e-commerce microservices that detects, diagnoses, and self-heals checkout &amp; fulfillment failures in seconds &mdash; not hours &mdash; while quantifying the exact revenue you just saved.
                     </p>
                 </div>
 
@@ -1009,50 +1094,66 @@
                             </svg>
                         </div>
                         <div class="feature-body">
-                            <h4>1. Live Order Pipeline Tracing</h4>
-                            <p>Follow transactions in real time as they traverse 5 microservices: <strong>Checkout (:5001) &rarr; Inventory (:5002) &rarr; Payment (:5003) &rarr; Fulfillment (:5004) &rarr; Logistics (:5005)</strong> with glowing pulse indicators.</p>
+                            <h4>1. Live Pipeline &amp; Correlation IDs</h4>
+                            <p>Trace transactions across 5 microservices (Checkout &rarr; Inventory &rarr; Payment &rarr; Fulfillment &rarr; Logistics) with W3C trace IDs (e.g. <code>trace_...</code>) with 1-click clipboard copy.</p>
                         </div>
                     </div>
 
                     <!-- Feature 2 -->
                     <div class="onboarding-feature-card">
-                        <div class="feature-icon-wrapper" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                            </svg>
+                        <div class="feature-icon-wrapper" style="color: #10b981; background: rgba(16, 185, 129, 0.15);">
+                            <span style="font-size: 1.1rem;">💰</span>
                         </div>
                         <div class="feature-body">
-                            <h4>2. Fault Injection Lab</h4>
-                            <p>Simulate real-world outages with 1 click: inventory stockouts (422), card declines (402), Stripe timeouts (504), Postgres DB pool exhaustion (500), and carrier DNS failures (503).</p>
+                            <h4>2. Quantified Business ROI Layer</h4>
+                            <p>Live ticker tracking <strong>Revenue Preserved ($)</strong> and <strong>Revenue at Risk ($)</strong>. Includes configurable calculator for Order Volume, AOV, and Conversion Rate.</p>
                         </div>
                     </div>
 
                     <!-- Feature 3 -->
                     <div class="onboarding-feature-card">
-                        <div class="feature-icon-wrapper" style="color: #10b981; background: rgba(16, 185, 129, 0.15);">
+                        <div class="feature-icon-wrapper" style="color: #34d399; background: rgba(52, 211, 153, 0.15);">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                                 <polyline points="9 12 11 14 15 10"/>
                             </svg>
                         </div>
                         <div class="feature-body">
-                            <h4>3. Autonomous Auto-Remediation</h4>
-                            <p>Watch the engine diagnose failures, execute hotfixes in under 2 seconds (buffer restocks, Adyen failover, socket recycling, RabbitMQ queueing), and re-verify pipeline health.</p>
+                            <h4>3. Concrete Named Self-Healing</h4>
+                            <p>Executes concrete policies in &lt;1.5s: <em>Inventory Cache Invalidation + Restock, Payment Gateway Failover (Stripe &rarr; Adyen), DB Pool Resizing, RabbitMQ Buffering</em> with automated verification.</p>
                         </div>
                     </div>
 
                     <!-- Feature 4 -->
                     <div class="onboarding-feature-card">
-                        <div class="feature-icon-wrapper" style="color: #a78bfa; background: rgba(167, 139, 250, 0.15);">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="20" x2="18" y2="10"/>
-                                <line x1="12" y1="20" x2="12" y2="4"/>
-                                <line x1="6" y1="20" x2="6" y2="14"/>
-                            </svg>
+                        <div class="feature-icon-wrapper" style="color: #06b6d4; background: rgba(6, 182, 212, 0.15);">
+                            <span style="font-size: 1.1rem;">📡</span>
                         </div>
                         <div class="feature-body">
-                            <h4>4. Metrics &amp; Stress Testing</h4>
-                            <p>Monitor real-time Latency, Error Rate (&le; 1.0%), and Preserved Revenue ($). Run high-concurrency load tests (up to 100 orders) and generate certification reports.</p>
+                            <h4>4. Production Telemetry Bridge</h4>
+                            <p>Ready to connect real OpenTelemetry (OTLP) endpoints or webhooks. Map production traces directly onto the interactive visual pipeline with W3C headers.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 5 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #f87171; background: rgba(239, 68, 68, 0.15);">
+                            <span style="font-size: 1.1rem;">🚨</span>
+                        </div>
+                        <div class="feature-body">
+                            <h4>5. Rich Incident Experience</h4>
+                            <p>Rich incident card auto-opens on failures with plain-English RCA, exact step-by-step remediation timeline, and 1-click <strong>Export Post-Mortem (Markdown/PDF)</strong>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="onboarding-feature-card">
+                        <div class="feature-icon-wrapper" style="color: #a78bfa; background: rgba(167, 139, 250, 0.15);">
+                            <span style="font-size: 1.1rem;">🤖</span>
+                        </div>
+                        <div class="feature-body">
+                            <h4>6. Incident-Aware AI Copilot</h4>
+                            <p>Contextual AI Copilot scans active failure parameters to draft RCA diagnoses, review code hotfixes, and summarize financial revenue impact on demand.</p>
                         </div>
                     </div>
                 </div>
@@ -1155,27 +1256,27 @@
                             <tr>
                                 <td><strong>Inventory Depletion</strong></td>
                                 <td><code>422 Unprocessable</code></td>
-                                <td>Restocks safety buffer (+100 items) via <code>sync_stock_cache.sh</code>.</td>
+                                <td><strong>Inventory Cache Invalidate &amp; Restock:</strong> Purges desynchronized Redis keys, allocates +100 buffer items from master DB, and warms cache.</td>
                             </tr>
                             <tr>
                                 <td><strong>Card Declined</strong></td>
                                 <td><code>402 Payment Req.</code></td>
-                                <td>Dispatches real-time SMS checkout retry token to customer.</td>
+                                <td><strong>Smart Retry &amp; SMS Token Rescue:</strong> Generates 15-min AES-256 checkout recovery token and dispatches SMS link via Twilio.</td>
                             </tr>
                             <tr>
                                 <td><strong>Gateway Timeout</strong></td>
                                 <td><code>504 Timeout</code></td>
-                                <td>Fails over from Stripe to Adyen gateway adapter with 5000ms timeout.</td>
+                                <td><strong>Adaptive Gateway Failover:</strong> Trips circuit breaker on Stripe threshold (&gt;2500ms) and fails over to secondary Adyen gateway.</td>
                             </tr>
                             <tr>
                                 <td><strong>DB Pool Exhausted</strong></td>
                                 <td><code>500 Internal Error</code></td>
-                                <td>Terminates zombie connections and expands connection pool limit to 50.</td>
+                                <td><strong>DB Connection Pool Resize &amp; Zombie Reaper:</strong> Kills idle-in-transaction handles via <code>pg_terminate_backend()</code> and expands pool (20 &rarr; 50).</td>
                             </tr>
                             <tr>
                                 <td><strong>Logistics Service Down</strong></td>
                                 <td><code>503 Unavailable</code></td>
-                                <td>Reroutes shipments to local persistent RabbitMQ deferred queue buffer.</td>
+                                <td><strong>Carrier Failover to Buffer Queue:</strong> Egress proxy reroutes shipping labels to persistent RabbitMQ queue (<code>dhl-deferred-shipments</code>).</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1194,6 +1295,391 @@
                         🚀 Try Live Demo Order
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Revenue ROI & Downtime Impact Calculator Modal -->
+    <div class="login-modal-overlay" id="modal-roi-calculator" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 780px; width: 94%; max-height: 90vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #10b981; font-size: 1.4rem;">💰</div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Revenue at Risk &amp; ROI Value Calculator</h3>
+                        <p style="font-size: 0.72rem; color: #34d399; margin: 0;">Quantify business losses avoided by AegisTrace autonomous self-healing</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-roi" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="overflow-y: auto; flex: 1; padding-right: 0.35rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;" class="roi-modal-grid">
+                    <!-- Configuration Inputs -->
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 0.85rem;">
+                        <h4 style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">E-Commerce Pipeline Parameters</h4>
+                        
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Daily Order Volume</span>
+                                <strong id="roi-val-volume" style="color: #fff;">10,000 orders/day</strong>
+                            </label>
+                            <input type="range" id="roi-slider-volume" min="1000" max="50000" step="1000" value="10000" style="width: 100%; accent-color: var(--primary-color);">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Average Order Value (AOV)</span>
+                                <strong id="roi-val-aov" style="color: #34d399;">$145.00</strong>
+                            </label>
+                            <input type="range" id="roi-slider-aov" min="25" max="500" step="5" value="145" style="width: 100%; accent-color: #10b981;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Checkout Conversion Rate</span>
+                                <strong id="roi-val-conv" style="color: #60a5fa;">2.8%</strong>
+                            </label>
+                            <input type="range" id="roi-slider-conv" min="0.5" max="8.0" step="0.1" value="2.8" style="width: 100%; accent-color: #3b82f6;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Traditional APM MTTR (Triage Time)</span>
+                                <strong id="roi-val-mttr" style="color: #f87171;">45 minutes</strong>
+                            </label>
+                            <input type="range" id="roi-slider-mttr" min="10" max="120" step="5" value="45" style="width: 100%; accent-color: #ef4444;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>On-Call SRE Hourly Rate</span>
+                                <strong id="roi-val-rate" style="color: #c084fc;">$110 / hr</strong>
+                            </label>
+                            <input type="range" id="roi-slider-rate" min="50" max="250" step="10" value="110" style="width: 100%; accent-color: #a855f7;">
+                        </div>
+                    </div>
+
+                    <!-- Calculated ROI Results Cards -->
+                    <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 0.75rem;">
+                            <span style="font-size: 0.68rem; color: #fca5a5; text-transform: uppercase; font-weight: 700;">Cost per Incident (Traditional APM)</span>
+                            <div style="font-size: 1.5rem; font-weight: 800; color: #f87171; margin-top: 0.2rem;" id="roi-out-incident-cost">$3,850.00</div>
+                            <span style="font-size: 0.65rem; color: var(--text-muted);">Lost checkouts during 45m MTTR + 2 engineers on-call</span>
+                        </div>
+
+                        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 0.75rem;">
+                            <span style="font-size: 0.68rem; color: #6ee7b7; text-transform: uppercase; font-weight: 700;">Projected Annual Revenue Preserved</span>
+                            <div style="font-size: 1.5rem; font-weight: 800; color: #34d399; margin-top: 0.2rem;" id="roi-out-annual-saved">$462,000.00</div>
+                            <span style="font-size: 0.65rem; color: var(--text-muted);">Based on typical 10 outages/month auto-healed in &lt;1.5s</span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">MTTR Reduction</div>
+                                <div style="font-size: 1.1rem; font-weight: 800; color: #60a5fa;" id="roi-out-mttr-reduction">99.9%</div>
+                                <div style="font-size: 0.62rem; color: #34d399;">1.2s vs 45 min</div>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.6rem; text-align: center;">
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">Engineering Toil Saved</div>
+                                <div style="font-size: 1.1rem; font-weight: 800; color: #c084fc;" id="roi-out-hours-saved">450 hrs/yr</div>
+                                <div style="font-size: 0.62rem; color: #e2e8f0;">Zero 2 AM wakeups</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 8px; padding: 0.75rem; font-size: 0.74rem; color: #cbd5e1; line-height: 1.5;">
+                    💡 <strong>How AegisTrace Calculates ROI:</strong> During an active microservice outage (such as Stripe timeout or Postgres pool exhaustion), customer checkouts fail silently. AegisTrace remediates the order path in <strong>&lt; 1.5s</strong>, preserving 100% of pipeline transactions.
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 1rem;">
+                <span style="font-size: 0.7rem; color: var(--text-muted);">Settings saved to tenant configuration</span>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" id="btn-reset-roi" style="font-size: 0.78rem;">Reset Defaults</button>
+                    <button type="button" class="btn btn-primary" id="btn-apply-roi" style="font-size: 0.78rem;">Apply to Live Simulation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Connect Real Telemetry (OpenTelemetry OTLP / Webhook) Bridge Modal -->
+    <div class="login-modal-overlay" id="modal-telemetry" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 820px; width: 94%; max-height: 90vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #06b6d4; font-size: 1.4rem;">📡</div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Connect Real Production Telemetry</h3>
+                        <p style="font-size: 0.72rem; color: #38bdf8; margin: 0;">Bridge real OpenTelemetry (OTLP) traces and APM alerts into the visual self-healing engine</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-telemetry" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Telemetry Tabs -->
+            <div class="onboarding-nav-tabs" style="margin-bottom: 0.75rem;">
+                <button type="button" class="onboarding-tab-btn active" id="tab-tel-otlp" data-tab="otlp">1. OpenTelemetry (OTLP / HTTP)</button>
+                <button type="button" class="onboarding-tab-btn" id="tab-tel-webhook" data-tab="webhook">2. Webhook / cURL Ingest</button>
+                <button type="button" class="onboarding-tab-btn" id="tab-tel-mapping" data-tab="mapping">3. Visual Pipeline Mapping</button>
+            </div>
+
+            <div style="overflow-y: auto; flex: 1;">
+                <!-- Tab 1: OTLP Ingest -->
+                <div id="tel-content-otlp" class="tel-tab-content">
+                    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #f3f4f6;">OTLP Collector Ingestion Endpoint:</span>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem;">Active HTTP Listener</span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <code id="otlp-endpoint-url" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 0.4rem 0.6rem; font-family: var(--font-mono); font-size: 0.75rem; color: #38bdf8; word-break: break-all;">https://ecommerce-visual-debugger.vercel.app/api/telemetry/otlp</code>
+                            <button type="button" class="btn btn-secondary btn-small" id="btn-copy-otlp-url" onclick="navigator.clipboard.writeText(document.getElementById('otlp-endpoint-url').textContent); alert('Copied OTLP endpoint URL!');">Copy URL</button>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 0.4rem;">OpenTelemetry SDK Integration (Node.js / Express):</h4>
+                    <pre style="background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.75rem; font-family: var(--font-mono); font-size: 0.7rem; color: #94a3b8; line-height: 1.45; overflow-x: auto; margin-bottom: 0.75rem;"><code>const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
+
+const exporter = new OTLPTraceExporter({
+  url: 'https://ecommerce-visual-debugger.vercel.app/api/telemetry/otlp',
+  headers: { 'Authorization': 'Bearer YOUR_TENANT_API_TOKEN' }
+});
+
+const provider = new NodeTracerProvider();
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+provider.register();</code></pre>
+                </div>
+
+                <!-- Tab 2: Webhook / cURL Ingest -->
+                <div id="tel-content-webhook" class="tel-tab-content hidden">
+                    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #f3f4f6; display: block; margin-bottom: 0.35rem;">Ingest External Alert / Trace via cURL:</span>
+                        <pre style="background: #05070c; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 0.6rem; font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; white-space: pre-wrap;" id="curl-sample-box">curl -X POST https://ecommerce-visual-debugger.vercel.app/api/telemetry/webhook \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TENANT_TOKEN" \
+  -d '{"traceId":"trace_prod_9981","service":"payment","status":"failed","httpStatus":504,"latencyMs":2500,"errorSignature":"CONN_TIMEOUT_STRIPE_API"}'</pre>
+                        <button type="button" class="btn btn-secondary btn-small" style="margin-top: 0.4rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-sample-box').textContent); alert('Copied cURL command!');">Copy cURL</button>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Visual Pipeline Mapping -->
+                <div id="tel-content-mapping" class="tel-tab-content hidden">
+                    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                        <h4 style="font-size: 0.8rem; color: #fff; margin-bottom: 0.4rem;">How Distributed Traces Map to Nodes:</h4>
+                        <table class="onboarding-table" style="margin-bottom: 0.5rem;">
+                            <thead>
+                                <tr>
+                                    <th>OTLP Span / Service</th>
+                                    <th>Visual Node</th>
+                                    <th>Resilience Policy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>service.name: "checkout"</code></td>
+                                    <td><strong style="color: #60a5fa;">Checkout API</strong></td>
+                                    <td>Payload schema validation &amp; retry queue</td>
+                                </tr>
+                                <tr>
+                                    <td><code>service.name: "inventory"</code></td>
+                                    <td><strong style="color: #34d399;">Inventory DB</strong></td>
+                                    <td>Cache eviction + emergency safety buffer allocation</td>
+                                </tr>
+                                <tr>
+                                    <td><code>service.name: "payment"</code></td>
+                                    <td><strong style="color: #f59e0b;">Payment Gateway</strong></td>
+                                    <td>Adaptive circuit breaker &amp; Stripe &rarr; Adyen failover</td>
+                                </tr>
+                                <tr>
+                                    <td><code>service.name: "fulfillment"</code></td>
+                                    <td><strong style="color: #c084fc;">Fulfillment API</strong></td>
+                                    <td>Zombie handle reaper &amp; DB pool resizing (20 &rarr; 50)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>service.name: "logistics"</code></td>
+                                    <td><strong style="color: #38bdf8;">Logistics API</strong></td>
+                                    <td>Dead-letter buffer to persistent RabbitMQ queue</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer with Live Interactive Test Trace -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.75rem;">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Simulate real OpenTelemetry pipeline trace with 1 click:</span>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" id="btn-close-tel-bottom" style="font-size: 0.78rem;">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-send-test-otlp" style="font-size: 0.78rem; background: linear-gradient(135deg, #06b6d4, #3b82f6); border-color: #06b6d4;">
+                        ⚡ Send Live Test OTLP Trace
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Rich Incident Card Modal (Auto-Opens on Outage) -->
+    <div class="login-modal-overlay" id="modal-incident" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 760px; width: 94%; max-height: 90vh; display: flex; flex-direction: column; border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 35px rgba(239, 68, 68, 0.2);">
+            <!-- Incident Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 1rem;">🔥</div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0;" id="incident-modal-title">INCIDENT INC-9921</h3>
+                            <span class="badge" id="incident-status-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 0.65rem;">CRITICAL OUTAGE</span>
+                        </div>
+                        <p style="font-size: 0.72rem; color: #94a3b8; margin: 0;" id="incident-modal-subtitle">Payment Gateway Timeout (HTTP 504) on payment-service</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-incident" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="overflow-y: auto; flex: 1; padding-right: 0.35rem;">
+                <!-- Mini Pipeline Highlighting Failing Node -->
+                <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.35rem;">Pipeline Degradation Node:</span>
+                    <div class="mini-pipeline" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem;">
+                        <span class="mini-node mini-node-ok" id="mini-node-checkout">Checkout ✓</span>
+                        <span class="mini-arr">&rarr;</span>
+                        <span class="mini-node mini-node-ok" id="mini-node-inventory">Inventory ✓</span>
+                        <span class="mini-arr">&rarr;</span>
+                        <span class="mini-node mini-node-failed" id="mini-node-payment">Payment ⚠️</span>
+                        <span class="mini-arr">&rarr;</span>
+                        <span class="mini-node" id="mini-node-fulfillment">Fulfillment</span>
+                        <span class="mini-arr">&rarr;</span>
+                        <span class="mini-node" id="mini-node-logistics">Logistics</span>
+                    </div>
+                </div>
+
+                <!-- Business Impact Breakdown -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.75rem; text-align: center;">
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 6px; padding: 0.45rem;">
+                        <div style="font-size: 0.62rem; color: #fca5a5; text-transform: uppercase;">Revenue at Risk</div>
+                        <div id="inc-card-revenue-risk" style="font-size: 1.05rem; font-weight: 800; color: #f87171;">$2,499.00</div>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 0.45rem;">
+                        <div style="font-size: 0.62rem; color: #6ee7b7; text-transform: uppercase;">Revenue Preserved</div>
+                        <div id="inc-card-revenue-saved" style="font-size: 1.05rem; font-weight: 800; color: #34d399;">$2,499.00</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.45rem;">
+                        <div style="font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase;">Recovery MTTR</div>
+                        <div id="inc-card-mttr" style="font-size: 1.05rem; font-weight: 800; color: #60a5fa;">1.14s</div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.45rem;">
+                        <div style="font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase;">Customer Cart Drops</div>
+                        <div id="inc-card-cart-drops" style="font-size: 1.05rem; font-weight: 800; color: #34d399;">0 (Rescued)</div>
+                    </div>
+                </div>
+
+                <!-- Plain English Root Cause -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                    <h4 style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>🔍 Root Cause Analysis (Plain English)</span>
+                    </h4>
+                    <p id="inc-card-rca-text" style="font-size: 0.74rem; color: #e2e8f0; line-height: 1.45; margin: 0;">
+                        Primary payment gateway (Stripe) failed to return an HTTP reply within the client socket timeout threshold of 2500ms due to upstream network degradation.
+                    </p>
+                </div>
+
+                <!-- Exact Remediation Actions Taken -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                        <h4 style="font-size: 0.78rem; color: #cbd5e1; margin: 0;">⚡ Exact Remediation Actions Executed</h4>
+                        <span id="inc-card-strategy-name" style="font-size: 0.68rem; color: #38bdf8; font-weight: 700;">Gateway Failover (Stripe &rarr; Adyen)</span>
+                    </div>
+                    <div id="inc-card-steps-container" style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.72rem;">
+                        <!-- Dynamic Steps -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incident Card Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn btn-secondary btn-small" id="btn-inc-ask-ai" style="font-size: 0.75rem; color: #c084fc; border-color: rgba(168, 85, 247, 0.4);">
+                    🤖 Consult AI Copilot
+                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary btn-small" id="btn-copy-postmortem" style="font-size: 0.75rem;">
+                        📋 Copy Post-Mortem (Markdown)
+                    </button>
+                    <button type="button" class="btn btn-primary btn-small" id="btn-download-postmortem" style="font-size: 0.75rem;">
+                        ⬇️ Download Post-Mortem (.md)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Why AegisTrace vs Traditional APM Comparison Modal -->
+    <div class="login-modal-overlay" id="modal-apm-comparison" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 840px; width: 94%; max-height: 90vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #a78bfa; font-size: 1.4rem;">⚖️</div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Why AegisTrace vs Traditional APM</h3>
+                        <p style="font-size: 0.72rem; color: #c084fc; margin: 0;">Passive Alerting vs Autonomous Revenue Path Self-Healing</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-apm-comp" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="overflow-y: auto; flex: 1;">
+                <table class="onboarding-table" style="font-size: 0.75rem; margin-bottom: 1rem;">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Capability / Dimension</th>
+                            <th style="width: 35%; color: #fca5a5;">Traditional APM (Datadog, Dynatrace, New Relic)</th>
+                            <th style="width: 40%; color: #6ee7b7; background: rgba(16, 185, 129, 0.08);">AegisTrace Resilience Engine 🛡️</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Primary Mission</strong></td>
+                            <td style="color: #94a3b8;">Observe infrastructure metrics, traces, and CPU spikes.</td>
+                            <td style="color: #34d399; font-weight: 600;"><strong>Protects the Revenue Path.</strong> Zero lost checkouts on the order flow.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Failure Response</strong></td>
+                            <td style="color: #f87171;">Passive alarms, PagerDuty calls, Slack alert fatigue.</td>
+                            <td style="color: #34d399; font-weight: 600;"><strong>Active Auto-Remediation:</strong> Circuit breakers, carrier failover, cache restocks.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MTTR (Resolution Speed)</strong></td>
+                            <td style="color: #f87171;"><strong>45 &ndash; 120 minutes</strong> (Engineer wakes up, investigates logs).</td>
+                            <td style="color: #34d399; font-weight: 700;"><strong>&lt; 1.5 seconds</strong> (Self-healing policy executes autonomously).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Business Financial Context</strong></td>
+                            <td style="color: #94a3b8;">None. Shows latency graphs; unaware of lost basket revenue.</td>
+                            <td style="color: #34d399; font-weight: 600;">Real-time <strong>Revenue at Risk ($)</strong> and <strong>Revenue Preserved ($)</strong> ticker.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Customer Impact During Outage</strong></td>
+                            <td style="color: #f87171;">Customers see broken checkout buttons and abandon cart forever.</td>
+                            <td style="color: #34d399; font-weight: 600;">Orders are buffered, self-healed, and verified with 0 dropped carts.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Engineering On-Call Toil</strong></td>
+                            <td style="color: #f87171;">High on-call burnout, expensive 2 AM triage toil.</td>
+                            <td style="color: #34d399; font-weight: 600;">Autonomous self-healing saves ~450 engineering hours/year.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 0.85rem; font-size: 0.74rem; line-height: 1.5; color: #e2e8f0;">
+                    🎯 <strong>The Bottom Line:</strong> Traditional APM tells you that you are losing money. <strong>AegisTrace stops the bleeding, fixes the failure, and proves how many thousands of dollars it just protected.</strong>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 1rem;">
+                <button type="button" class="btn btn-primary" id="btn-done-apm-comp" style="font-size: 0.78rem;">Got It</button>
             </div>
         </div>
     </div>

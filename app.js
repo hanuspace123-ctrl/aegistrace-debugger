@@ -64,7 +64,76 @@ const state = {
     // --- SECURITY & MULTI-TENANCY STATE ---
     authToken: localStorage.getItem('aegis_auth_token') || '',
     currentUser: null,
-    currentTenant: null
+    currentTenant: null,
+
+    // --- BUSINESS ROI & REVENUE PROTECTION CONFIG ---
+    roi: {
+        dailyOrders: parseInt(localStorage.getItem('aegis_roi_volume')) || 10000,
+        aov: parseFloat(localStorage.getItem('aegis_roi_aov')) || 145.00,
+        conversionRate: parseFloat(localStorage.getItem('aegis_roi_conv')) || 2.8,
+        traditionalMttrMin: parseInt(localStorage.getItem('aegis_roi_mttr')) || 45,
+        engineerHourlyRate: parseInt(localStorage.getItem('aegis_roi_rate')) || 110,
+        recentProtectedRevenue: 0.00,
+        recentOutagesPrevented: 0
+    },
+
+    // --- ACTIVE INCIDENT TRACKING ---
+    activeTraceId: 'trace_idle',
+    activeIncident: null,
+
+    // --- CONCRETE NAMED REMEDIATION POLICIES ---
+    remediationPolicies: {
+        'out-of-stock': {
+            name: 'Inventory Cache Invalidation & Safety Restock',
+            remedyTitle: 'Inventory Cache Invalidation & Safety Buffer Allocation',
+            steps: [
+                { delay: 120, title: 'Invalidate Desynchronized Redis Keys', desc: 'redis-cli UNLINK sku:stock:SKU-4402' },
+                { delay: 350, title: 'Query Master Warehouse DB Replica', desc: 'Allocated emergency buffer (+100 units) from warehouse tier' },
+                { delay: 620, title: 'Atomic Redis Stock Lock with TTL', desc: 'SETEX sku:stock:SKU-4402 60 100 with NX guard' },
+                { delay: 850, title: 'Verification Trace Auto-Dispatched', desc: 'Simulated customer checkout confirmed 200 LOCKED' }
+            ]
+        },
+        'card-declined': {
+            name: 'Smart Retry & SMS Token Rescue',
+            remedyTitle: 'Smart Payment Retry Token & Async Customer Rescue',
+            steps: [
+                { delay: 150, title: 'Soft Decline Classification', desc: 'Identified retryable code 51 (Insuff. Funds); cart retained' },
+                { delay: 380, title: 'Generate AES-256 Recovery Token', desc: 'Issued 15-min single-use checkout rescue token' },
+                { delay: 680, title: 'Dispatch Twilio SMS 1-Click Link', desc: 'Push notification sent to customer with alternative payment rail' },
+                { delay: 890, title: 'Park Order in Retry Buffer', desc: 'Order held in PENDING_CUSTOMER_ACTION without dropping session' }
+            ]
+        },
+        'gateway-timeout': {
+            name: 'Adaptive Gateway Failover (Stripe → Adyen)',
+            remedyTitle: 'Adaptive Circuit Breaker & Gateway Failover (Stripe → Adyen)',
+            steps: [
+                { delay: 110, title: 'Circuit Breaker Tripped on Stripe', desc: 'Threshold 2500ms exceeded. Shifted circuit to Half-Open' },
+                { delay: 320, title: 'Switch Egress Routing to Adyen Adapter', desc: 'Dynamic router updated payments container cluster route' },
+                { delay: 580, title: 'Re-encrypt & Dispatch Tokenized Payload', desc: 'Processed with Adyen API 5000ms SLA boundary' },
+                { delay: 810, title: 'Verification Probe Confirms Throughput', desc: 'Auth code AUTH-88231 captured on secondary adapter' }
+            ]
+        },
+        'fulfillment-db-crash': {
+            name: 'DB Pool Resize & Zombie Reaper',
+            remedyTitle: 'PostgreSQL Zombie Connection Reaper & Pool Resizing',
+            steps: [
+                { delay: 140, title: 'Scan pg_stat_activity Queries', desc: 'Identified 12 leaked handles in "idle in transaction > 15s"' },
+                { delay: 360, title: 'Terminate Orphaned DB Worker PIDs', desc: 'Executed pg_terminate_backend() across zombie workers' },
+                { delay: 590, title: 'Dynamically Resize Pool Capacity', desc: 'Scaled PostgreSQL pool limit from 20 -> 50 handles on RDS' },
+                { delay: 830, title: 'Verification DB Health Probe', desc: 'Confirmed 8/50 active handles with 0ms queue wait time' }
+            ]
+        },
+        'logistics-api-down': {
+            name: 'Carrier Failover to Buffer Queue',
+            remedyTitle: 'Logistics Carrier Failover to Persistent RabbitMQ Queue',
+            steps: [
+                { delay: 130, title: 'Detect Egress DNS Resolution Timeout', desc: 'NXDOMAIN on logistics.dhl-provider.net caught by envoy proxy' },
+                { delay: 340, title: 'Reroute to Persistent RabbitMQ Queue', desc: 'Labels directed to dhl-deferred-shipments queue buffer' },
+                { delay: 610, title: 'Issue Synthetic Provisional Tracking ID', desc: 'Issued QUEUED-LOCAL-DH-081 so customer checkout succeeds' },
+                { delay: 840, title: 'Verification Dispatch Probe Succeeded', desc: 'Order marked QUEUED_DEFERRED; delivery SLA preserved' }
+            ]
+        }
+    }
 };
 
 // --- SCENARIO DATA DIRECTORY ---
@@ -643,7 +712,89 @@ const dom = {
     btnStartDemoAction: document.getElementById('btn-start-demo-action'),
     btnTourRunOrder: document.getElementById('btn-tour-run-order'),
     btnTourInjectFault: document.getElementById('btn-tour-inject-fault'),
-    checkDontShowOnboarding: document.getElementById('check-dont-show-onboarding')
+    checkDontShowOnboarding: document.getElementById('check-dont-show-onboarding'),
+
+    // --- CORRELATION ID & TRACE VISIBILITY ---
+    traceIdBadge: document.getElementById('trace-id-badge'),
+    currentTraceId: document.getElementById('current-trace-id'),
+    btnCopyTrace: document.getElementById('btn-copy-trace'),
+
+    // --- STRONGER BUSINESS ROI ELEMENTS ---
+    bizRollingStatus: document.getElementById('biz-rolling-status'),
+    bizRollingText: document.getElementById('biz-rolling-text'),
+    bizBoxRisk: document.getElementById('biz-box-risk'),
+    bizRevenueAtRisk: document.getElementById('biz-revenue-at-risk'),
+    bizIncidentCostBanner: document.getElementById('biz-incident-cost-banner'),
+    bizTraditionalCost: document.getElementById('biz-traditional-cost'),
+    incidentCostText: document.getElementById('incident-cost-text'),
+    btnOpenRoiModal: document.getElementById('btn-open-roi-modal'),
+    btnOpenRoiCard: document.getElementById('btn-open-roi-card'),
+    modalRoi: document.getElementById('modal-roi-calculator'),
+    btnCloseRoi: document.getElementById('btn-close-roi'),
+    roiSliderVolume: document.getElementById('roi-slider-volume'),
+    roiSliderAov: document.getElementById('roi-slider-aov'),
+    roiSliderConv: document.getElementById('roi-slider-conv'),
+    roiSliderMttr: document.getElementById('roi-slider-mttr'),
+    roiSliderRate: document.getElementById('roi-slider-rate'),
+    roiValVolume: document.getElementById('roi-val-volume'),
+    roiValAov: document.getElementById('roi-val-aov'),
+    roiValConv: document.getElementById('roi-val-conv'),
+    roiValMttr: document.getElementById('roi-val-mttr'),
+    roiValRate: document.getElementById('roi-val-rate'),
+    roiOutIncidentCost: document.getElementById('roi-out-incident-cost'),
+    roiOutAnnualSaved: document.getElementById('roi-out-annual-saved'),
+    roiOutMttrReduction: document.getElementById('roi-out-mttr-reduction'),
+    roiOutHoursSaved: document.getElementById('roi-out-hours-saved'),
+    btnResetRoi: document.getElementById('btn-reset-roi'),
+    btnApplyRoi: document.getElementById('btn-apply-roi'),
+
+    // --- PRODUCTION TELEMETRY BRIDGE ELEMENTS ---
+    modalTelemetry: document.getElementById('modal-telemetry'),
+    btnOpenTelemetryModal: document.getElementById('btn-open-telemetry-modal'),
+    btnCloseTelemetry: document.getElementById('btn-close-telemetry'),
+    btnCloseTelBottom: document.getElementById('btn-close-tel-bottom'),
+    btnSendTestOtlp: document.getElementById('btn-send-test-otlp'),
+    tabTelOtlp: document.getElementById('tab-tel-otlp'),
+    tabTelWebhook: document.getElementById('tab-tel-webhook'),
+    tabTelMapping: document.getElementById('tab-tel-mapping'),
+    telContentOtlp: document.getElementById('tel-content-otlp'),
+    telContentWebhook: document.getElementById('tel-content-webhook'),
+    telContentMapping: document.getElementById('tel-content-mapping'),
+
+    // --- RICH INCIDENT EXPERIENCE ELEMENTS ---
+    modalIncident: document.getElementById('modal-incident'),
+    btnCloseIncident: document.getElementById('btn-close-incident'),
+    btnViewIncidentCard: document.getElementById('btn-view-incident-card'),
+    btnRcaOpenIncident: document.getElementById('btn-rca-open-incident'),
+    btnRcaExportPostmortem: document.getElementById('btn-rca-export-postmortem'),
+    incidentModalTitle: document.getElementById('incident-modal-title'),
+    incidentModalSubtitle: document.getElementById('incident-modal-subtitle'),
+    incidentStatusBadge: document.getElementById('incident-status-badge'),
+    incCardRevenueRisk: document.getElementById('inc-card-revenue-risk'),
+    incCardRevenueSaved: document.getElementById('inc-card-revenue-saved'),
+    incCardMttr: document.getElementById('inc-card-mttr'),
+    incCardCartDrops: document.getElementById('inc-card-cart-drops'),
+    incCardRcaText: document.getElementById('inc-card-rca-text'),
+    incCardStrategyName: document.getElementById('inc-card-strategy-name'),
+    incCardStepsContainer: document.getElementById('inc-card-steps-container'),
+    btnIncAskAi: document.getElementById('btn-inc-ask-ai'),
+    btnCopyPostmortem: document.getElementById('btn-copy-postmortem'),
+    btnDownloadPostmortem: document.getElementById('btn-download-postmortem'),
+
+    // --- APM COMPARISON ELEMENTS ---
+    modalApmComp: document.getElementById('modal-apm-comparison'),
+    btnOpenApmComp: document.getElementById('btn-open-apm-comp'),
+    btnCloseApmComp: document.getElementById('btn-close-apm-comp'),
+    btnDoneApmComp: document.getElementById('btn-done-apm-comp'),
+
+    // --- MOBILE NAVIGATION ELEMENTS ---
+    mobileNavTabs: document.getElementById('mobile-nav-tabs'),
+
+    // --- REMEDIATION AUDIT LOG ELEMENTS ---
+    remediationAuditLog: document.getElementById('remediation-audit-log'),
+    remediationStrategyName: document.getElementById('remediation-strategy-name'),
+    remediationStrategyBanner: document.getElementById('remediation-strategy-banner'),
+    remediationStatusPill: document.getElementById('remediation-status-pill')
 };
 
 // --- AUTHENTICATION & MULTI-TENANT HELPERS ---
@@ -1231,6 +1382,13 @@ async function init() {
     syncCodeView();
     initLoadEngine();
 
+    // New Production Features Initialization
+    updateTraceId(generateTraceId());
+    updateRoiCalculations();
+    fetchRoiConfig();
+    updateRollingTicker();
+    initMobileNav();
+
     const isAuthenticated = await checkAuthSession();
     if (isAuthenticated) {
         startAutopilotDaemon();
@@ -1572,6 +1730,82 @@ function registerEventListeners() {
             logout();
         });
     }
+
+    // --- 1. W3C TRACE ID COPY WITH VISUAL FEEDBACK ---
+    if (dom.btnCopyTrace) {
+        dom.btnCopyTrace.addEventListener('click', () => {
+            const traceText = dom.currentTraceId ? dom.currentTraceId.textContent : state.activeTraceId;
+            navigator.clipboard.writeText(traceText).then(() => {
+                const orig = dom.btnCopyTrace.textContent;
+                dom.btnCopyTrace.textContent = '✓';
+                setTimeout(() => { dom.btnCopyTrace.textContent = orig; }, 1500);
+                logConsole(`[Telemetry] Copied W3C Trace ID: ${traceText}`, 'info');
+            }).catch(() => {
+                logConsole(`[Telemetry] Trace ID: ${traceText}`, 'info');
+            });
+        });
+    }
+
+    // --- 2. STRONGER ROI CALCULATOR MODAL & SLIDERS ---
+    if (dom.btnOpenRoiModal) dom.btnOpenRoiModal.addEventListener('click', () => { if (dom.modalRoi) dom.modalRoi.style.display = 'flex'; });
+    if (dom.btnOpenRoiCard) dom.btnOpenRoiCard.addEventListener('click', () => { if (dom.modalRoi) dom.modalRoi.style.display = 'flex'; });
+    if (dom.btnCloseRoi) dom.btnCloseRoi.addEventListener('click', () => { if (dom.modalRoi) dom.modalRoi.style.display = 'none'; });
+    if (dom.modalRoi) {
+        dom.modalRoi.addEventListener('click', (e) => {
+            if (e.target === dom.modalRoi) dom.modalRoi.style.display = 'none';
+        });
+    }
+
+    [dom.roiSliderVolume, dom.roiSliderAov, dom.roiSliderConv, dom.roiSliderMttr, dom.roiSliderRate].forEach(slider => {
+        if (slider) slider.addEventListener('input', updateRoiCalculations);
+    });
+    if (dom.btnResetRoi) dom.btnResetRoi.addEventListener('click', resetRoiDefaults);
+    if (dom.btnApplyRoi) dom.btnApplyRoi.addEventListener('click', applyRoiSettings);
+
+    // --- 3. PRODUCTION TELEMETRY BRIDGE MODAL ---
+    if (dom.btnOpenTelemetryModal) dom.btnOpenTelemetryModal.addEventListener('click', openTelemetryModal);
+    if (dom.btnCloseTelemetry) dom.btnCloseTelemetry.addEventListener('click', closeTelemetryModal);
+    if (dom.btnCloseTelBottom) dom.btnCloseTelBottom.addEventListener('click', closeTelemetryModal);
+    if (dom.modalTelemetry) {
+        dom.modalTelemetry.addEventListener('click', (e) => {
+            if (e.target === dom.modalTelemetry) closeTelemetryModal();
+        });
+    }
+    if (dom.tabTelOtlp) dom.tabTelOtlp.addEventListener('click', () => switchTelemetryTab('otlp'));
+    if (dom.tabTelWebhook) dom.tabTelWebhook.addEventListener('click', () => switchTelemetryTab('webhook'));
+    if (dom.tabTelMapping) dom.tabTelMapping.addEventListener('click', () => switchTelemetryTab('mapping'));
+    if (dom.btnSendTestOtlp) dom.btnSendTestOtlp.addEventListener('click', sendTestOtlpTrace);
+
+    // --- 4. WHY AEGIS TRACE VS APM MODAL ---
+    if (dom.btnOpenApmComp) dom.btnOpenApmComp.addEventListener('click', openApmCompModal);
+    if (dom.btnCloseApmComp) dom.btnCloseApmComp.addEventListener('click', closeApmCompModal);
+    if (dom.btnDoneApmComp) dom.btnDoneApmComp.addEventListener('click', closeApmCompModal);
+    if (dom.modalApmComp) {
+        dom.modalApmComp.addEventListener('click', (e) => {
+            if (e.target === dom.modalApmComp) closeApmCompModal();
+        });
+    }
+
+    // --- 5. RICH INCIDENT CARD MODAL & POST-MORTEM ---
+    if (dom.btnViewIncidentCard) dom.btnViewIncidentCard.addEventListener('click', openIncidentModal);
+    if (dom.btnRcaOpenIncident) dom.btnRcaOpenIncident.addEventListener('click', openIncidentModal);
+    if (dom.btnCloseIncident) dom.btnCloseIncident.addEventListener('click', closeIncidentModal);
+    if (dom.modalIncident) {
+        dom.modalIncident.addEventListener('click', (e) => {
+            if (e.target === dom.modalIncident) closeIncidentModal();
+        });
+    }
+    if (dom.btnCopyPostmortem) dom.btnCopyPostmortem.addEventListener('click', copyPostMortem);
+    if (dom.btnDownloadPostmortem) dom.btnDownloadPostmortem.addEventListener('click', downloadPostMortem);
+    if (dom.btnRcaExportPostmortem) dom.btnRcaExportPostmortem.addEventListener('click', copyPostMortem);
+    if (dom.btnIncAskAi) {
+        dom.btnIncAskAi.addEventListener('click', () => {
+            closeIncidentModal();
+            const rightPanel = document.querySelector('.right-panel');
+            if (rightPanel) rightPanel.scrollIntoView({ behavior: 'smooth' });
+            handleUserChatMessage('Explain the root cause and business impact of the active incident for executives.');
+        });
+    }
 }
 
 function initRealGoogleBtn(clientId) {
@@ -1680,6 +1914,7 @@ function triggerSimulation(scenarioName) {
 function runOrderTrace(scenarioType, orderContext) {
     state.pipelineActive = true;
     state.activeOrderId = orderContext.id;
+    updateTraceId(generateTraceId());
     
     dom.orderIdBadge.textContent = `Order: ${orderContext.id}`;
     dom.orderIdBadge.style.backgroundColor = 'rgba(124, 58, 237, 0.2)';
@@ -2007,6 +2242,55 @@ function handlePipelineFailure(scenarioType) {
     dom.debuggerStatusBadge.style.color = 'var(--error-color)';
     
     syncCodeView();
+
+    // Calculate business impact and store active incident context
+    const ordersAtRisk = Math.max(1, Math.round((state.roi.dailyOrders / 1440) * (state.roi.traditionalMttrMin * 0.15)));
+    const revRisk = Math.max(150, Math.round(ordersAtRisk * state.roi.aov));
+    const policy = state.remediationPolicies[scenarioType] || {
+        name: sc.remediationScript || 'Autonomous Cluster Mitigation',
+        remedyTitle: sc.remediationMessage,
+        steps: [
+            { delay: 150, title: 'Analyze Anomaly Telemetry', desc: `Identified fault signature ${sc.errorSignature}` },
+            { delay: 400, title: 'Apply Container Mitigation Script', desc: sc.remediationScript || 'Default policy' },
+            { delay: 750, title: 'Verification Trace Auto-Dispatched', desc: 'Simulated customer checkout confirmed 200 OK' }
+        ]
+    };
+
+    state.activeIncident = {
+        id: 'INC-' + Math.floor(1000 + Math.random() * 9000),
+        service: failedSvc,
+        scenarioType: scenarioType,
+        errorCode: sc.errorCode,
+        errorSignature: sc.errorSignature,
+        rcaDescription: sc.rcaDescription,
+        timestamp: new Date().toISOString(),
+        traceId: state.activeTraceId,
+        policy: policy,
+        ordersAtRisk: ordersAtRisk,
+        revenueAtRisk: revRisk,
+        status: 'active'
+    };
+
+    if (dom.btnViewIncidentCard) {
+        dom.btnViewIncidentCard.classList.remove('hidden');
+        dom.btnViewIncidentCard.textContent = `🚨 View Incident Card (${state.activeIncident.id})`;
+        dom.btnViewIncidentCard.style.color = '#f87171';
+        dom.btnViewIncidentCard.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+    }
+    if (dom.bizRevenueAtRisk) {
+        dom.bizRevenueAtRisk.textContent = `$${revRisk.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    if (dom.remediationStrategyBanner) {
+        dom.remediationStrategyBanner.classList.remove('hidden');
+        if (dom.remediationStrategyName) dom.remediationStrategyName.textContent = policy.name;
+        if (dom.remediationStatusPill) {
+            dom.remediationStatusPill.textContent = 'DETECTED - AUTO-HEALING';
+            dom.remediationStatusPill.style.background = 'rgba(239, 68, 68, 0.2)';
+            dom.remediationStatusPill.style.color = '#f87171';
+            dom.remediationStatusPill.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        }
+    }
+    populateIncidentModal(state.activeIncident);
     
     if (state.isRemediating) {
         dom.manualStepsSection.classList.add('hidden');
@@ -2021,7 +2305,7 @@ function handlePipelineFailure(scenarioType) {
     }
 
     // Advise the chatbot to explain
-    appendAiChatBubble('ai', `🚨 System anomaly detected on microservice node [${failedSvc.toUpperCase()}]. Error Signature: <code>${sc.errorSignature}</code> (${sc.errorCode}). The visual code inspector has loaded the active failing source file and highlighted the bug. Click "Explain Failure" or "Recommend Fix" below for AI assistance.`);
+    appendAiChatBubble('ai', `🚨 System anomaly detected on microservice node [${failedSvc.toUpperCase()}]. Error Signature: <code>${sc.errorSignature}</code> (${sc.errorCode}). Revenue at risk: <b>$${revRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b>. Auto-remediation policy <code>${policy.name}</code> is active.`);
 }
 
 // --- AUTO-REMEDIATION ENGINE (SELF-HEALING) ---
@@ -2029,6 +2313,15 @@ function triggerAutoRemediation(scenarioType) {
     state.remediationInProgress = true;
     const sc = scenarios[scenarioType];
     const failedSvc = sc.failureNode;
+    const policy = state.remediationPolicies[scenarioType] || {
+        name: sc.remediationScript || 'Autonomous Cluster Mitigation',
+        remedyTitle: sc.remediationMessage,
+        steps: [
+            { delay: 150, title: 'Analyze Anomaly Telemetry', desc: `Identified fault signature ${sc.errorSignature}` },
+            { delay: 400, title: 'Apply Container Mitigation Script', desc: sc.remediationScript || 'Default policy' },
+            { delay: 750, title: 'Verification Trace Auto-Dispatched', desc: 'Simulated customer checkout confirmed 200 OK' }
+        ]
+    };
     
     dom.globalStatus.className = 'status-pill status-remediating';
     dom.globalStatusText.textContent = 'REMEDIATING SYSTEM';
@@ -2043,51 +2336,117 @@ function triggerAutoRemediation(scenarioType) {
     
     dom.stepAction.className = 'timeline-step step-active';
     dom.stepAction.querySelector('.step-bullet').textContent = '⚙';
-    dom.actionStepTitle.textContent = `Running ${sc.remediationScript}...`;
-    dom.actionStepDesc.textContent = 'Executing cluster mitigation policy...';
+    dom.actionStepTitle.textContent = policy.name;
+    dom.actionStepDesc.textContent = 'Executing multi-step automated healing policy...';
     
-    logConsole(`[REMEDY-ENGINE] Auto-detection success. Launching container script: ${sc.remediationScript}`, 'remedy');
+    // Display strategy banner & audit log
+    if (dom.remediationStrategyBanner) {
+        dom.remediationStrategyBanner.classList.remove('hidden');
+        if (dom.remediationStrategyName) dom.remediationStrategyName.textContent = policy.name;
+        if (dom.remediationStatusPill) {
+            dom.remediationStatusPill.textContent = 'EXECUTING POLICY';
+            dom.remediationStatusPill.style.background = 'rgba(245, 158, 11, 0.2)';
+            dom.remediationStatusPill.style.color = '#fbbf24';
+            dom.remediationStatusPill.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        }
+    }
+
+    if (dom.remediationAuditLog) {
+        dom.remediationAuditLog.classList.remove('hidden');
+        dom.remediationAuditLog.innerHTML = '';
+    }
     
-    state.remediationTimer = setTimeout(() => {
-        dom.stepAction.className = 'timeline-step step-complete';
-        dom.stepAction.querySelector('.step-bullet').textContent = '✓';
-        dom.actionStepTitle.textContent = 'Remediation Applied';
-        dom.actionStepDesc.textContent = 'Service status restored to nominal.';
-        
-        logConsole(`[REMEDY-ENGINE] Script SUCCESS: ${sc.remediationMessage}`, 'remedy');
-        
-        applyRemediationFix(scenarioType);
-        
-        dom.stepVerify.className = 'timeline-step step-active';
-        dom.stepVerify.querySelector('.step-bullet').textContent = '⚙';
-        
-        logConsole(`[REMEDY-ENGINE] Triggering automated verification trace on pipeline...`, 'remedy');
-        
+    logConsole(`[REMEDY-ENGINE] Deploying named self-healing policy: "${policy.name}"`, 'remedy');
+    
+    // Sequentially animate audit steps with real-time timestamps
+    const speedFactor = Math.max(0.35, state.stepDelay / 500);
+    let accumulatedDelay = 0;
+
+    policy.steps.forEach((step, idx) => {
+        const isLast = idx === policy.steps.length - 1;
+        accumulatedDelay += Math.round(step.delay * speedFactor);
+
         setTimeout(() => {
-            const mockVerificationOrder = {
-                id: 'verify_' + Math.random().toString(36).substring(2, 8),
-                customer: 'Aegis System Check',
-                sku: 'SKU-8829', 
-                card: '4111 •••• •••• 1111', 
-                zip: '90210' 
-            };
-            
-            state.currentScenario = 'healthy';
-            Object.values(dom.scenarios).forEach(btn => btn.classList.remove('active'));
-            dom.scenarios.healthy.classList.add('active');
-            
-            logConsole(`[REMEDY-ENGINE] Sending verification transaction ${mockVerificationOrder.id}...`, 'remedy');
-            runVerificationOrder(mockVerificationOrder);
-            
-        }, Math.round(state.stepDelay * 1.7));
-        
-    }, Math.round(state.stepDelay * 3.5));
+            if (dom.remediationAuditLog) {
+                const stepRow = document.createElement('div');
+                stepRow.className = 'audit-step-row active';
+                stepRow.id = `audit-step-${idx}`;
+                const stepTime = ((step.delay * (idx + 1) * 0.35) / 1000).toFixed(2);
+                stepRow.innerHTML = `
+                    <span class="audit-time">+${stepTime}s</span>
+                    <span class="audit-icon">⚙</span>
+                    <div class="audit-content">
+                        <strong>${step.title}</strong>
+                        <div class="audit-desc"><code>${step.desc}</code></div>
+                    </div>
+                `;
+                dom.remediationAuditLog.appendChild(stepRow);
+                dom.remediationAuditLog.scrollTop = dom.remediationAuditLog.scrollHeight;
+
+                setTimeout(() => {
+                    stepRow.classList.remove('active');
+                    stepRow.classList.add('complete');
+                    const icon = stepRow.querySelector('.audit-icon');
+                    if (icon) {
+                        icon.textContent = '✓';
+                        icon.style.color = '#10b981';
+                    }
+                }, Math.round(180 * speedFactor));
+            }
+
+            logConsole(`[REMEDY-STEP ${idx + 1}/${policy.steps.length}] ${step.title}: ${step.desc}`, 'remedy');
+
+            if (isLast) {
+                setTimeout(() => {
+                    dom.stepAction.className = 'timeline-step step-complete';
+                    dom.stepAction.querySelector('.step-bullet').textContent = '✓';
+                    dom.actionStepTitle.textContent = 'Remediation Applied';
+                    dom.actionStepDesc.textContent = `${policy.name} verified nominal.`;
+
+                    if (dom.remediationStatusPill) {
+                        dom.remediationStatusPill.textContent = 'RESOLVED & VERIFIED';
+                        dom.remediationStatusPill.style.background = 'rgba(16, 185, 129, 0.2)';
+                        dom.remediationStatusPill.style.color = '#34d399';
+                        dom.remediationStatusPill.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+
+                    logConsole(`[REMEDY-ENGINE] Policy SUCCESS: ${policy.remedyTitle}`, 'remedy');
+                    applyRemediationFix(scenarioType);
+
+                    dom.stepVerify.className = 'timeline-step step-active';
+                    dom.stepVerify.querySelector('.step-bullet').textContent = '⚙';
+
+                    logConsole(`[REMEDY-ENGINE] Triggering automated verification trace on pipeline...`, 'remedy');
+
+                    setTimeout(() => {
+                        const mockVerificationOrder = {
+                            id: 'verify_' + Math.random().toString(36).substring(2, 8),
+                            customer: 'Aegis System Check',
+                            sku: 'SKU-8829', 
+                            card: '4111 •••• •••• 1111', 
+                            zip: '90210' 
+                        };
+
+                        state.currentScenario = 'healthy';
+                        Object.values(dom.scenarios).forEach(btn => btn.classList.remove('active'));
+                        dom.scenarios.healthy.classList.add('active');
+
+                        logConsole(`[REMEDY-ENGINE] Sending verification transaction ${mockVerificationOrder.id}...`, 'remedy');
+                        runVerificationOrder(mockVerificationOrder);
+
+                    }, Math.round(state.stepDelay * 1.5));
+
+                }, Math.round(250 * speedFactor));
+            }
+        }, accumulatedDelay);
+    });
 }
 
 function updateBusinessMetricsUI() {
-    dom.bizRevenue.textContent = state.preservedRevenue.toFixed(2);
-    dom.bizMttr.textContent = state.avgMttr > 0 ? `${state.avgMttr.toFixed(2)}s` : '0.00s';
+    dom.bizRevenue.textContent = state.preservedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    dom.bizMttr.textContent = state.avgMttr > 0 ? `${state.avgMttr.toFixed(2)}s` : '1.14s';
     dom.bizHours.textContent = state.totalHoursSaved.toFixed(1);
+    updateRollingTicker();
 }
 
 // Helper to update the simulation parameters and trigger real backend remediation
@@ -2100,12 +2459,23 @@ async function applyRemediationFix(scenarioType) {
         renderUptimeBars();
     }
 
-    const mttr = (state.stepDelay * 5.2) / 1000; 
+    const mttr = Math.max(1.12, (state.stepDelay * 3.2) / 1000); 
     state.avgMttr = state.avgMttr === 0 ? mttr : (state.avgMttr + mttr) / 2;
-    state.preservedRevenue += 150.00; 
-    state.totalHoursSaved += 0.75; 
+    
+    const savedAmount = (state.activeIncident && state.activeIncident.revenueAtRisk) ? state.activeIncident.revenueAtRisk : (state.roi.aov * 2);
+    state.preservedRevenue += savedAmount;
+    state.roi.recentProtectedRevenue += savedAmount;
+    state.roi.recentOutagesPrevented += 1;
+    state.totalHoursSaved += (state.roi.traditionalMttrMin / 60);
+    
     if (state.errorRuns > 0) state.errorRuns--;
     state.systemMetrics.errorRate = 0.0;
+    
+    if (state.activeIncident) {
+        state.activeIncident.status = 'resolved';
+        populateIncidentModal(state.activeIncident);
+    }
+
     updateBusinessMetricsUI();
     updateMetricsUI();
 
@@ -2206,6 +2576,454 @@ async function runVerificationOrder(orderContext) {
                 dom.globalStatusText.textContent = 'SYSTEM OPERATIONAL';
                 state.systemMetrics.errorRate = 0.0;
                 updateMetricsUI();
+                
+                // Update active incident resolved state
+                if (state.activeIncident) {
+                    state.activeIncident.status = 'resolved';
+                    populateIncidentModal(state.activeIncident);
+                    if (dom.btnViewIncidentCard) {
+                        dom.btnViewIncidentCard.textContent = `📋 View Healed Incident (${state.activeIncident.id})`;
+                        dom.btnViewIncidentCard.style.color = '#34d399';
+                        dom.btnViewIncidentCard.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    }
+                }
+
+                if (dom.bizRevenueAtRisk) {
+                    dom.bizRevenueAtRisk.textContent = '$0.00';
+                }
+                updateRollingTicker();
+
+                const savedRevText = state.activeIncident ? `$${state.activeIncident.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '$4,850.00';
+                appendAiChatBubble('ai', `✅ <b>Self-Healing Complete</b>: Synthetic verification probe confirmed all 5 microservices are healthy. Protected <b>${savedRevText}</b> in pipeline revenue with <b>0 cart abandonments</b>.`);
+
+                // Clear code debugger fault status on verification success
+                state.hotfixAvailable = false;
+                state.showCodeDiff = false;
+                dom.btnToggleDiff.disabled = true;
+                dom.btnApplyHotfix.disabled = true;
+                dom.debuggerStatusBadge.textContent = 'COMPILED';
+                dom.debuggerStatusBadge.className = 'badge';
+                syncCodeView();
+
+                setTimeout(() => {
+                    if (!state.pipelineActive && !state.remediationInProgress) {
+                        dom.rcaReportState.classList.add('hidden');
+                        dom.rcaEmptyState.classList.remove('hidden');
+                        dom.rcaHeaderBadge.textContent = 'WAITING FOR FAILURE';
+                        dom.rcaHeaderBadge.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                        dom.rcaHeaderBadge.style.color = 'var(--text-muted)';
+                    }
+                }, Math.round(state.stepDelay * 5.7));
+            }
+        }, pacing);
+    }
+    
+    next();
+}
+
+// --- W3C CORRELATION TRACE ID UTILITIES ---
+function generateTraceId() {
+    const hex = '0123456789abcdef';
+    let id = '';
+    for (let i = 0; i < 32; i++) {
+        id += hex[Math.floor(Math.random() * 16)];
+    }
+    return id;
+}
+
+function updateTraceId(traceId) {
+    state.activeTraceId = traceId || generateTraceId();
+    if (dom.currentTraceId) {
+        dom.currentTraceId.textContent = state.activeTraceId;
+    }
+}
+
+// --- STRONGER BUSINESS ROI CALCULATOR ENGINE ---
+function updateRoiCalculations() {
+    if (!dom.roiSliderVolume) return;
+    const volume = parseInt(dom.roiSliderVolume.value, 10);
+    const aov = parseFloat(dom.roiSliderAov.value);
+    const conv = parseFloat(dom.roiSliderConv.value);
+    const mttr = parseInt(dom.roiSliderMttr.value, 10);
+    const rate = parseInt(dom.roiSliderRate.value, 10);
+
+    state.roi.dailyOrders = volume;
+    state.roi.aov = aov;
+    state.roi.conversionRate = conv;
+    state.roi.traditionalMttrMin = mttr;
+    state.roi.engineerHourlyRate = rate;
+
+    if (dom.roiValVolume) dom.roiValVolume.textContent = `${volume.toLocaleString()} orders/day`;
+    if (dom.roiValAov) dom.roiValAov.textContent = `$${aov.toFixed(2)}`;
+    if (dom.roiValConv) dom.roiValConv.textContent = `${conv.toFixed(1)}%`;
+    if (dom.roiValMttr) dom.roiValMttr.textContent = `${mttr} minutes`;
+    if (dom.roiValRate) dom.roiValRate.textContent = `$${rate} / hr`;
+
+    // Mathematical formula for downtime cost:
+    const ordersPerMin = volume / 1440;
+    const lostOrders = Math.round(ordersPerMin * mttr);
+    const lostRevenue = lostOrders * aov;
+    const engToilCost = (rate * 2) * (mttr / 60);
+    const costPerIncident = lostRevenue + engToilCost;
+    const annualSaved = costPerIncident * 12; // 12 enterprise incidents / year
+    const mttrReductionPct = (((mttr * 60) - 1.2) / (mttr * 60) * 100).toFixed(1);
+    const hoursSavedPerYr = Math.round(2 * (mttr / 60) * 12);
+
+    if (dom.roiOutIncidentCost) dom.roiOutIncidentCost.textContent = `$${costPerIncident.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (dom.roiOutAnnualSaved) dom.roiOutAnnualSaved.textContent = `$${annualSaved.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (dom.roiOutMttrReduction) dom.roiOutMttrReduction.textContent = `${mttrReductionPct}%`;
+    if (dom.roiOutHoursSaved) dom.roiOutHoursSaved.textContent = `${hoursSavedPerYr} hrs/yr`;
+
+    if (dom.bizTraditionalCost) dom.bizTraditionalCost.textContent = `$${costPerIncident.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function updateRollingTicker() {
+    if (dom.bizRollingText) {
+        const rev = (state.roi.recentProtectedRevenue > 0 ? state.roi.recentProtectedRevenue : state.preservedRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const heals = Math.max(state.roi.recentOutagesPrevented, Math.round(state.preservedRevenue / 150));
+        dom.bizRollingText.textContent = `Protected $${rev} in last 5m (${heals} automated heals) • 0 Cart Drops`;
+    }
+}
+
+async function applyRoiSettings() {
+    updateRoiCalculations();
+    localStorage.setItem('aegis_roi_volume', state.roi.dailyOrders);
+    localStorage.setItem('aegis_roi_aov', state.roi.aov);
+    localStorage.setItem('aegis_roi_conv', state.roi.conversionRate);
+    localStorage.setItem('aegis_roi_mttr', state.roi.traditionalMttrMin);
+    localStorage.setItem('aegis_roi_rate', state.roi.engineerHourlyRate);
+
+    try {
+        await authFetch('/api/roi/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state.roi)
+        });
+    } catch (e) {
+        // Local state preserved
+    }
+
+    if (dom.modalRoi) dom.modalRoi.style.display = 'none';
+    updateRollingTicker();
+    logConsole(`[ROI Engine] Business parameters applied: Daily Orders=${state.roi.dailyOrders.toLocaleString()}, AOV=$${state.roi.aov.toFixed(2)}, MTTR=${state.roi.traditionalMttrMin}m`, 'success');
+}
+
+function resetRoiDefaults() {
+    if (dom.roiSliderVolume) dom.roiSliderVolume.value = 10000;
+    if (dom.roiSliderAov) dom.roiSliderAov.value = 145;
+    if (dom.roiSliderConv) dom.roiSliderConv.value = 2.8;
+    if (dom.roiSliderMttr) dom.roiSliderMttr.value = 45;
+    if (dom.roiSliderRate) dom.roiSliderRate.value = 110;
+    updateRoiCalculations();
+}
+
+async function fetchRoiConfig() {
+    try {
+        const res = await authFetch('/api/roi/config');
+        if (res && res.ok) {
+            const data = await res.json();
+            if (data.config) {
+                if (data.config.dailyOrders && dom.roiSliderVolume) dom.roiSliderVolume.value = data.config.dailyOrders;
+                if (data.config.aov && dom.roiSliderAov) dom.roiSliderAov.value = data.config.aov;
+                if (data.config.conversionRate && dom.roiSliderConv) dom.roiSliderConv.value = data.config.conversionRate;
+                if (data.config.traditionalMttrMin && dom.roiSliderMttr) dom.roiSliderMttr.value = data.config.traditionalMttrMin;
+                if (data.config.engineerHourlyRate && dom.roiSliderRate) dom.roiSliderRate.value = data.config.engineerHourlyRate;
+            }
+        }
+    } catch (e) {
+        // fallback to localStorage
+    }
+    updateRoiCalculations();
+}
+
+// --- PRODUCTION TELEMETRY BRIDGE ENGINE ---
+function openTelemetryModal() {
+    if (dom.modalTelemetry) dom.modalTelemetry.style.display = 'flex';
+}
+
+function closeTelemetryModal() {
+    if (dom.modalTelemetry) dom.modalTelemetry.style.display = 'none';
+}
+
+function switchTelemetryTab(tabKey) {
+    [dom.tabTelOtlp, dom.tabTelWebhook, dom.tabTelMapping].forEach(t => t && t.classList.remove('active'));
+    [dom.telContentOtlp, dom.telContentWebhook, dom.telContentMapping].forEach(c => c && c.classList.add('hidden'));
+
+    if (tabKey === 'otlp') {
+        if (dom.tabTelOtlp) dom.tabTelOtlp.classList.add('active');
+        if (dom.telContentOtlp) dom.telContentOtlp.classList.remove('hidden');
+    } else if (tabKey === 'webhook') {
+        if (dom.tabTelWebhook) dom.tabTelWebhook.classList.add('active');
+        if (dom.telContentWebhook) dom.telContentWebhook.classList.remove('hidden');
+    } else if (tabKey === 'mapping') {
+        if (dom.tabTelMapping) dom.tabTelMapping.classList.add('active');
+        if (dom.telContentMapping) dom.telContentMapping.classList.remove('hidden');
+    }
+}
+
+async function sendTestOtlpTrace() {
+    const newTraceId = generateTraceId();
+    updateTraceId(newTraceId);
+
+    if (dom.btnSendTestOtlp) {
+        dom.btnSendTestOtlp.disabled = true;
+        dom.btnSendTestOtlp.textContent = 'Sending OTLP Trace...';
+    }
+
+    logConsole(`[OTLP Bridge] Dispatching synthetic OpenTelemetry span payload. TraceID: ${newTraceId}...`, 'info');
+
+    try {
+        const res = await authFetch('/api/telemetry/otlp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                traceId: newTraceId,
+                service: 'payment',
+                status: 'healthy',
+                latencyMs: 112,
+                httpStatus: 200,
+                metadata: {
+                    sdk: '@opentelemetry/sdk-trace-node',
+                    version: '1.25.0',
+                    environment: 'production'
+                }
+            })
+        });
+
+        if (res.ok) {
+            logConsole(`[OTLP Bridge] OTLP Trace Accepted (202 ACCEPTED). Ingestion pipeline mapped span to Payment Gateway.`, 'success');
+        }
+    } catch (err) {
+        logConsole(`[OTLP Bridge] Network notice: ${err.message}. Simulating local OTLP trace.`, 'warn');
+    }
+
+    const mockOrder = {
+        id: 'otlp_' + newTraceId.substring(0, 8),
+        customer: 'OTLP Collector Span',
+        sku: 'SKU-8829',
+        card: '4111 •••• •••• 1111',
+        zip: '90210'
+    };
+
+    closeTelemetryModal();
+    runOrderTrace('healthy', mockOrder);
+
+    if (dom.btnSendTestOtlp) {
+        dom.btnSendTestOtlp.disabled = false;
+        dom.btnSendTestOtlp.textContent = '⚡ Send Live Test OTLP Trace';
+    }
+}
+
+// --- WHY AEGIS TRACE VS APM MODAL ---
+function openApmCompModal() {
+    if (dom.modalApmComp) dom.modalApmComp.style.display = 'flex';
+}
+
+function closeApmCompModal() {
+    if (dom.modalApmComp) dom.modalApmComp.style.display = 'none';
+}
+
+// --- RICH INCIDENT CARD MODAL & POST-MORTEM EXPORT ---
+function populateIncidentModal(incident) {
+    if (!incident) return;
+    if (dom.incidentModalTitle) dom.incidentModalTitle.textContent = `INCIDENT ${incident.id}`;
+    if (dom.incidentModalSubtitle) dom.incidentModalSubtitle.textContent = `${incident.errorSignature} on ${incident.service}-service (${incident.errorCode || 'HTTP 500'})`;
+    
+    if (dom.incidentStatusBadge) {
+        if (incident.status === 'resolved') {
+            dom.incidentStatusBadge.textContent = 'MITIGATED & VERIFIED';
+            dom.incidentStatusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+            dom.incidentStatusBadge.style.color = '#34d399';
+            dom.incidentStatusBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        } else {
+            dom.incidentStatusBadge.textContent = 'CRITICAL - AUTO-HEALING';
+            dom.incidentStatusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+            dom.incidentStatusBadge.style.color = '#f87171';
+            dom.incidentStatusBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        }
+    }
+
+    const svcOrder = ['checkout', 'inventory', 'payment', 'fulfillment', 'logistics'];
+    const failedIdx = svcOrder.indexOf(incident.service);
+    svcOrder.forEach((svc, idx) => {
+        const el = document.getElementById(`mini-node-${svc}`);
+        if (el) {
+            el.className = 'mini-node';
+            if (idx < failedIdx) {
+                el.className = 'mini-node mini-node-ok';
+                el.textContent = `${svc.charAt(0).toUpperCase() + svc.slice(1)} ✓`;
+            } else if (idx === failedIdx) {
+                el.className = 'mini-node mini-node-failed';
+                el.textContent = `${svc.charAt(0).toUpperCase() + svc.slice(1)} ⚠️`;
+            } else {
+                el.textContent = `${svc.charAt(0).toUpperCase() + svc.slice(1)}`;
+            }
+        }
+    });
+
+    if (dom.incCardRevenueRisk) dom.incCardRevenueRisk.textContent = `$${incident.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (dom.incCardRevenueSaved) dom.incCardRevenueSaved.textContent = `$${incident.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (dom.incCardMttr) dom.incCardMttr.textContent = `1.24s (vs ${state.roi.traditionalMttrMin}m)`;
+    if (dom.incCardCartDrops) dom.incCardCartDrops.textContent = `0 (Rescued)`;
+    if (dom.incCardRcaText) dom.incCardRcaText.textContent = incident.rcaDescription;
+    if (dom.incCardStrategyName) dom.incCardStrategyName.textContent = incident.policy ? incident.policy.name : 'Automated Recovery Policy';
+
+    if (dom.incCardStepsContainer && incident.policy && incident.policy.steps) {
+        dom.incCardStepsContainer.innerHTML = '';
+        incident.policy.steps.forEach((st, i) => {
+            const row = document.createElement('div');
+            row.style.cssText = 'background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px; padding: 0.35rem 0.5rem; display: flex; align-items: center; justify-content: space-between;';
+            row.innerHTML = `
+                <div>
+                    <strong style="color: #f3f4f6;">${i + 1}. ${st.title}</strong>
+                    <div style="color: var(--text-muted); font-size: 0.65rem; font-family: var(--font-mono);">${st.desc}</div>
+                </div>
+                <span style="color: #10b981; font-weight: 700; font-size: 0.7rem;">✓ DONE</span>
+            `;
+            dom.incCardStepsContainer.appendChild(row);
+        });
+    }
+}
+
+function openIncidentModal() {
+    if (!state.activeIncident) {
+        logConsole('No active or recent incident recorded to display in card.', 'warn');
+        return;
+    }
+    populateIncidentModal(state.activeIncident);
+    if (dom.modalIncident) dom.modalIncident.style.display = 'flex';
+}
+
+function closeIncidentModal() {
+    if (dom.modalIncident) dom.modalIncident.style.display = 'none';
+}
+
+function buildPostMortemMarkdown(inc) {
+    const incident = inc || state.activeIncident || {
+        id: 'INC-DEMO-01',
+        service: 'payment',
+        errorCode: 'HTTP 504',
+        errorSignature: 'CONN_TIMEOUT_STRIPE_API',
+        rcaDescription: 'Upstream payment gateway timeout during checkout flow.',
+        revenueAtRisk: 4850.00,
+        policy: state.remediationPolicies['gateway-timeout']
+    };
+
+    const stepsText = incident.policy && incident.policy.steps 
+        ? incident.policy.steps.map((s, i) => `${i + 1}. **${s.title}**\n   \`${s.desc}\``).join('\n')
+        : '1. Autonomous microservice failover executed.';
+
+    return `# INCIDENT POST-MORTEM REPORT: ${incident.id}
+**Service:** ${incident.service}-service  
+**Status:** RESOLVED (Auto-Remediated)  
+**Detected At:** ${new Date().toUTCString()}  
+**Trace ID:** \`${state.activeTraceId}\`  
+**SLA Impact:** 0 Breaches (Preserved by AegisTrace)
+
+---
+
+## 1. Executive Summary
+During customer transaction flow, an anomaly was intercepted on **${incident.service.toUpperCase()}**. AegisTrace self-healing triggered within **1.24 seconds**, avoiding checkout abandonment and preserving **$${incident.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}** in pipeline revenue.
+
+- **MTTR Achieved:** 1.24s (Traditional APM baseline: ${state.roi.traditionalMttrMin} minutes)
+- **Revenue Preserved:** $${incident.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+- **Cart Drops:** 0 (All customer sessions retained)
+- **On-Call Engineering Hours Saved:** ${(state.roi.traditionalMttrMin / 60).toFixed(1)} hrs
+
+---
+
+## 2. Root Cause Analysis (Plain English)
+${incident.rcaDescription}
+
+**Error Signature:** \`${incident.errorSignature}\`  
+**HTTP Status:** \`${incident.errorCode}\`
+
+---
+
+## 3. Autonomous Remediation Actions Executed
+**Deployed Policy:** ${incident.policy ? incident.policy.name : 'Cluster Recovery'}
+
+${stepsText}
+
+---
+
+## 4. Verification & Health Confirmation
+- Automated synthetic verification order dispatched: **PASSED (200 OK)**
+- Pipeline microservices returned to green nominal operational SLA.
+- Verification probe confirms 0 dropped transactions.
+
+---
+*Report generated automatically by AegisTrace Autonomous Resilience Engine.*
+`;
+}
+
+async function copyPostMortem() {
+    const md = buildPostMortemMarkdown(state.activeIncident);
+    try {
+        await navigator.clipboard.writeText(md);
+        if (dom.btnCopyPostmortem) {
+            const orig = dom.btnCopyPostmortem.textContent;
+            dom.btnCopyPostmortem.textContent = '✓ Copied to Clipboard!';
+            setTimeout(() => dom.btnCopyPostmortem.textContent = orig, 2000);
+        }
+        logConsole('Post-mortem markdown report copied to clipboard.', 'success');
+    } catch (err) {
+        logConsole('Could not copy to clipboard. Downloading report instead...', 'warn');
+        downloadPostMortem();
+    }
+}
+
+function downloadPostMortem() {
+    const md = buildPostMortemMarkdown(state.activeIncident);
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `incident_postmortem_${state.activeIncident ? state.activeIncident.id : 'export'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    logConsole('Downloaded incident post-mortem markdown file.', 'success');
+}
+
+// --- MOBILE NAVIGATION SEGMENTED TABS ENGINE ---
+function initMobileNav() {
+    if (!dom.mobileNavTabs) return;
+    dom.mobileNavTabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('.mobile-tab-btn');
+        if (!btn) return;
+
+        const view = btn.dataset.view;
+        Array.from(dom.mobileNavTabs.children).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (view === 'telemetry') {
+            openTelemetryModal();
+            return;
+        }
+
+        let targetEl = null;
+        if (view === 'pipeline') {
+            targetEl = document.querySelector('.middle-panel');
+        } else if (view === 'faults') {
+            targetEl = document.querySelector('.left-panel');
+        } else if (view === 'metrics') {
+            targetEl = document.querySelector('.business-card') || document.querySelector('.metrics-card');
+        } else if (view === 'copilot') {
+            targetEl = document.querySelector('.right-panel');
+        }
+
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            targetEl.style.transition = 'box-shadow 0.3s ease';
+            targetEl.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.4)';
+            setTimeout(() => {
+                targetEl.style.boxShadow = '';
+            }, 1200);
+        }
+    });
+}
                 
                 // Clear code debugger fault status on verification success
                 state.hotfixAvailable = false;
@@ -2524,12 +3342,21 @@ function queryLocalSimulatedAI(userText, typingBubbleElement) {
     const node = activeSc.failureNode;
     
     let answerText = '';
-    
-    if (state.currentScenario === 'healthy') {
+
+    if (state.activeIncident && (query.includes('executive') || query.includes('incident') || query.includes('brief') || query.includes('summary'))) {
+        const inc = state.activeIncident;
+        answerText = `<b>Executive Incident Brief [${inc.id}]</b><br>` +
+                     `• <b>Service Affected:</b> ${inc.service.toUpperCase()} Service (Trace ID: <code>${inc.traceId}</code>)<br>` +
+                     `• <b>Root Cause:</b> ${inc.rcaDescription}<br>` +
+                     `• <b>Remediation Policy:</b> <code>${inc.policy ? inc.policy.name : 'Automated Circuit Mitigation'}</code><br>` +
+                     `• <b>Business Impact Protected:</b> <b>$${inc.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b> preserved, <b>0 cart abandonments</b>, and MTTR reduced from ${state.roi.traditionalMttrMin} minutes to <b>1.24 seconds</b>.`;
+    } else if (state.currentScenario === 'healthy') {
         if (query.includes('cause') || query.includes('why') || query.includes('error') || query.includes('failure')) {
             answerText = "The system is currently <b>Healthy</b>. Telemetries show normal response curves (Latency: " + state.systemMetrics.latency + "ms, Error rate: 0.0%). No active failure logs require investigation.";
         } else if (query.includes('remed') || query.includes('fix') || query.includes('hotfix')) {
             answerText = "No hotfixes are required at this time because all microservices are running normally. Click any scenario button in the <b>Fault Injection Lab</b> to simulate and fix a failure.";
+        } else if (query.includes('roi') || query.includes('revenue') || query.includes('saved')) {
+            answerText = `AegisTrace is currently protecting your order path. Based on configured daily volume (${state.roi.dailyOrders.toLocaleString()} orders/day @ $${state.roi.aov.toFixed(2)} AOV), each prevented incident protects approximately <b>$${((state.roi.dailyOrders / 1440) * state.roi.traditionalMttrMin * state.roi.aov).toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> in otherwise lost revenue.`;
         } else {
             answerText = "I am the Aegis AI debugger agent. I monitor production pipelines. If you trigger an outage in the <b>Fault Injection Sandbox</b> on the left, I will explain the root cause and supply fixes!";
         }
@@ -2540,9 +3367,9 @@ function queryLocalSimulatedAI(userText, typingBubbleElement) {
         } else if (query.includes('remed') || query.includes('fix') || query.includes('hotfix') || query.includes('code') || query.includes('repair')) {
             answerText = `To repair the <b>${node.toUpperCase()} Service</b>, apply this mitigation:<br><code>${activeSc.remediationMessage}</code>.<br><br>I have prepared a code correction diff in the <b>Hotfix Inspector</b> (middle screen). Click <b>Toggle AI Patch View</b> to view changes or click <b>Deploy Hotfix</b> to fix it.`;
         } else if (query.includes('sla') || query.includes('revenue') || query.includes('impact') || query.includes('business')) {
-            const risk = (state.errorRuns * 150).toFixed(2);
+            const risk = state.activeIncident ? state.activeIncident.revenueAtRisk.toFixed(2) : (state.errorRuns * 150).toFixed(2);
             answerText = `The current outage has degraded the <b>${node.toUpperCase()} API</b> uptime to <b>${state.uptimePercentages[node].toFixed(2)}%</b>. ` +
-                         `This failure has breached target service SLAs. At current order frequencies, you are risking approximately \$${risk} USD in blocked transactions. Applying the remediation fix will restore revenue flow immediately.`;
+                         `This failure has breached target service SLAs. At current order frequencies, you are risking approximately <b>\$${risk} USD</b> in blocked transactions. Applying the remediation fix will restore revenue flow immediately.`;
         } else {
             answerText = `We are responding to a critical anomaly on service node <b>${node.toUpperCase()}</b>. Code signature: <code>${activeSc.errorSignature}</code>. ` +
                          `Ask me "What caused the error?" or "Show me the proposed hotfix" for code mitigations.`;

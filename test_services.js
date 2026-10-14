@@ -432,6 +432,78 @@ async function runTests() {
         });
         assert(resNewOrder.status === 200, 'Newly registered user executes checkout trace successfully (200 OK)');
 
+        // --- 11. Observability Bridge, ROI & Incident Post-Mortem Tests ---
+        console.log('\n--- 11. Observability Bridge, ROI & Incident Post-Mortem Tests ---');
+        
+        // Sample W3C Trace endpoint
+        const resSampleTrace = await fetch(`${GATEWAY_URL}/api/telemetry/sample`);
+        assert(resSampleTrace.status === 200, 'Sample W3C trace endpoint returns 200 OK');
+        const sampleTraceData = await resSampleTrace.json();
+        assert(sampleTraceData.w3cTraceparent && sampleTraceData.w3cTraceparent.startsWith('00-'), 'Sample trace contains valid W3C traceparent header');
+        assert(Array.isArray(sampleTraceData.services) && sampleTraceData.services.length === 5, 'Sample trace maps across all 5 order microservices');
+
+        // OTLP Ingest endpoint
+        const resOtlp = await fetch(`${GATEWAY_URL}/api/telemetry/otlp`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${dataLoginAegis.token}`
+            },
+            body: JSON.stringify({
+                traceId: 'trace_test_otlp_991',
+                resourceSpans: [{
+                    resource: { attributes: [{ key: 'service.name', value: { stringValue: 'payment-service' } }] },
+                    scopeSpans: [{
+                        spans: [{
+                            name: 'POST /payment/charge',
+                            attributes: [{ key: 'http.status_code', value: { intValue: 200 } }]
+                        }]
+                    }]
+                }]
+            })
+        });
+        assert(resOtlp.status === 202, 'OpenTelemetry OTLP endpoint accepts trace payload (202 ACCEPTED)');
+
+        // Webhook Ingest endpoint
+        const resHook = await fetch(`${GATEWAY_URL}/api/telemetry/webhook`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${dataLoginAegis.token}`
+            },
+            body: JSON.stringify({
+                traceId: 'trace_test_hook_882',
+                service: 'inventory',
+                status: 'success'
+            })
+        });
+        assert(resHook.status === 200, 'External APM webhook endpoint processes trace (200 OK)');
+
+        // ROI Config endpoint
+        const resRoiGet = await fetch(`${GATEWAY_URL}/api/roi/config`, {
+            headers: { 'Authorization': `Bearer ${dataLoginAegis.token}` }
+        });
+        assert(resRoiGet.status === 200, 'ROI configuration endpoint returns 200 OK');
+        const roiData = await resRoiGet.json();
+        assert(roiData.roiConfig && roiData.roiConfig.dailyOrders >= 100, 'ROI configuration provides valid dailyOrders model');
+
+        // Post-Mortem Export endpoint
+        const resPostMortem = await fetch(`${GATEWAY_URL}/api/incident/export`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${dataLoginAegis.token}`
+            },
+            body: JSON.stringify({
+                scenarioName: 'Payment Gateway Timeout',
+                serviceName: 'payment-service',
+                revenuePreserved: 2499.00
+            })
+        });
+        assert(resPostMortem.status === 200, 'Incident post-mortem generator returns 200 OK');
+        const pmData = await resPostMortem.json();
+        assert(pmData.markdown && pmData.markdown.includes('AegisTrace Automated Incident Post-Mortem'), 'Post-mortem exports formatted Markdown report');
+
     } catch (e) {
         assert(false, `Authentication and Multi-tenancy test error: ${e.message}`);
     }
