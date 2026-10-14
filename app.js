@@ -1380,8 +1380,200 @@ function updateDynamicHostUrls() {
     if (curlTimeout) curlTimeout.textContent = `curl -X POST ${origin}/api/scenario -d "scenario=gateway-timeout"`;
 }
 
+// --- SAAS CLIENT-SIDE SPA ROUTER ---
+const router = {
+    routes: {
+        '#/dashboard': { pageId: 'page-dashboard', title: 'Dashboard', navId: 'nav-dashboard' },
+        '#/incidents': { pageId: 'page-incidents', title: 'Incidents & RCA', navId: 'nav-incidents' },
+        '#/roi': { pageId: 'page-roi', title: 'ROI & Revenue Impact', navId: 'nav-roi' },
+        '#/faults': { pageId: 'page-faults', title: 'Fault Injection Lab', navId: 'nav-faults' },
+        '#/chaos': { pageId: 'page-chaos', title: 'Chaos & Load Testing', navId: 'nav-chaos' },
+        '#/hotfix': { pageId: 'page-hotfix', title: 'Code Hotfix Inspector', navId: 'nav-hotfix' },
+        '#/copilot': { pageId: 'page-copilot', title: 'AI Copilot', navId: 'nav-copilot' },
+        '#/observability': { pageId: 'page-observability', title: 'Observability & OTLP', navId: 'nav-observability' },
+        '#/settings': { pageId: 'page-settings', title: 'Settings & Workspace', navId: 'nav-settings' }
+    },
+
+    currentPage: '#/dashboard',
+
+    init() {
+        window.addEventListener('hashchange', () => this.handleRoute());
+
+        // Handle navigation link clicks
+        document.querySelectorAll('a[href^="#/"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetHash = link.getAttribute('href');
+                if (this.routes[targetHash]) {
+                    this.navigate(targetHash);
+                }
+            });
+        });
+
+        // Mobile drawer handlers
+        const openDrawer = () => {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar) sidebar.classList.add('drawer-open');
+            if (backdrop) backdrop.classList.add('active');
+        };
+        const closeDrawer = () => {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar) sidebar.classList.remove('drawer-open');
+            if (backdrop) backdrop.classList.remove('active');
+        };
+
+        const btnHamburger = document.getElementById('btn-hamburger');
+        const btnBottomMore = document.getElementById('btn-bottom-more');
+        const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        if (btnHamburger) btnHamburger.addEventListener('click', openDrawer);
+        if (btnBottomMore) btnBottomMore.addEventListener('click', openDrawer);
+        if (btnCloseSidebar) btnCloseSidebar.addEventListener('click', closeDrawer);
+        if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+        // Header Quick Order button
+        const btnQuickOrder = document.getElementById('btn-quick-order');
+        if (btnQuickOrder) {
+            btnQuickOrder.addEventListener('click', () => {
+                triggerManualTransaction();
+                logConsole('Dispatched manual order trace from header trigger.', 'info');
+            });
+        }
+
+        // Header Trace ID copy button
+        const btnCopyHeaderTrace = document.getElementById('btn-copy-header-trace');
+        if (btnCopyHeaderTrace) {
+            btnCopyHeaderTrace.addEventListener('click', () => {
+                copyTraceIdToClipboard();
+            });
+        }
+
+        // Sidebar Sign Out button
+        const btnSidebarSignout = document.getElementById('btn-sidebar-signout');
+        if (btnSidebarSignout) {
+            btnSidebarSignout.addEventListener('click', () => {
+                openAuthModal();
+            });
+        }
+
+        // Page ROI calculation inputs live sync
+        const roiVolPage = document.getElementById('roi-volume-page');
+        const roiAovPage = document.getElementById('roi-aov-page');
+        const roiConvPage = document.getElementById('roi-conv-page');
+        const updatePageRoi = () => {
+            if (!roiVolPage || !roiAovPage || !roiConvPage) return;
+            const volume = parseInt(roiVolPage.value) || state.roi.dailyOrders;
+            const aov = parseFloat(roiAovPage.value) || state.roi.aov;
+            const conv = parseFloat(roiConvPage.value) || state.roi.conversionRate;
+            state.roi.dailyOrders = volume;
+            state.roi.aov = aov;
+            state.roi.conversionRate = conv;
+            updateRoiCalculations();
+
+            const hourlyOrders = volume / 24;
+            const hourlyRevenue = hourlyOrders * aov;
+            const minCost = hourlyRevenue / 60;
+            const annualSavings = minCost * state.roi.traditionalMttrMin * 4 * 12;
+
+            const elCost = document.getElementById('roi-page-cost-min');
+            const elAnn = document.getElementById('roi-page-annual-savings');
+            if (elCost) elCost.textContent = `$${minCost.toFixed(2)} / min`;
+            if (elAnn) elAnn.textContent = `$${annualSavings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / yr`;
+        };
+        if (roiVolPage) roiVolPage.addEventListener('input', updatePageRoi);
+        if (roiAovPage) roiAovPage.addEventListener('input', updatePageRoi);
+        if (roiConvPage) roiConvPage.addEventListener('input', updatePageRoi);
+
+        // Initial route resolution
+        this.handleRoute();
+    },
+
+    navigate(hash) {
+        if (!this.routes[hash]) hash = '#/dashboard';
+        window.location.hash = hash;
+        this.handleRoute();
+    },
+
+    handleRoute() {
+        let hash = window.location.hash;
+        if (!this.routes[hash]) hash = '#/dashboard';
+        this.currentPage = hash;
+        const route = this.routes[hash];
+
+        // 1. Hide all page views, show target page view
+        document.querySelectorAll('.page-view').forEach(view => {
+            view.classList.remove('active');
+        });
+        const targetView = document.getElementById(route.pageId);
+        if (targetView) {
+            targetView.classList.add('active');
+        }
+
+        // 2. Update active sidebar link
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        const activeNav = document.getElementById(route.navId);
+        if (activeNav) {
+            activeNav.classList.add('active');
+        }
+
+        // 3. Update mobile bottom navigation
+        const cleanPageName = hash.replace('#/', '');
+        document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item').forEach(item => {
+            if (item.dataset.page === cleanPageName) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        // 4. Update Header Breadcrumb Title
+        const headerTitle = document.getElementById('header-page-title');
+        if (headerTitle) {
+            headerTitle.textContent = route.title;
+        }
+
+        // 5. Close mobile drawer if open
+        const sidebar = document.getElementById('app-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (sidebar) sidebar.classList.remove('drawer-open');
+        if (backdrop) backdrop.classList.remove('active');
+
+        // 6. Smooth scroll to top of window
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // 7. Page-specific view refreshes
+        if (cleanPageName === 'hotfix') {
+            syncCodeView();
+        } else if (cleanPageName === 'roi') {
+            updateRoiCalculations();
+        } else if (cleanPageName === 'observability') {
+            updateDynamicHostUrls();
+        }
+    }
+};
+
+function triggerManualTransaction() {
+    if (state.pipelineActive || state.remediationInProgress) {
+        logConsole('Pipeline active. Waiting for current trace.', 'warn');
+        return;
+    }
+    const customOrder = {
+        id: generateOrderId(),
+        customer: (dom.orderCustomer && dom.orderCustomer.value) || 'Alex Rivera (Quick Run)',
+        sku: (dom.orderSku && dom.orderSku.value) || 'SKU-8829',
+        card: (dom.orderCard && dom.orderCard.value) || '4111 •••• •••• 1111',
+        zip: (dom.orderZip && dom.orderZip.value) || '90210'
+    };
+    runOrderTrace('healthy', customOrder);
+}
+
 // --- INITIALIZATION ---
 async function init() {
+    router.init();
     registerEventListeners();
     initOnboarding();
     updateDynamicHostUrls();
@@ -2660,6 +2852,14 @@ function updateTraceId(traceId) {
     if (dom.currentTraceId) {
         dom.currentTraceId.textContent = state.activeTraceId;
     }
+    const headerTraceId = document.getElementById('header-trace-id');
+    if (headerTraceId) {
+        headerTraceId.textContent = state.activeTraceId;
+    }
+    const traceIdVal = document.getElementById('trace-id-val');
+    if (traceIdVal) {
+        traceIdVal.textContent = state.activeTraceId;
+    }
 }
 
 // --- STRONGER BUSINESS ROI CALCULATOR ENGINE ---
@@ -2699,13 +2899,39 @@ function updateRoiCalculations() {
     if (dom.roiOutHoursSaved) dom.roiOutHoursSaved.textContent = `${hoursSavedPerYr} hrs/yr`;
 
     if (dom.bizTraditionalCost) dom.bizTraditionalCost.textContent = `$${costPerIncident.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Sync to Page-ROI elements
+    const roiVolPage = document.getElementById('roi-volume-page');
+    const roiAovPage = document.getElementById('roi-aov-page');
+    const roiConvPage = document.getElementById('roi-conv-page');
+    if (roiVolPage && document.activeElement !== roiVolPage) roiVolPage.value = volume;
+    if (roiAovPage && document.activeElement !== roiAovPage) roiAovPage.value = aov.toFixed(2);
+    if (roiConvPage && document.activeElement !== roiConvPage) roiConvPage.value = conv.toFixed(1);
+
+    const minCost = (volume / 1440) * aov;
+    const elCost = document.getElementById('roi-page-cost-min');
+    const elAnn = document.getElementById('roi-page-annual-savings');
+    if (elCost) elCost.textContent = `$${minCost.toFixed(2)} / min`;
+    if (elAnn) elAnn.textContent = `$${annualSaved.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / yr`;
 }
 
 function updateRollingTicker() {
+    const revNum = (state.roi.recentProtectedRevenue > 0 ? state.roi.recentProtectedRevenue : state.preservedRevenue);
+    const revFormatted = revNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const heals = Math.max(state.roi.recentOutagesPrevented, Math.round(state.preservedRevenue / 150));
+
     if (dom.bizRollingText) {
-        const rev = (state.roi.recentProtectedRevenue > 0 ? state.roi.recentProtectedRevenue : state.preservedRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const heals = Math.max(state.roi.recentOutagesPrevented, Math.round(state.preservedRevenue / 150));
-        dom.bizRollingText.textContent = `Protected $${rev} in last 5m (${heals} automated heals) • 0 Cart Drops`;
+        dom.bizRollingText.textContent = `Protected $${revFormatted} in last 5m (${heals} automated heals) • 0 Cart Drops`;
+    }
+
+    const headerTickerRevenue = document.getElementById('header-ticker-revenue');
+    if (headerTickerRevenue) {
+        headerTickerRevenue.textContent = `$${revFormatted}`;
+    }
+
+    const sidebarRoiBadge = document.getElementById('sidebar-roi-badge');
+    if (sidebarRoiBadge) {
+        sidebarRoiBadge.textContent = `$${Math.round(revNum).toLocaleString()}`;
     }
 }
 
@@ -3053,38 +3279,17 @@ function initMobileNav() {
         btn.classList.add('active');
 
         if (view === 'telemetry') {
-            openTelemetryModal();
-            return;
-        }
-
-        if (dom.dashboardGrid && dom.dashboardGrid.classList.contains('mobile-tabbed')) {
-            // Tabbed view mode: switch active view class
-            dom.dashboardGrid.classList.remove('view-pipeline', 'view-faults', 'view-metrics', 'view-copilot', 'view-code');
-            dom.dashboardGrid.classList.add(`view-${view}`);
-            window.scrollTo({ top: 120, behavior: 'smooth' });
-        } else {
-            // Full page scroll mode: smoothly scroll to element
-            let targetEl = null;
-            if (view === 'pipeline') {
-                targetEl = document.querySelector('.middle-panel');
-            } else if (view === 'faults') {
-                targetEl = document.querySelector('.controls-card') || document.querySelector('.left-panel');
-            } else if (view === 'metrics') {
-                targetEl = document.querySelector('.business-card') || document.querySelector('.metrics-card');
-            } else if (view === 'copilot') {
-                targetEl = document.querySelector('.ai-copilot-card') || document.querySelector('.right-panel');
-            } else if (view === 'code') {
-                targetEl = document.querySelector('#code-debugger') || document.querySelector('.code-debugger-card');
-            }
-
-            if (targetEl) {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                targetEl.style.transition = 'box-shadow 0.3s ease';
-                targetEl.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.4)';
-                setTimeout(() => {
-                    targetEl.style.boxShadow = '';
-                }, 1200);
-            }
+            router.navigate('#/observability');
+        } else if (view === 'pipeline') {
+            router.navigate('#/dashboard');
+        } else if (view === 'faults') {
+            router.navigate('#/faults');
+        } else if (view === 'metrics') {
+            router.navigate('#/roi');
+        } else if (view === 'copilot') {
+            router.navigate('#/copilot');
+        } else if (view === 'code') {
+            router.navigate('#/hotfix');
         }
     });
 

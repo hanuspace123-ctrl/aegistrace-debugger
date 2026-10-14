@@ -2,38 +2,219 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aegis Trace // E-Commerce Automated Visual Debugger</title>
-    <!-- Stylesheet -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>AegisTrace &mdash; Autonomous E-Commerce Order Path Resilience Engine</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237c3aed'><polygon points='12 2 2 7 12 12 22 7 12 2'/><polyline points='2 17 12 22 22 17'/><polyline points='2 12 12 17 22 12'/></svg>">
     <link rel="stylesheet" href="style.css">
-    <!-- Google Identity Services (Sign in with Google) -->
+    <!-- Google Fonts for Modern SaaS Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Identity Services for One-Tap / SSO Login -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar / Brand Section -->
-        <header class="app-header">
-            <div class="brand">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <!-- Main SaaS Multi-Page Layout Shell -->
+    <div class="app-shell" id="app-shell">
+        <!-- Persistent Left Sidebar Navigation -->
+        <aside class="app-sidebar" id="app-sidebar" aria-label="Main Application Navigation">
+            <!-- Sidebar Header & Brand -->
+            <div class="sidebar-brand">
+                <div class="brand-icon-box">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" class="logo-icon">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 12 17 22 12"/>
                     </svg>
                 </div>
-                <div class="brand-text">
-                    <h1>AegisTrace</h1>
-                    <span class="sub-brand">Visual API Resilience &amp; Self-Healing Debugger</span>
+                <div class="brand-title-wrap">
+                    <span class="brand-title">AegisTrace</span>
+                    <span class="brand-badge">SaaS Enterprise</span>
                 </div>
+                <button type="button" class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close Navigation Drawer">&times;</button>
             </div>
 
-            <!-- Global Status Widget -->
-            <div class="system-status-container">
-                <div class="status-pill status-healthy" id="global-status">
-                    <span class="status-indicator-dot"></span>
-                    <span class="status-text">SYSTEM OPERATIONAL</span>
-                </div>
+            <!-- Active Deployment Cluster Badge -->
+            <div class="sidebar-env-badge" title="Active Cluster: Production US-East (AWS EKS &bull; Multi-AZ)">
+                <span class="env-dot"></span>
+                <span class="env-text">Production &bull; US-East Cluster</span>
             </div>
 
-            <!-- Auto-Pilot Primary Toggle -->
+            <!-- Sidebar Navigation Links -->
+            <nav class="sidebar-nav" id="sidebar-nav">
+                <div class="nav-section-label">CORE PLATFORM</div>
+                <a href="#/dashboard" class="nav-link active" data-page="dashboard" id="nav-dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                    <span class="nav-pill pill-live">LIVE</span>
+                </a>
+                <a href="#/incidents" class="nav-link" data-page="incidents" id="nav-incidents">
+                    <span class="nav-icon">🚨</span>
+                    <span class="nav-text">Incidents &amp; RCA</span>
+                    <span class="nav-counter" id="sidebar-incident-count">0 Active</span>
+                </a>
+                <a href="#/roi" class="nav-link" data-page="roi" id="nav-roi">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">ROI &amp; Revenue</span>
+                    <span class="nav-badge-green" id="sidebar-roi-badge">$0</span>
+                </a>
+
+                <div class="nav-section-label">SIMULATION &amp; LAB</div>
+                <a href="#/faults" class="nav-link" data-page="faults" id="nav-faults">
+                    <span class="nav-icon">🔥</span>
+                    <span class="nav-text">Fault Injection Lab</span>
+                </a>
+                <a href="#/chaos" class="nav-link" data-page="chaos" id="nav-chaos">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">Chaos &amp; Load Engine</span>
+                </a>
+                <a href="#/hotfix" class="nav-link" data-page="hotfix" id="nav-hotfix">
+                    <span class="nav-icon">💻</span>
+                    <span class="nav-text">Code Hotfix Inspector</span>
+                </a>
+
+                <div class="nav-section-label">INTELLIGENCE &amp; DATA</div>
+                <a href="#/copilot" class="nav-link" data-page="copilot" id="nav-copilot">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-text">AI Copilot</span>
+                </a>
+                <a href="#/observability" class="nav-link" data-page="observability" id="nav-observability">
+                    <span class="nav-icon">📡</span>
+                    <span class="nav-text">Observability &amp; OTLP</span>
+                </a>
+
+                <div class="nav-section-label">SYSTEM &amp; SECURITY</div>
+                <a href="#/settings" class="nav-link" data-page="settings" id="nav-settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings &amp; Workspace</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Footer: Daemon Status & User Profile -->
+            <div class="sidebar-footer">
+                <div class="sidebar-daemon-status" title="Autonomous self-healing daemon continuously scans microservices traces">
+                    <span class="status-pulse-dot"></span>
+                    <span class="daemon-text">Self-Heal Daemon: <strong>Active</strong></span>
+                </div>
+                <div class="sidebar-user-card" id="sidebar-user-card">
+                    <div class="user-avatar" id="sidebar-avatar">AR</div>
+                    <div class="user-meta">
+                        <span class="user-name" id="sidebar-user-name">Alex Rivera</span>
+                        <span class="user-tenant" id="sidebar-tenant-name">Aegis Enterprise</span>
+                    </div>
+                    <button type="button" class="btn-sidebar-signout" id="btn-sidebar-signout" title="Sign Out or Switch Tenant Workspace">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Off-Canvas Sidebar Backdrop (for Mobile & Tablet) -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <!-- Main Workspace Area Wrapper -->
+        <div class="app-main-wrapper" id="app-main-wrapper">
+            <!-- Top Header Bar -->
+            <header class="app-top-header" id="app-top-header">
+                <div class="header-left">
+                    <button type="button" class="btn-hamburger" id="btn-hamburger" aria-label="Toggle Navigation Drawer">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </button>
+                    <div class="header-breadcrumbs">
+                        <span class="crumb-root">AegisTrace</span>
+                        <span class="crumb-separator">/</span>
+                        <span class="crumb-current" id="header-page-title">Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Live Rolling Revenue Protection Ticker -->
+                    <div class="header-ticker-pill" id="header-rolling-ticker" title="Rolling revenue protected by autonomous self-healing in the last 15 minutes">
+                        <span class="ticker-pulse-dot"></span>
+                        <span class="ticker-label">Protected:</span>
+                        <span class="ticker-val" id="header-ticker-revenue">$0.00</span>
+                        <span class="ticker-time" id="header-ticker-time">(15m)</span>
+                    </div>
+
+                    <!-- W3C Traceparent Correlation Badge -->
+                    <div class="header-trace-badge" id="header-trace-badge" title="Active W3C Traceparent Header (Click to copy)">
+                        <span class="trace-label">TRACE</span>
+                        <code id="header-trace-id">00-4bf92f35...-01</code>
+                        <button type="button" class="btn-copy-trace" id="btn-copy-header-trace" title="Copy W3C Trace ID">📋</button>
+                    </div>
+
+                    <!-- Quick Order Simulation Trigger -->
+                    <button type="button" class="btn btn-primary btn-small btn-quick-order" id="btn-quick-order" title="Run synthetic customer order trace through the 5 microservices">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.2rem;">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Run Order
+                    </button>
+
+                    <!-- User & Tenant Pill -->
+                    <div class="header-user-pill" id="header-user-pill">
+                        <span class="tenant-pill" id="tenant-pill">
+                            <span class="tenant-badge-dot"></span>
+                            <span id="tenant-name">Aegis Enterprise</span>
+                        </span>
+                        <span class="user-pill" id="user-pill">
+                            <span id="user-display">admin@aegistrace.com</span>
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Positioning Tagline Banner -->
+            <!-- Positioning Banner & Direct Action Triggers -->
+        <section class="positioning-banner" id="positioning-banner">
+            <div class="positioning-content">
+                <span class="positioning-pill">REVENUE PATH PROTECTION</span>
+                <p class="positioning-tagline">
+                    <strong>AegisTrace protects the revenue path.</strong> Detect, diagnose, and self-heal checkout &amp; fulfillment failures in seconds &mdash; not hours &mdash; while quantifying the revenue you just saved.
+                </p>
+            </div>
+            <div class="positioning-actions">
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-apm-comp" title="Compare AegisTrace against traditional APMs like Datadog and Dynatrace">
+                    ⚖️ Why AegisTrace vs APM
+                </button>
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-telemetry-modal" title="Connect external OpenTelemetry (OTLP) endpoint or webhook">
+                    📡 Connect Real Telemetry (OTLP)
+                </button>
+                <button type="button" class="btn btn-primary btn-small btn-banner-action" id="btn-open-roi-modal" title="Calculate revenue saved based on Order Volume, AOV, and Conversion Rate">
+                    💰 ROI Calculator
+                </button>
+            </div>
+        </section>
+
+        
+
+            <!-- Mobile View Navigation Tabs (Visible on screens <= 950px for intra-page jump) -->
+            <nav class="mobile-nav-tabs" id="mobile-nav-tabs" aria-label="Mobile Navigation Tabs">
+                <div class="mobile-tabs-scroll">
+                    <button type="button" class="mobile-tab-btn active" data-view="pipeline" data-target="pipeline">⚡ Pipeline</button>
+                    <button type="button" class="mobile-tab-btn" data-view="faults" data-target="faults">🔥 Fault Lab</button>
+                    <button type="button" class="mobile-tab-btn" data-view="metrics" data-target="metrics">💰 ROI &amp; Metrics</button>
+                    <button type="button" class="mobile-tab-btn" data-view="copilot" data-target="copilot">🤖 Copilot &amp; RCA</button>
+                    <button type="button" class="mobile-tab-btn" data-view="code" data-target="code">💻 Code Hotfix</button>
+                    <button type="button" class="mobile-tab-btn" data-view="telemetry" data-target="telemetry">📡 Telemetry</button>
+                </div>
+                <button type="button" class="btn-toggle-mobile-mode" id="btn-toggle-mobile-mode" title="Toggle between Tabbed View and Full Page View">
+                    <span id="mobile-mode-icon">📑</span>
+                    <span id="mobile-mode-text">Tabbed</span>
+                </button>
+            </nav>
+
+            <!-- Hidden Container for Header Controls to keep DOM IDs intact -->
+            <div id="hidden-controls-host" style="display: none;">
+                <!-- Auto-Pilot Primary Toggle -->
             <div class="header-controls">
                 <button class="btn btn-pitch" id="btn-pitch">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right: 0.2rem;">
@@ -92,332 +273,115 @@
                     </button>
                 </div>
             </div>
-        </header>
-
-        <!-- Positioning Banner & Direct Action Triggers -->
-        <section class="positioning-banner" id="positioning-banner">
-            <div class="positioning-content">
-                <span class="positioning-pill">REVENUE PATH PROTECTION</span>
-                <p class="positioning-tagline">
-                    <strong>AegisTrace protects the revenue path.</strong> Detect, diagnose, and self-heal checkout &amp; fulfillment failures in seconds &mdash; not hours &mdash; while quantifying the revenue you just saved.
-                </p>
+        
             </div>
-            <div class="positioning-actions">
-                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-apm-comp" title="Compare AegisTrace against traditional APMs like Datadog and Dynatrace">
-                    ⚖️ Why AegisTrace vs APM
-                </button>
-                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-telemetry-modal" title="Connect external OpenTelemetry (OTLP) endpoint or webhook">
-                    📡 Connect Real Telemetry (OTLP)
-                </button>
-                <button type="button" class="btn btn-primary btn-small btn-banner-action" id="btn-open-roi-modal" title="Calculate revenue saved based on Order Volume, AOV, and Conversion Rate">
-                    💰 ROI Calculator
-                </button>
-            </div>
-        </section>
 
-        <!-- Mobile View Navigation Tabs (Visible on screens <= 950px) -->
-        <nav class="mobile-nav-tabs" id="mobile-nav-tabs" aria-label="Mobile Navigation">
-            <div class="mobile-tabs-scroll">
-                <button type="button" class="mobile-tab-btn active" data-view="pipeline" data-target="pipeline">⚡ Pipeline</button>
-                <button type="button" class="mobile-tab-btn" data-view="faults" data-target="faults">🔥 Fault Lab</button>
-                <button type="button" class="mobile-tab-btn" data-view="metrics" data-target="metrics">💰 ROI &amp; Metrics</button>
-                <button type="button" class="mobile-tab-btn" data-view="copilot" data-target="copilot">🤖 Copilot &amp; RCA</button>
-                <button type="button" class="mobile-tab-btn" data-view="code" data-target="code">💻 Code Hotfix</button>
-                <button type="button" class="mobile-tab-btn" data-view="telemetry" data-target="telemetry">📡 Telemetry</button>
-            </div>
-            <button type="button" class="btn-toggle-mobile-mode" id="btn-toggle-mobile-mode" title="Toggle between Tabbed View and Full Page View">
-                <span id="mobile-mode-icon">📑</span>
-                <span id="mobile-mode-text">Tabbed</span>
-            </button>
-        </nav>
+            <!-- Page Views Container (Client-Side Routing) -->
+            <main class="page-container dashboard-grid" id="dashboard-grid">
 
-        <!-- Main Dashboard Workspace -->
-        <main class="dashboard-grid mobile-tabbed view-pipeline" id="dashboard-grid">
-            <!-- Left Column: Telemetry & Controls -->
-            <section class="left-panel">
-                <!-- Simulation & Fault Injection controls -->
-                <div class="panel-card controls-card">
-                    <div class="card-header">
-                        <h2>Fault Injection Lab &amp; Sandbox <span class="info-tip" data-tooltip="Simulate distributed outages to test self-healing resilience.">?</span></h2>
-                        <span class="sub-header-desc">Simulate failures to see the debugger trace and self-heal automatically</span>
-                    </div>
-                    <div class="sandbox-grid">
-                        <div class="scenario-buttons">
-                            <h3>Pre-configured Scenarios</h3>
-                            <div class="btn-grid">
-                                <button class="btn btn-scenario active" data-scenario="healthy" id="scen-healthy" data-tooltip="Healthy traffic: all 5 microservices respond with HTTP 200 OK.">
-                                    <span class="badge badge-success-dot"></span> Healthy Traffic Loop
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="out-of-stock" id="scen-stock" data-tooltip="Depleted stock (422): Auto-remediation restocks safety buffer (+100 items).">
-                                    <span class="badge badge-error-dot"></span> Inventory Depletion (422)
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="card-declined" id="scen-declined" data-tooltip="Declined card (402): Auto-remediation dispatches SMS checkout retry token.">
-                                    <span class="badge badge-error-dot"></span> Card Declined (402)
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="gateway-timeout" id="scen-timeout" data-tooltip="Stripe timeout (504): Auto-remediation fails over to secondary Adyen gateway.">
-                                    <span class="badge badge-error-dot"></span> Payment Gateway Timeout (504)
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="fulfillment-db-crash" id="scen-db" data-tooltip="Postgres pool 20/20 full (500): Auto-remediation recycles handles & expands pool.">
-                                    <span class="badge badge-error-dot"></span> DB Pool Exhausted (500)
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="logistics-api-down" id="scen-logistics" data-tooltip="Carrier DNS down (503): Auto-remediation buffers shipment to RabbitMQ queue.">
-                                    <span class="badge badge-error-dot"></span> Logistics Service Down (503)
-                                </button>
+                <!-- ==========================================================================
+                     PAGE 1: DASHBOARD (HOME)
+                     ========================================================================== -->
+                <section class="page-view active" id="page-dashboard" data-title="Dashboard">
+                    <!-- Dashboard Executive Simulation Strip -->
+                    <div class="dashboard-sim-strip" style="background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(37, 99, 235, 0.15); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+                            <span class="status-indicator">
+                                <span class="status-dot healthy" id="global-status"></span>
+                                <span class="status-text">Pipeline Operational</span>
+                            </span>
+                            <div class="toggle-group" data-tooltip="Streams background orders continuously to simulate live traffic.">
+                                <span class="toggle-label">Auto-Pilot</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="autopilot-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group" data-tooltip="Automatically diagnoses and repairs failures to keep error rate &le; 1.0%.">
+                                <span class="toggle-label">Auto-Remediation</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="remediation-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group" data-tooltip="Execution speed per pipeline stage (100ms - 2000ms).">
+                                <span class="toggle-label">Speed: <span id="delay-val">400</span>ms</span>
+                                <input type="range" id="delay-slider" min="100" max="2000" step="100" value="400" class="speed-slider">
                             </div>
                         </div>
-
-                        <!-- Manual Transaction Generator -->
-                        <div class="custom-generator">
-                            <h3>Custom Order Builder</h3>
-                            <form id="order-form" onsubmit="return false;">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="order-customer">Customer</label>
-                                        <input type="text" id="order-customer" value="Alex Rivera" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="order-sku">Product Item</label>
-                                        <select id="order-sku">
-                                            <option value="SKU-8829">MacBook Pro M3 (In Stock)</option>
-                                            <option value="SKU-4402">iPhone 17 Pro Max (Out of Stock)</option>
-                                            <option value="SKU-9901">AirPods Max 2 (In Stock)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="order-card">Credit Card Number</label>
-                                        <input type="text" id="order-card" value="4111 •••• •••• 1111" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="order-zip">Shipping ZIP Code</label>
-                                        <input type="text" id="order-zip" value="90210" required>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary" id="btn-submit-order" style="width: 100%; margin-top: 0.5rem;">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
-                                        <polygon points="5 3 19 12 5 21 5 3"/>
-                                    </svg>
-                                    Inject Custom Transaction
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- High-Traffic Load & Chaos Testing Engine Card -->
-                <div class="panel-card load-engine-card">
-                    <div class="card-header">
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                            <h2>⚡ Load &amp; Chaos Testing Engine</h2>
-                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.68rem; padding: 2px 8px; border-radius: 999px;">Target &le; 1.0% Error</span>
-                        </div>
-                        <span class="sub-header-desc">Simulate concurrent traffic spikes and chaotic microservice outages with automatic self-healing verification</span>
-                    </div>
-
-                    <div class="load-engine-body" style="padding-top: 0.5rem;">
-                        <!-- Configuration Controls -->
-                        <div class="form-row" style="margin-bottom: 0.6rem;">
-                            <div class="form-group">
-                                <label for="load-orders-count">Traffic Volume</label>
-                                <select id="load-orders-count">
-                                    <option value="25">25 Orders (Quick Burst)</option>
-                                    <option value="50" selected>50 Orders (Standard)</option>
-                                    <option value="100">100 Orders (Heavy Spike)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="load-concurrency">Concurrency Pool</label>
-                                <select id="load-concurrency">
-                                    <option value="5">5 Concurrent Workers</option>
-                                    <option value="10" selected>10 Concurrent Workers</option>
-                                    <option value="20">20 Concurrent Workers</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Chaos & Healing Checkboxes -->
-                        <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem; background: rgba(255, 255, 255, 0.03); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: var(--text-main);">
-                                <input type="checkbox" id="check-inject-chaos" checked style="accent-color: var(--primary-color);">
-                                <span>🔥 <strong>Inject Chaos Faults</strong> (422 stock, 504 timeout, 500 DB, 503 DNS)</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: #34d399;">
-                                <input type="checkbox" id="check-auto-heal" checked style="accent-color: #10b981;">
-                                <span>🛡️ <strong>Autonomous Self-Healing</strong> (Dynamic Recovery &amp; Smart Retries)</span>
-                            </label>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-                            <button class="btn btn-primary" id="btn-run-load-test" style="flex: 1;">
-                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
-                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                                </svg>
-                                Run Stress Test
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button class="btn btn-secondary btn-small" id="btn-reset" title="Reset all telemetry metrics and active counters">Reset Stats</button>
+                            <button class="btn btn-pitch" id="btn-pitch" title="Toggle High-Impact Pitch Demo Mode">
+                                <span id="pitch-icon">★</span>
+                                <span id="pitch-text">Pitch Mode</span>
                             </button>
-                            <button class="btn btn-secondary" id="btn-view-stability-report" title="View Full Stability Report" style="font-size: 0.75rem; padding: 0.4rem 0.6rem;">
-                                📄 Report
+                            <button class="btn btn-secondary btn-small btn-help" id="btn-open-help" title="Open Onboarding Guide &amp; Tour">
+                                📖 Quick Guide
                             </button>
                         </div>
-
-                        <!-- Live Progress State (Hidden by default) -->
-                        <div id="load-progress-container" style="display: none; margin-bottom: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">
-                                <span id="load-progress-status">Simulating concurrent traffic...</span>
-                                <span id="load-progress-pct">0%</span>
-                            </div>
-                            <div class="progress-bar-bg" style="height: 6px;">
-                                <div class="progress-bar-fill" id="load-progress-fill" style="width: 0%; background: linear-gradient(90deg, #6366f1, #10b981);"></div>
-                            </div>
-                        </div>
-
-                        <!-- Live Results Metrics Grid (Hidden until test finishes) -->
-                        <div id="load-results-grid" style="display: none; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 0.35rem;">
-                                <span style="font-size: 0.75rem; font-weight: 700; color: #f3f4f6;">Stress Test Results</span>
-                                <span id="res-badge-target" class="badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
-                                    TARGET MET &le; 1.0%
-                                </span>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Error Rate</div>
-                                    <div id="res-error-rate" style="font-size: 1.1rem; font-weight: 800; color: #10b981;">0.0%</div>
-                                </div>
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Success Rate</div>
-                                    <div id="res-success-rate" style="font-size: 1.1rem; font-weight: 800; color: #60a5fa;">100%</div>
-                                </div>
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Throughput</div>
-                                    <div id="res-throughput" style="font-size: 1.1rem; font-weight: 800; color: #f59e0b;">42 req/s</div>
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; margin-top: 0.5rem;">
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Median (p50)</div>
-                                    <div id="res-p50" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">210 ms</div>
-                                </div>
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">95th (p95)</div>
-                                    <div id="res-p95" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">340 ms</div>
-                                </div>
-                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
-                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Auto-Heals</div>
-                                    <div id="res-heals" style="font-size: 0.85rem; font-weight: 700; color: #a78bfa;">5 Recovered</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
 
-                <!-- System Metrics Dashboard -->
-                <div class="panel-card metrics-card">
+                    <!-- Business Preserved Summary Card -->
+                    <div class="panel-card business-card">
                     <div class="card-header">
-                        <h2>System Metrics Monitor <span class="info-tip" data-tooltip="Live telemetry across all active microservices.">?</span></h2>
+                        <div>
+                            <h2>Business Preserved Metrics <span class="info-tip" data-tooltip="Direct bottom-line revenue rescued by AegisTrace autonomous self-healing.">?</span></h2>
+                            <span class="sub-header-desc">Quantified financial value and downtime reduction</span>
+                        </div>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">LIVE Preserved</span>
                     </div>
-                    <div class="metrics-grid">
-                        <div class="metric-box">
-                            <span class="metric-label">API Latency <span class="info-tip" data-tooltip="Average round-trip response time across all 5 microservices. Target: &lt; 250ms.">?</span></span>
-                            <div class="metric-value-wrapper">
-                                <span class="metric-value" id="metric-latency">124</span>
-                                <span class="metric-unit">ms</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="fill-latency" style="width: 25%"></div>
-                            </div>
-                        </div>
 
-                        <div class="metric-box">
-                            <span class="metric-label">Service Error Rate <span class="info-tip" data-tooltip="Percentage of failed transactions. AegisTrace auto-healing keeps this target &le; 1.0%.">?</span></span>
-                            <div class="metric-value-wrapper">
-                                <span class="metric-value" id="metric-errors">0.0</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="fill-errors" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <div class="metric-box">
-                            <span class="metric-label">DB Connection Pool <span class="info-tip" data-tooltip="Active Postgres connection handles in Fulfillment service. Auto-recycled on capacity.">?</span></span>
-                            <div class="metric-value-wrapper">
-                                <span class="metric-value" id="metric-db-pool">8 / 20</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="fill-db" style="width: 40%"></div>
-                            </div>
-                        </div>
-
-                        <div class="metric-box">
-                            <span class="metric-label">CPU System Load <span class="info-tip" data-tooltip="Simulated CPU utilization across microservice container nodes.">?</span></span>
-                            <div class="metric-value-wrapper">
-                                <span class="metric-value" id="metric-cpu">18</span>
-                                <span class="metric-unit">%</span>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="fill-cpu" style="width: 18%"></div>
-                            </div>
+                    <!-- Live Revenue Protection Rolling Ticker -->
+                    <div class="biz-rolling-container">
+                        <div class="biz-rolling-status" id="biz-rolling-status">
+                            <span class="pulse-dot-green"></span>
+                            <span id="biz-rolling-text">Live: <strong>$0.00</strong> protected in last 15 min across 0 auto-healed outages</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- SLA & Uptime Monitor Card -->
-                <div class="panel-card uptime-card">
-                    <div class="card-header">
-                        <h2>SLA Target Compliance Monitor</h2>
-                        <span class="badge" id="sla-global-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">SLA COMPLIANT (99.98%)</span>
+                    <div class="business-grid">
+                        <div class="biz-box">
+                            <span class="biz-label">Preserved Revenue <span class="info-tip" data-tooltip="Total dollars protected from failed checkouts by automated self-healing.">?</span></span>
+                            <span class="biz-value text-green">$<span id="biz-revenue">0.00</span></span>
+                        </div>
+                        <div class="biz-box">
+                            <span class="biz-label">MTTR (Self-Heal) <span class="info-tip" data-tooltip="Mean Time To Recover: Average seconds AegisTrace takes to diagnose and repair an outage.">?</span></span>
+                            <span class="biz-value text-cyan" id="biz-mttr">0.00s</span>
+                        </div>
+                        <div class="biz-box">
+                            <span class="biz-label">Eng. Hours Saved <span class="info-tip" data-tooltip="Estimated developer on-call engineering hours saved by autonomous remediation.">?</span></span>
+                            <span class="biz-value text-purple" id="biz-hours">0.0</span>
+                        </div>
+                        <div class="biz-box biz-box-risk hidden" id="biz-box-risk">
+                            <span class="biz-label">Active Revenue at Risk <span class="info-tip" data-tooltip="Estimated dollar value of orders in the pipeline during active failure.">?</span></span>
+                            <span class="biz-value text-red" id="biz-revenue-at-risk">$0.00</span>
+                        </div>
                     </div>
-                    <div class="uptime-row-container">
-                        <!-- Checkout -->
-                        <div class="uptime-service-row" data-service="checkout">
-                            <div class="uptime-service-meta">
-                                <span class="uptime-service-name">Checkout API</span>
-                                <span class="uptime-service-pct" id="uptime-pct-checkout">99.99%</span>
-                            </div>
-                            <div class="uptime-bar" id="uptime-bar-checkout"></div>
-                        </div>
-                        <!-- Inventory -->
-                        <div class="uptime-service-row" data-service="inventory">
-                            <div class="uptime-service-meta">
-                                <span class="uptime-service-name">Inventory Service</span>
-                                <span class="uptime-service-pct" id="uptime-pct-inventory">99.98%</span>
-                            </div>
-                            <div class="uptime-bar" id="uptime-bar-inventory"></div>
-                        </div>
-                        <!-- Payment -->
-                        <div class="uptime-service-row" data-service="payment">
-                            <div class="uptime-service-meta">
-                                <span class="uptime-service-name">Payment Gateway</span>
-                                <span class="uptime-service-pct" id="uptime-pct-payment">99.96%</span>
-                            </div>
-                            <div class="uptime-bar" id="uptime-bar-payment"></div>
-                        </div>
-                        <!-- Fulfillment -->
-                        <div class="uptime-service-row" data-service="fulfillment">
-                            <div class="uptime-service-meta">
-                                <span class="uptime-service-name">Fulfillment API</span>
-                                <span class="uptime-service-pct" id="uptime-pct-fulfillment">99.99%</span>
-                            </div>
-                            <div class="uptime-bar" id="uptime-bar-fulfillment"></div>
-                        </div>
-                        <!-- Logistics -->
-                        <div class="uptime-service-row" data-service="logistics">
-                            <div class="uptime-service-meta">
-                                <span class="uptime-service-name">Logistics Carrier API</span>
-                                <span class="uptime-service-pct" id="uptime-pct-logistics">99.97%</span>
-                            </div>
-                            <div class="uptime-bar" id="uptime-bar-logistics"></div>
-                        </div>
+
+                    <!-- ROI Incident Cost Summary Callout -->
+                    <div class="biz-incident-cost-banner" id="biz-incident-cost-banner">
+                        <div class="incident-cost-title">💡 Traditional APM Cost Comparison</div>
+                        <p class="incident-cost-text" id="incident-cost-text">
+                            Without AegisTrace, an order path outage averages <strong>45 min MTTR</strong>, costing an estimated <strong>$<span id="biz-traditional-cost">3,850.00</span></strong> in abandoned checkouts and on-call toil.
+                        </p>
+                    </div>
+
+                    <!-- Action Triggers -->
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-open-roi-card" style="flex: 1;">
+                            📊 Configure Revenue Model
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small hidden" id="btn-view-incident-card" style="flex: 1; color: #f87171; border-color: rgba(248, 113, 113, 0.4);">
+                            🚨 View Incident Card
+                        </button>
                     </div>
                 </div>
-            </section>
 
-            <!-- Middle Column: Pipeline Tracing & Code Inspector -->
-            <section class="middle-panel">
-                <!-- Visual Pipeline -->
-                <div class="panel-card visualizer-card">
+                
+
+                    <!-- Visual Pipeline Card -->
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card visualizer-card">
                     <div class="card-header">
                         <div>
                             <h2>Live Order Pipeline Tracing <span class="info-tip" data-tooltip="Visual trace of orders flowing across 5 microservices in real time.">?</span></h2>
@@ -533,212 +497,347 @@
                     </div>
                 </div>
 
-                <!-- Code Debugger Card -->
-                <div class="panel-card code-debugger-card" id="code-debugger">
-                    <div class="card-header">
-                        <h2>
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--warning-color); margin-right: 0.25rem;">
-                                <polyline points="16 18 22 12 16 6"/>
-                                <polyline points="8 6 2 12 8 18"/>
-                            </svg>
-                            Interactive Code Hotfix Inspector
-                        </h2>
-                        <span class="badge" id="debugger-status-badge">COMPILED</span>
+                
                     </div>
-                    <div class="code-debugger-body">
-                        <div class="debugger-tabs" id="debugger-tabs">
-                            <button class="tab-btn active" data-file="checkout">checkout.go</button>
-                            <button class="tab-btn" data-file="inventory">inventory_db.go</button>
-                            <button class="tab-btn" data-file="payment">stripe_adapter.js</button>
-                            <button class="tab-btn" data-file="fulfillment">fulfillment.go</button>
-                            <button class="tab-btn" data-file="logistics">logistics_dns.js</button>
-                        </div>
-                        <div class="code-viewport-container">
-                            <div class="file-path-header">
-                                <span id="debugger-file-path">checkout-service/main.go</span>
+
+                    <!-- Metrics and Uptime Side by Side -->
+                    <div class="dashboard-split-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem;">
+                        <div class="panel-card metrics-card">
+                    <div class="card-header">
+                        <h2>System Metrics Monitor <span class="info-tip" data-tooltip="Live telemetry across all active microservices.">?</span></h2>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <span class="metric-label">API Latency <span class="info-tip" data-tooltip="Average round-trip response time across all 5 microservices. Target: &lt; 250ms.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-latency">124</span>
+                                <span class="metric-unit">ms</span>
                             </div>
-                            <pre class="code-pre"><code class="code-display" id="code-display-area">// Live production code streams...</code></pre>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-latency" style="width: 25%"></div>
+                            </div>
                         </div>
-                        <div class="debugger-controls">
-                            <button class="btn btn-secondary" id="btn-toggle-diff" style="flex: 1;" disabled>
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
-                                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
-                                </svg>
-                                Toggle AI Patch View
-                            </button>
-                            <button class="btn btn-primary" id="btn-apply-hotfix" style="flex: 1.5;" disabled>
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                                Deploy Hotfix (Compile & Apply)
-                            </button>
+
+                        <div class="metric-box">
+                            <span class="metric-label">Service Error Rate <span class="info-tip" data-tooltip="Percentage of failed transactions. AegisTrace auto-healing keeps this target &le; 1.0%.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-errors">0.0</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-errors" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <span class="metric-label">DB Connection Pool <span class="info-tip" data-tooltip="Active Postgres connection handles in Fulfillment service. Auto-recycled on capacity.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-db-pool">8 / 20</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-db" style="width: 40%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-box">
+                            <span class="metric-label">CPU System Load <span class="info-tip" data-tooltip="Simulated CPU utilization across microservice container nodes.">?</span></span>
+                            <div class="metric-value-wrapper">
+                                <span class="metric-value" id="metric-cpu">18</span>
+                                <span class="metric-unit">%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="fill-cpu" style="width: 18%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- API Developer Sandbox Card -->
-                <div class="panel-card curl-sandbox-card">
+                
+                        <div class="panel-card uptime-card">
                     <div class="card-header">
-                        <h2>
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--info-color); margin-right: 0.25rem;">
-                                <polyline points="4 17 10 11 4 5"/>
-                                <line x1="12" y1="19" x2="20" y2="19"/>
-                            </svg>
-                            REST API Developer Sandbox
-                        </h2>
-                        <span class="badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info-color); border: 1px solid rgba(6, 182, 212, 0.2);">Active Listener</span>
+                        <h2>SLA Target Compliance Monitor</h2>
+                        <span class="badge" id="sla-global-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">SLA COMPLIANT (99.98%)</span>
                     </div>
-                    <div class="curl-sandbox-body">
-                        <span class="sub-header-desc" style="display: block; margin-bottom: 0.75rem;">Simulate external client requests by running these commands in your local command prompt:</span>
-                        <div class="curl-commands-list">
-                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
-                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Healthy Loop Transaction</span>
-                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
-                                    <code id="curl-healthy" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=VC Client&sku=SKU-8829"</code>
-                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-healthy').textContent); alert('Copied healthy loop transaction command!');">Copy</button>
-                                </div>
+                    <div class="uptime-row-container">
+                        <!-- Checkout -->
+                        <div class="uptime-service-row" data-service="checkout">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Checkout API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-checkout">99.99%</span>
                             </div>
-                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
-                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Inventory Depletion Anomaly</span>
-                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
-                                    <code id="curl-deplete" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=cURL Client&sku=SKU-4402"</code>
-                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-deplete').textContent); alert('Copied inventory depletion command!');">Copy</button>
-                                </div>
+                            <div class="uptime-bar" id="uptime-bar-checkout"></div>
+                        </div>
+                        <!-- Inventory -->
+                        <div class="uptime-service-row" data-service="inventory">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Inventory Service</span>
+                                <span class="uptime-service-pct" id="uptime-pct-inventory">99.98%</span>
                             </div>
-                            <div class="curl-command-item">
-                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Outage Scenario (Timeout)</span>
-                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
-                                    <code id="curl-timeout" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/scenario -d "scenario=gateway-timeout"</code>
-                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-timeout').textContent); alert('Copied timeout scenario inject command!');">Copy</button>
-                                </div>
+                            <div class="uptime-bar" id="uptime-bar-inventory"></div>
+                        </div>
+                        <!-- Payment -->
+                        <div class="uptime-service-row" data-service="payment">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Payment Gateway</span>
+                                <span class="uptime-service-pct" id="uptime-pct-payment">99.96%</span>
                             </div>
+                            <div class="uptime-bar" id="uptime-bar-payment"></div>
+                        </div>
+                        <!-- Fulfillment -->
+                        <div class="uptime-service-row" data-service="fulfillment">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Fulfillment API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-fulfillment">99.99%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-fulfillment"></div>
+                        </div>
+                        <!-- Logistics -->
+                        <div class="uptime-service-row" data-service="logistics">
+                            <div class="uptime-service-meta">
+                                <span class="uptime-service-name">Logistics Carrier API</span>
+                                <span class="uptime-service-pct" id="uptime-pct-logistics">99.97%</span>
+                            </div>
+                            <div class="uptime-bar" id="uptime-bar-logistics"></div>
                         </div>
                     </div>
                 </div>
-            </section>
+            
+                    </div>
+                </section>
 
-            <!-- Right Column: AI Assistant, Diagnostics & Console Logs -->
-            <section class="right-panel">
-                <!-- Business Impact Preserved -->
-                <div class="panel-card business-card">
-                    <div class="card-header">
+                <!-- ==========================================================================
+                     PAGE 2: FAULT INJECTION LAB
+                     ========================================================================== -->
+                <section class="page-view" id="page-faults" data-title="Fault Injection Lab">
+                    <div class="page-header-wrap">
                         <div>
-                            <h2>Business Preserved Metrics <span class="info-tip" data-tooltip="Direct bottom-line revenue rescued by AegisTrace autonomous self-healing.">?</span></h2>
-                            <span class="sub-header-desc">Quantified financial value and downtime reduction</span>
+                            <h1 class="page-title">Fault Injection Lab &amp; Sandbox</h1>
+                            <p class="page-subtitle">Simulate real-world distributed microservice failures to observe automated distributed tracing, root-cause diagnostics, and instant self-healing recovery.</p>
                         </div>
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3);">LIVE Preserved</span>
-                    </div>
-
-                    <!-- Live Revenue Protection Rolling Ticker -->
-                    <div class="biz-rolling-container">
-                        <div class="biz-rolling-status" id="biz-rolling-status">
-                            <span class="pulse-dot-green"></span>
-                            <span id="biz-rolling-text">Live: <strong>$0.00</strong> protected in last 15 min across 0 auto-healed outages</span>
+                        <div class="page-header-actions">
+                            <a href="#/dashboard" class="btn btn-secondary btn-small">&larr; Back to Dashboard</a>
                         </div>
                     </div>
 
-                    <div class="business-grid">
-                        <div class="biz-box">
-                            <span class="biz-label">Preserved Revenue <span class="info-tip" data-tooltip="Total dollars protected from failed checkouts by automated self-healing.">?</span></span>
-                            <span class="biz-value text-green">$<span id="biz-revenue">0.00</span></span>
-                        </div>
-                        <div class="biz-box">
-                            <span class="biz-label">MTTR (Self-Heal) <span class="info-tip" data-tooltip="Mean Time To Recover: Average seconds AegisTrace takes to diagnose and repair an outage.">?</span></span>
-                            <span class="biz-value text-cyan" id="biz-mttr">0.00s</span>
-                        </div>
-                        <div class="biz-box">
-                            <span class="biz-label">Eng. Hours Saved <span class="info-tip" data-tooltip="Estimated developer on-call engineering hours saved by autonomous remediation.">?</span></span>
-                            <span class="biz-value text-purple" id="biz-hours">0.0</span>
-                        </div>
-                        <div class="biz-box biz-box-risk hidden" id="biz-box-risk">
-                            <span class="biz-label">Active Revenue at Risk <span class="info-tip" data-tooltip="Estimated dollar value of orders in the pipeline during active failure.">?</span></span>
-                            <span class="biz-value text-red" id="biz-revenue-at-risk">$0.00</span>
-                        </div>
-                    </div>
-
-                    <!-- ROI Incident Cost Summary Callout -->
-                    <div class="biz-incident-cost-banner" id="biz-incident-cost-banner">
-                        <div class="incident-cost-title">💡 Traditional APM Cost Comparison</div>
-                        <p class="incident-cost-text" id="incident-cost-text">
-                            Without AegisTrace, an order path outage averages <strong>45 min MTTR</strong>, costing an estimated <strong>$<span id="biz-traditional-cost">3,850.00</span></strong> in abandoned checkouts and on-call toil.
-                        </p>
-                    </div>
-
-                    <!-- Action Triggers -->
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
-                        <button type="button" class="btn btn-secondary btn-small" id="btn-open-roi-card" style="flex: 1;">
-                            📊 Configure Revenue Model
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-small hidden" id="btn-view-incident-card" style="flex: 1; color: #f87171; border-color: rgba(248, 113, 113, 0.4);">
-                            🚨 View Incident Card
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Aegis AI Copilot Card -->
-                <div class="panel-card ai-copilot-card" id="ai-copilot">
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card controls-card">
                     <div class="card-header">
-                        <h2>
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary-color); margin-right: 0.25rem;" class="logo-icon">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                <path d="M2 12h20"/>
-                            </svg>
-                            Aegis AI Copilot
-                        </h2>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span class="badge" id="ai-mode-badge" style="background: rgba(124, 58, 237, 0.15); color: var(--primary-color); border: 1px solid rgba(124, 58, 237, 0.3);">SIMULATED MODE</span>
-                            <button id="btn-toggle-ai-settings" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0.1rem;" title="Gemini Settings">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                                </svg>
-                            </button>
-                        </div>
+                        <h2>Fault Injection Lab &amp; Sandbox <span class="info-tip" data-tooltip="Simulate distributed outages to test self-healing resilience.">?</span></h2>
+                        <span class="sub-header-desc">Simulate failures to see the debugger trace and self-heal automatically</span>
                     </div>
-                    <div class="ai-copilot-body" style="display: flex; flex-direction: column; gap: 0.75rem; height: 350px;">
-                        <!-- API Key overlay -->
-                        <div class="ai-settings-panel hidden" id="ai-settings-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--surface-border); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem;">
-                            <h4 style="margin-bottom: 0.25rem; font-weight: 600;">Gemini 3.5 API Routing</h4>
-                            <p style="color: var(--text-muted); font-size: 0.65rem; margin-bottom: 0.5rem;">Connect a real LLM by entering your Gemini API key below. Inputs are saved in your local web storage.</p>
-                            <div class="settings-input-row" style="display: flex; gap: 0.5rem;">
-                                <input type="password" id="gemini-api-key" placeholder="Enter Gemini API Key..." style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.7rem; color: var(--text-main); outline: none;">
-                                <button class="btn btn-primary" id="btn-save-ai-key" style="padding: 0.3rem 0.75rem; font-size: 0.7rem;">Save Key</button>
+                    <div class="sandbox-grid">
+                        <div class="scenario-buttons">
+                            <h3>Pre-configured Scenarios</h3>
+                            <div class="btn-grid">
+                                <button class="btn btn-scenario active" data-scenario="healthy" id="scen-healthy" data-tooltip="Healthy traffic: all 5 microservices respond with HTTP 200 OK.">
+                                    <span class="badge badge-success-dot"></span> Healthy Traffic Loop
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="out-of-stock" id="scen-stock" data-tooltip="Depleted stock (422): Auto-remediation restocks safety buffer (+100 items).">
+                                    <span class="badge badge-error-dot"></span> Inventory Depletion (422)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="card-declined" id="scen-declined" data-tooltip="Declined card (402): Auto-remediation dispatches SMS checkout retry token.">
+                                    <span class="badge badge-error-dot"></span> Card Declined (402)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="gateway-timeout" id="scen-timeout" data-tooltip="Stripe timeout (504): Auto-remediation fails over to secondary Adyen gateway.">
+                                    <span class="badge badge-error-dot"></span> Payment Gateway Timeout (504)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="fulfillment-db-crash" id="scen-db" data-tooltip="Postgres pool 20/20 full (500): Auto-remediation recycles handles & expands pool.">
+                                    <span class="badge badge-error-dot"></span> DB Pool Exhausted (500)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="logistics-api-down" id="scen-logistics" data-tooltip="Carrier DNS down (503): Auto-remediation buffers shipment to RabbitMQ queue.">
+                                    <span class="badge badge-error-dot"></span> Logistics Service Down (503)
+                                </button>
                             </div>
-                            <span class="key-status-label" id="key-status-label" style="font-size: 0.6rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Operating locally.</span>
                         </div>
 
-                        <!-- Chat message feed -->
-                        <div class="chat-feed" id="chat-feed" style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; max-height: 230px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">
-                            <div class="chat-bubble ai">
-                                <div class="chat-meta" style="font-size: 0.6rem; color: var(--primary-color); font-weight: 600; margin-bottom: 0.15rem;">AEGIS COPIOT • SYSTEM ACTIVE</div>
-                                <div class="chat-text" style="font-size: 0.75rem; color: #e2e8f0; line-height: 1.4;">Welcome! I am the Aegis AI Assistant. I scan active traces, logs, and database metrics. How can I help you debug your ecommerce pipelines today?</div>
-                            </div>
+                        <!-- Manual Transaction Generator -->
+                        <div class="custom-generator">
+                            <h3>Custom Order Builder</h3>
+                            <form id="order-form" onsubmit="return false;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="order-customer">Customer</label>
+                                        <input type="text" id="order-customer" value="Alex Rivera" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="order-sku">Product Item</label>
+                                        <select id="order-sku">
+                                            <option value="SKU-8829">MacBook Pro M3 (In Stock)</option>
+                                            <option value="SKU-4402">iPhone 17 Pro Max (Out of Stock)</option>
+                                            <option value="SKU-9901">AirPods Max 2 (In Stock)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="order-card">Credit Card Number</label>
+                                        <input type="text" id="order-card" value="4111 •••• •••• 1111" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="order-zip">Shipping ZIP Code</label>
+                                        <input type="text" id="order-zip" value="90210" required>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="btn-submit-order" style="width: 100%; margin-top: 0.5rem;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    Inject Custom Transaction
+                                </button>
+                            </form>
                         </div>
-
-                        <!-- Prompt chips -->
-                        <div class="prompt-chips" id="prompt-chips" style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                            <button class="chip" data-prompt="What caused the active system failure?" style="font-family: var(--font-sans); background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #c084fc; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(124, 58, 237, 0.18)'" onmouseout="this.style.background='rgba(124, 58, 237, 0.08)'">Explain Failure</button>
-                            <button class="chip" data-prompt="Show me the proposed hotfix." style="font-family: var(--font-sans); background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #22d3ee; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(6, 182, 212, 0.18)'" onmouseout="this.style.background='rgba(6, 182, 212, 0.08)'">Recommend Fix</button>
-                            <button class="chip" data-prompt="Explain system SLA state." style="font-family: var(--font-sans); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #34d399; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.18)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">SLA Impact</button>
-                            <button class="chip" data-prompt="Give me a quick system health summary." style="font-family: var(--font-sans); background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #fbbf24; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.18)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.08)'">Health Summary</button>
-                        </div>
-
-                        <!-- Chat input form -->
-                        <form class="chat-input-form" id="chat-input-form" onsubmit="return false;" style="display: flex; gap: 0.35rem;">
-                            <input type="text" id="chat-input" placeholder="Ask Aegis AI Assistant..." autocomplete="off" style="flex-grow: 1; background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.75rem; color: var(--text-main); outline: none;">
-                            <button type="submit" class="btn btn-primary" id="btn-chat-send" style="padding: 0.4rem; border-radius: 6px; width: 34px; height: 34px;">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="transform: rotate(45deg);">
-                                    <line x1="22" y1="2" x2="11" y2="13"/>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                                </svg>
-                            </button>
-                        </form>
                     </div>
                 </div>
 
-                <!-- Automated RCA Diagnostic Panel -->
-                <div class="panel-card rca-card" id="rca-panel">
+                
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 3: CHAOS & LOAD TESTING
+                     ========================================================================== -->
+                <section class="page-view" id="page-chaos" data-title="Chaos &amp; Load Testing">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Chaos &amp; Load Testing Suite</h1>
+                            <p class="page-subtitle">Stress-test order pipeline resilience under sudden traffic surges, chaotic network degradation, database connection starvation, and upstream carrier timeouts.</p>
+                        </div>
+                        <div class="page-header-actions">
+                            <button type="button" class="btn btn-primary btn-small" id="btn-open-stability-modal" onclick="openStabilityModal();">
+                                📊 Run Chaos Stability Benchmark
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card load-engine-card">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <h2>⚡ Load &amp; Chaos Testing Engine</h2>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.68rem; padding: 2px 8px; border-radius: 999px;">Target &le; 1.0% Error</span>
+                        </div>
+                        <span class="sub-header-desc">Simulate concurrent traffic spikes and chaotic microservice outages with automatic self-healing verification</span>
+                    </div>
+
+                    <div class="load-engine-body" style="padding-top: 0.5rem;">
+                        <!-- Configuration Controls -->
+                        <div class="form-row" style="margin-bottom: 0.6rem;">
+                            <div class="form-group">
+                                <label for="load-orders-count">Traffic Volume</label>
+                                <select id="load-orders-count">
+                                    <option value="25">25 Orders (Quick Burst)</option>
+                                    <option value="50" selected>50 Orders (Standard)</option>
+                                    <option value="100">100 Orders (Heavy Spike)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="load-concurrency">Concurrency Pool</label>
+                                <select id="load-concurrency">
+                                    <option value="5">5 Concurrent Workers</option>
+                                    <option value="10" selected>10 Concurrent Workers</option>
+                                    <option value="20">20 Concurrent Workers</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Chaos & Healing Checkboxes -->
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem; background: rgba(255, 255, 255, 0.03); padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: var(--text-main);">
+                                <input type="checkbox" id="check-inject-chaos" checked style="accent-color: var(--primary-color);">
+                                <span>🔥 <strong>Inject Chaos Faults</strong> (422 stock, 504 timeout, 500 DB, 503 DNS)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; color: #34d399;">
+                                <input type="checkbox" id="check-auto-heal" checked style="accent-color: #10b981;">
+                                <span>🛡️ <strong>Autonomous Self-Healing</strong> (Dynamic Recovery &amp; Smart Retries)</span>
+                            </label>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <button class="btn btn-primary" id="btn-run-load-test" style="flex: 1;">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                </svg>
+                                Run Stress Test
+                            </button>
+                            <button class="btn btn-secondary" id="btn-view-stability-report" title="View Full Stability Report" style="font-size: 0.75rem; padding: 0.4rem 0.6rem;">
+                                📄 Report
+                            </button>
+                        </div>
+
+                        <!-- Live Progress State (Hidden by default) -->
+                        <div id="load-progress-container" style="display: none; margin-bottom: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                                <span id="load-progress-status">Simulating concurrent traffic...</span>
+                                <span id="load-progress-pct">0%</span>
+                            </div>
+                            <div class="progress-bar-bg" style="height: 6px;">
+                                <div class="progress-bar-fill" id="load-progress-fill" style="width: 0%; background: linear-gradient(90deg, #6366f1, #10b981);"></div>
+                            </div>
+                        </div>
+
+                        <!-- Live Results Metrics Grid (Hidden until test finishes) -->
+                        <div id="load-results-grid" style="display: none; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 0.35rem;">
+                                <span style="font-size: 0.75rem; font-weight: 700; color: #f3f4f6;">Stress Test Results</span>
+                                <span id="res-badge-target" class="badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    TARGET MET &le; 1.0%
+                                </span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Error Rate</div>
+                                    <div id="res-error-rate" style="font-size: 1.1rem; font-weight: 800; color: #10b981;">0.0%</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Success Rate</div>
+                                    <div id="res-success-rate" style="font-size: 1.1rem; font-weight: 800; color: #60a5fa;">100%</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Throughput</div>
+                                    <div id="res-throughput" style="font-size: 1.1rem; font-weight: 800; color: #f59e0b;">42 req/s</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; margin-top: 0.5rem;">
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Median (p50)</div>
+                                    <div id="res-p50" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">210 ms</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">95th (p95)</div>
+                                    <div id="res-p95" style="font-size: 0.85rem; font-weight: 700; color: #e5e7eb;">340 ms</div>
+                                </div>
+                                <div style="background: rgba(255, 255, 255, 0.02); padding: 0.4rem; border-radius: 6px;">
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Auto-Heals</div>
+                                    <div id="res-heals" style="font-size: 0.85rem; font-weight: 700; color: #a78bfa;">5 Recovered</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 4: INCIDENTS & POST-MORTEMS
+                     ========================================================================== -->
+                <section class="page-view" id="page-incidents" data-title="Incidents &amp; RCA">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Incidents &amp; Autonomous Diagnostics</h1>
+                            <p class="page-subtitle">Track detected outages, review automated root cause analysis (RCA), audit executed self-healing steps, and export compliance-ready post-mortems in 1-click.</p>
+                        </div>
+                        <div class="page-header-actions">
+                            <button type="button" class="btn btn-secondary btn-small" id="btn-inc-open-modal" onclick="openIncidentModal();">
+                                🚨 Open Rich Incident Card
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card rca-card" id="rca-panel">
                     <div class="card-header">
                         <h2>Auto-Diagnostic Report</h2>
                         <span class="badge badge-pulse" id="rca-header-badge">WAITING FOR FAILURE</span>
@@ -854,8 +953,93 @@
                     </div>
                 </div>
 
-                <!-- Real-time Console Terminal -->
-                <div class="panel-card terminal-card">
+                
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 5: OBSERVABILITY & OTLP
+                     ========================================================================== -->
+                <section class="page-view" id="page-observability" data-title="Observability &amp; OTLP">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Observability Bridge &amp; OpenTelemetry (OTLP)</h1>
+                            <p class="page-subtitle">Bridge external telemetry pipelines via OpenTelemetry (OTLP) or webhooks. Ingest live spans and correlate distributed order pipeline traces.</p>
+                        </div>
+                        <div class="page-header-actions">
+                            <button type="button" class="btn btn-primary btn-small" onclick="openTelemetryModal();">
+                                📡 Ingestion Guide Modal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- OpenTelemetry Collector Bridge Card -->
+                    <div class="panel-card" style="margin-top: 1.25rem;">
+                        <div class="card-header">
+                            <div>
+                                <h2>OpenTelemetry (OTLP) Endpoint Receiver</h2>
+                                <span class="sub-header-desc">Point your OpenTelemetry collectors or microservices directly to AegisTrace</span>
+                            </div>
+                            <span class="badge badge-success">ACTIVE LISTENER</span>
+                        </div>
+                        <div style="padding: 0.75rem 0;">
+                            <div style="background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.35rem;">OTLP HTTP JSON Ingestion Endpoint:</div>
+                                <code style="font-family: var(--font-mono); font-size: 0.8rem; color: #38bdf8;">POST /api/telemetry/otlp</code>
+                            </div>
+                            <div style="background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.75rem;">
+                                <div style="font-size: 0.72rem; color: #94a3b8; margin-bottom: 0.35rem;">Generic APM Webhook Endpoint:</div>
+                                <code style="font-family: var(--font-mono); font-size: 0.8rem; color: #38bdf8;">POST /api/telemetry/webhook</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Sandbox Card -->
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card curl-sandbox-card">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--info-color); margin-right: 0.25rem;">
+                                <polyline points="4 17 10 11 4 5"/>
+                                <line x1="12" y1="19" x2="20" y2="19"/>
+                            </svg>
+                            REST API Developer Sandbox
+                        </h2>
+                        <span class="badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info-color); border: 1px solid rgba(6, 182, 212, 0.2);">Active Listener</span>
+                    </div>
+                    <div class="curl-sandbox-body">
+                        <span class="sub-header-desc" style="display: block; margin-bottom: 0.75rem;">Simulate external client requests by running these commands in your local command prompt:</span>
+                        <div class="curl-commands-list">
+                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Healthy Loop Transaction</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-healthy" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=VC Client&sku=SKU-8829"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-healthy').textContent); alert('Copied healthy loop transaction command!');">Copy</button>
+                                </div>
+                            </div>
+                            <div class="curl-command-item" style="margin-bottom: 0.5rem;">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Inventory Depletion Anomaly</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-deplete" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/order -d "customer=cURL Client&sku=SKU-4402"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-deplete').textContent); alert('Copied inventory depletion command!');">Copy</button>
+                                </div>
+                            </div>
+                            <div class="curl-command-item">
+                                <span class="curl-label" style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Inject Outage Scenario (Timeout)</span>
+                                <div class="curl-code-box" style="display: flex; background: #05070c; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 0.4rem 0.6rem; align-items: center; justify-content: space-between;">
+                                    <code id="curl-timeout" style="font-family: var(--font-mono); font-size: 0.7rem; color: #a8a29e; word-break: break-all; flex-grow: 1; margin-right: 0.5rem;">curl -X POST http://localhost:8000/api/scenario -d "scenario=gateway-timeout"</code>
+                                    <button class="btn-small" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="navigator.clipboard.writeText(document.getElementById('curl-timeout').textContent); alert('Copied timeout scenario inject command!');">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                    </div>
+
+                    <!-- Live Terminal Stream Card -->
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card terminal-card">
                     <div class="card-header">
                         <h2>Live Telemetry & Logs Console</h2>
                         <button class="btn btn-small" id="btn-clear-console">Clear</button>
@@ -865,11 +1049,304 @@
                         <div class="console-line system">[SYSTEM] Monitoring active. Waiting for transaction streams...</div>
                     </div>
                 </div>
-            </section>
-        </main>
+            
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 6: CODE HOTFIX INSPECTOR
+                     ========================================================================== -->
+                <section class="page-view" id="page-hotfix" data-title="Code Hotfix Inspector">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Code Hotfix Inspector &amp; AI Patch Simulator</h1>
+                            <p class="page-subtitle">Inspect the simulated microservice source code, review automated patches in side-by-side syntax diff, and simulate hotfix deployment with instant verification.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card code-debugger-card" id="code-debugger">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--warning-color); margin-right: 0.25rem;">
+                                <polyline points="16 18 22 12 16 6"/>
+                                <polyline points="8 6 2 12 8 18"/>
+                            </svg>
+                            Interactive Code Hotfix Inspector
+                        </h2>
+                        <span class="badge" id="debugger-status-badge">COMPILED</span>
+                    </div>
+                    <div class="code-debugger-body">
+                        <div class="debugger-tabs" id="debugger-tabs">
+                            <button class="tab-btn active" data-file="checkout">checkout.go</button>
+                            <button class="tab-btn" data-file="inventory">inventory_db.go</button>
+                            <button class="tab-btn" data-file="payment">stripe_adapter.js</button>
+                            <button class="tab-btn" data-file="fulfillment">fulfillment.go</button>
+                            <button class="tab-btn" data-file="logistics">logistics_dns.js</button>
+                        </div>
+                        <div class="code-viewport-container">
+                            <div class="file-path-header">
+                                <span id="debugger-file-path">checkout-service/main.go</span>
+                            </div>
+                            <pre class="code-pre"><code class="code-display" id="code-display-area">// Live production code streams...</code></pre>
+                        </div>
+                        <div class="debugger-controls">
+                            <button class="btn btn-secondary" id="btn-toggle-diff" style="flex: 1;" disabled>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                                </svg>
+                                Toggle AI Patch View
+                            </button>
+                            <button class="btn btn-primary" id="btn-apply-hotfix" style="flex: 1.5;" disabled>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.25rem;">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Deploy Hotfix (Compile & Apply)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 7: AI COPILOT
+                     ========================================================================== -->
+                <section class="page-view" id="page-copilot" data-title="AI Copilot">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Aegis AI Copilot Debugger</h1>
+                            <p class="page-subtitle">Conversational debugging assistant with deep contextual awareness of the active distributed trace, failure node, database connection state, and business revenue impact.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.25rem;">
+                        <div class="panel-card ai-copilot-card" id="ai-copilot">
+                    <div class="card-header">
+                        <h2>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary-color); margin-right: 0.25rem;" class="logo-icon">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                <path d="M2 12h20"/>
+                            </svg>
+                            Aegis AI Copilot
+                        </h2>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="badge" id="ai-mode-badge" style="background: rgba(124, 58, 237, 0.15); color: var(--primary-color); border: 1px solid rgba(124, 58, 237, 0.3);">SIMULATED MODE</span>
+                            <button id="btn-toggle-ai-settings" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0.1rem;" title="Gemini Settings">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-muted)'">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ai-copilot-body" style="display: flex; flex-direction: column; gap: 0.75rem; height: 350px;">
+                        <!-- API Key overlay -->
+                        <div class="ai-settings-panel hidden" id="ai-settings-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--surface-border); border-radius: 8px; padding: 0.75rem; font-size: 0.75rem;">
+                            <h4 style="margin-bottom: 0.25rem; font-weight: 600;">Gemini 3.5 API Routing</h4>
+                            <p style="color: var(--text-muted); font-size: 0.65rem; margin-bottom: 0.5rem;">Connect a real LLM by entering your Gemini API key below. Inputs are saved in your local web storage.</p>
+                            <div class="settings-input-row" style="display: flex; gap: 0.5rem;">
+                                <input type="password" id="gemini-api-key" placeholder="Enter Gemini API Key..." style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.7rem; color: var(--text-main); outline: none;">
+                                <button class="btn btn-primary" id="btn-save-ai-key" style="padding: 0.3rem 0.75rem; font-size: 0.7rem;">Save Key</button>
+                            </div>
+                            <span class="key-status-label" id="key-status-label" style="font-size: 0.6rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Operating locally.</span>
+                        </div>
+
+                        <!-- Chat message feed -->
+                        <div class="chat-feed" id="chat-feed" style="flex-grow: 1; background: #05070c; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; max-height: 230px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">
+                            <div class="chat-bubble ai">
+                                <div class="chat-meta" style="font-size: 0.6rem; color: var(--primary-color); font-weight: 600; margin-bottom: 0.15rem;">AEGIS COPIOT • SYSTEM ACTIVE</div>
+                                <div class="chat-text" style="font-size: 0.75rem; color: #e2e8f0; line-height: 1.4;">Welcome! I am the Aegis AI Assistant. I scan active traces, logs, and database metrics. How can I help you debug your ecommerce pipelines today?</div>
+                            </div>
+                        </div>
+
+                        <!-- Prompt chips -->
+                        <div class="prompt-chips" id="prompt-chips" style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                            <button class="chip" data-prompt="What caused the active system failure?" style="font-family: var(--font-sans); background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #c084fc; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(124, 58, 237, 0.18)'" onmouseout="this.style.background='rgba(124, 58, 237, 0.08)'">Explain Failure</button>
+                            <button class="chip" data-prompt="Show me the proposed hotfix." style="font-family: var(--font-sans); background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #22d3ee; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(6, 182, 212, 0.18)'" onmouseout="this.style.background='rgba(6, 182, 212, 0.08)'">Recommend Fix</button>
+                            <button class="chip" data-prompt="Explain system SLA state." style="font-family: var(--font-sans); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #34d399; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(16, 185, 129, 0.18)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.08)'">SLA Impact</button>
+                            <button class="chip" data-prompt="Give me a quick system health summary." style="font-family: var(--font-sans); background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.65rem; color: #fbbf24; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.18)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.08)'">Health Summary</button>
+                        </div>
+
+                        <!-- Chat input form -->
+                        <form class="chat-input-form" id="chat-input-form" onsubmit="return false;" style="display: flex; gap: 0.35rem;">
+                            <input type="text" id="chat-input" placeholder="Ask Aegis AI Assistant..." autocomplete="off" style="flex-grow: 1; background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.75rem; color: var(--text-main); outline: none;">
+                            <button type="submit" class="btn btn-primary" id="btn-chat-send" style="padding: 0.4rem; border-radius: 6px; width: 34px; height: 34px;">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="transform: rotate(45deg);">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 8: ROI & BUSINESS IMPACT
+                     ========================================================================== -->
+                <section class="page-view" id="page-roi" data-title="ROI &amp; Business Impact">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Business ROI &amp; Revenue Protection Calculator</h1>
+                            <p class="page-subtitle">Configure your e-commerce order volume, Average Order Value (AOV), and conversion rate to calculate exact revenue preserved and engineering hours saved.</p>
+                        </div>
+                        <div class="page-header-actions">
+                            <button type="button" class="btn btn-primary btn-small" id="btn-open-roi-calc-modal" onclick="openRoiModal();">
+                                📊 Configure in ROI Modal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Business Metrics Grid -->
+                    <div class="roi-page-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem;">
+                        <!-- Configuration Form -->
+                        <div class="panel-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>E-Commerce Revenue Parameters</h2>
+                                    <span class="sub-header-desc">Inputs used to model pipeline revenue exposure</span>
+                                </div>
+                            </div>
+                            <div style="padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div class="form-group">
+                                    <label for="roi-volume-page" style="font-size: 0.75rem; color: var(--text-muted);">Daily Order Volume (Checkouts / Day)</label>
+                                    <input type="number" id="roi-volume-page" value="10000" min="100" max="1000000" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.45rem; color: #fff; font-size: 0.8rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roi-aov-page" style="font-size: 0.75rem; color: var(--text-muted);">Average Order Value &mdash; AOV ($)</label>
+                                    <input type="number" id="roi-aov-page" value="145.00" min="1" max="10000" step="0.5" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.45rem; color: #fff; font-size: 0.8rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="roi-conv-page" style="font-size: 0.75rem; color: var(--text-muted);">Cart-to-Order Conversion Rate (%)</label>
+                                    <input type="number" id="roi-conv-page" value="2.8" min="0.1" max="100" step="0.1" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.45rem; color: #fff; font-size: 0.8rem;">
+                                </div>
+                                <button type="button" class="btn btn-primary" id="btn-save-page-roi" style="margin-top: 0.5rem;" onclick="openRoiModal();">
+                                    Update Model &amp; Recalculate
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Calculated Results Summary -->
+                        <div class="panel-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Calculated Downtime &amp; Savings Impact</h2>
+                                    <span class="sub-header-desc">Estimated financial loss prevention via automated self-healing</span>
+                                </div>
+                                <span class="badge badge-success">SAVED</span>
+                            </div>
+                            <div style="padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.85rem;">
+                                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 0.75rem;">
+                                    <span style="font-size: 0.7rem; color: #34d399; font-weight: 600; display: block;">DOWNTIME COST PER MINUTE</span>
+                                    <span style="font-size: 1.5rem; font-weight: 800; color: #fff;" id="roi-page-cost-min">$75.52 / min</span>
+                                    <span style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 0.15rem;">Lost sales during an unmitigated checkout outage</span>
+                                </div>
+                                <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 8px; padding: 0.75rem;">
+                                    <span style="font-size: 0.7rem; color: #c084fc; font-weight: 600; display: block;">PROJECTED ANNUAL SAVINGS</span>
+                                    <span style="font-size: 1.5rem; font-weight: 800; color: #fff;" id="roi-page-annual-savings">$182,500.00 / yr</span>
+                                    <span style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 0.15rem;">Based on typical 4 incidents/month reduced from 45m to &lt;5s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================================================
+                     PAGE 9: SETTINGS & WORKSPACE
+                     ========================================================================== -->
+                <section class="page-view" id="page-settings" data-title="Settings &amp; Workspace">
+                    <div class="page-header-wrap">
+                        <div>
+                            <h1 class="page-title">Settings &amp; Workspace Management</h1>
+                            <p class="page-subtitle">Configure multi-tenant isolation, notification webhooks, API access tokens, and simulation parameters.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem;">
+                        <!-- Tenant Workspace Card -->
+                        <div class="panel-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Tenant Workspace Profile</h2>
+                                    <span class="sub-header-desc">Isolated multi-tenant environment details</span>
+                                </div>
+                            </div>
+                            <div style="padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.65rem;">
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-muted);">Current Active Tenant</label>
+                                    <div style="font-weight: 700; color: #fff; font-size: 0.85rem;" id="settings-tenant-display">Aegis Enterprise Cloud</div>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.72rem; color: var(--text-muted);">Tenant Identifier</label>
+                                    <code style="font-family: var(--font-mono); color: #38bdf8; font-size: 0.75rem;" id="settings-tenant-id">tenant-aegis</code>
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    <button type="button" class="btn btn-secondary btn-small" id="btn-switch-tenant-modal" onclick="openAuthModal();">
+                                        Switch Workspace or Sign Out
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Webhooks Card -->
+                        <div class="panel-card">
+                            <div class="card-header">
+                                <div>
+                                    <h2>Alert &amp; Incident Notifications</h2>
+                                    <span class="sub-header-desc">Simulated integrations with Slack, PagerDuty, and Discord</span>
+                                </div>
+                            </div>
+                            <div style="padding: 0.75rem 0; display: flex; flex-direction: column; gap: 0.65rem;">
+                                <div class="form-group">
+                                    <label style="font-size: 0.72rem; color: var(--text-muted);">Slack Incoming Webhook URL</label>
+                                    <input type="text" value="https://hooks.slack.com/services/T00/B00/X00" readonly style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 0.35rem; color: #94a3b8; font-size: 0.72rem;">
+                                </div>
+                                <div style="margin-top: 0.25rem;">
+                                    <button type="button" class="btn btn-secondary btn-small" onclick="alert('Sent test incident notification to simulated Slack channel #ecommerce-alerts!');">
+                                        Send Test Alert
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- Mobile Bottom Quick Navigation Bar (Visible on screens <= 768px) -->
+            <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile Bottom Navigation">
+                <a href="#/dashboard" class="bottom-nav-item active" data-page="dashboard">
+                    <span class="bottom-nav-icon">📊</span>
+                    <span class="bottom-nav-label">Dashboard</span>
+                </a>
+                <a href="#/faults" class="bottom-nav-item" data-page="faults">
+                    <span class="bottom-nav-icon">🔥</span>
+                    <span class="bottom-nav-label">Faults</span>
+                </a>
+                <a href="#/incidents" class="bottom-nav-item" data-page="incidents">
+                    <span class="bottom-nav-icon">🚨</span>
+                    <span class="bottom-nav-label">Incidents</span>
+                </a>
+                <a href="#/copilot" class="bottom-nav-item" data-page="copilot">
+                    <span class="bottom-nav-icon">🤖</span>
+                    <span class="bottom-nav-label">Copilot</span>
+                </a>
+                <button type="button" class="bottom-nav-item btn-bottom-more" id="btn-bottom-more" aria-label="More Pages">
+                    <span class="bottom-nav-icon">☰</span>
+                    <span class="bottom-nav-label">More</span>
+                </button>
+            </nav>
+        </div>
     </div>
 
-    <!-- Authentication / Login Modal Overlay (Hidden by default for Public Demo Access) -->
+<!-- Authentication / Login Modal Overlay (Hidden by default for Public Demo Access) -->
     <div class="login-modal-overlay hidden" id="login-modal">
         <div class="login-card" style="position: relative;">
             <button type="button" id="btn-close-login" title="Continue in Public Demo Mode" style="position: absolute; top: 0.9rem; right: 0.9rem; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0.2rem 0.5rem; border-radius: 4px;">&times;</button>
@@ -1727,3 +2204,4 @@ provider.register();</code></pre>
     <script src="app.js"></script>
 </body>
 </html>
+
