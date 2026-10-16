@@ -1407,40 +1407,55 @@ input:checked + .slider:before {
     border-color: rgba(239, 68, 68, 0.5) !important;
 }
 
-/* Login Modal Overlay */
+/* Login Modal Overlay (Responsive & Touch-Optimized) */
 .login-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(7, 10, 19, 0.88);
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    background: rgba(7, 10, 19, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    z-index: 99999;
+    z-index: 9999999;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1.5rem 1rem;
+    box-sizing: border-box;
     opacity: 1;
     visibility: visible;
-    transition: all 0.3s ease;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .login-modal-overlay.hidden {
+    display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
 }
 
 .login-card {
-    width: 92%;
+    width: 100%;
     max-width: 440px;
-    background: rgba(15, 23, 42, 0.96);
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(124, 58, 237, 0.35);
     border-radius: 14px;
     padding: 2rem 2.2rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 45px rgba(124, 58, 237, 0.18);
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    margin: auto;
+    max-height: 90vh;
+    max-height: -webkit-fill-available;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 @keyframes modalSlideUp {
@@ -2759,10 +2774,17 @@ input:checked + .slider:before {
         grid-template-columns: 1fr;
     }
 
+    .login-modal-overlay {
+        align-items: flex-start !important;
+        padding: 1rem 0.5rem !important;
+    }
+
     .login-card {
-        padding: 1rem !important;
-        width: 95% !important;
+        padding: 1.25rem 1rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0.5rem auto !important;
+        border-radius: 12px !important;
     }
 
     .btn {

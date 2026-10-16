@@ -379,29 +379,29 @@ async function runTests() {
         });
         assert(resShortPass.status === 400, 'Password shorter than 4 chars is rejected (400 Bad Request)');
 
-        // 10.3 Successful registration of any person with valid email (e.g. hanuspace123@gmail.com)
-        const testEmail = `hanuspace123_${Date.now()}@gmail.com`;
+        // 10.3 Successful registration of any person with valid email
+        const testEmail = `enterprise_user_${Date.now()}@example.com`;
         const resSignup = await fetch(`${GATEWAY_URL}/api/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: 'Hanu Space',
+                name: 'Cloud Engineer',
                 email: testEmail,
                 password: 'secretPassword2026',
-                organizationName: 'Hanu Enterprise Lab'
+                organizationName: 'Global Cloud Lab'
             })
         });
         const dataSignup = await resSignup.json();
         assert(resSignup.status === 201 && dataSignup.status === 'SUCCESS', 'New user signs up successfully with any valid email (201 Created)');
         assert(dataSignup.token && dataSignup.user.email === testEmail, 'Sign up returns active JWT token and user profile');
-        assert(dataSignup.tenant.name === 'Hanu Enterprise Lab', 'Sign up automatically provisions dedicated isolated tenant workspace');
+        assert(dataSignup.tenant.name === 'Global Cloud Lab', 'Sign up automatically provisions dedicated isolated tenant workspace');
 
         // 10.4 Prevent duplicate registration of existing email
         const resDup = await fetch(`${GATEWAY_URL}/api/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: 'Duplicate Hanu',
+                name: 'Duplicate Engineer',
                 email: testEmail,
                 password: 'differentPassword'
             })
@@ -419,7 +419,7 @@ async function runTests() {
         });
         const dataNewLogin = await resNewLogin.json();
         assert(resNewLogin.status === 200 && dataNewLogin.status === 'SUCCESS', 'Newly registered user logs in successfully (200 OK)');
-        assert(dataNewLogin.tenant.name === 'Hanu Enterprise Lab', 'Login restores user tenant context accurately');
+        assert(dataNewLogin.tenant.name === 'Global Cloud Lab', 'Login restores user tenant context accurately');
 
         // 10.6 Run authenticated trace as the new user
         const resNewOrder = await fetch(`${GATEWAY_URL}/api/checkout`, {
@@ -428,7 +428,7 @@ async function runTests() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${dataNewLogin.token}`
             },
-            body: JSON.stringify({ customer: 'Hanu Space', sku: 'SKU-8829' })
+            body: JSON.stringify({ customer: 'Enterprise Client', sku: 'SKU-8829' })
         });
         assert(resNewOrder.status === 200, 'Newly registered user executes checkout trace successfully (200 OK)');
 
