@@ -504,28 +504,19 @@ app.post('/api/auth/login', (req, res) => {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
-    if (!cleanEmail || !cleanPassword) {
+    if (!cleanEmail) {
         return res.status(400).json({
             status: 'FAILED',
-            error: 'MISSING_FIELDS',
-            message: 'Both email and password are required.'
+            error: 'MISSING_EMAIL',
+            message: 'Please enter an email address.'
         });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail)) {
+    if (!cleanPassword) {
         return res.status(400).json({
             status: 'FAILED',
-            error: 'INVALID_EMAIL_FORMAT',
-            message: 'Please enter a valid email address (e.g. name@domain.com).'
-        });
-    }
-
-    if (cleanPassword.length < 4) {
-        return res.status(400).json({
-            status: 'FAILED',
-            error: 'PASSWORD_TOO_SHORT',
-            message: 'Password must be at least 4 characters.'
+            error: 'MISSING_PASSWORD',
+            message: 'Please enter a password.'
         });
     }
 

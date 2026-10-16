@@ -822,17 +822,9 @@ function mockBackendHandler(url, options = {}) {
     };
 
     if (url.startsWith('/api/auth/login')) {
-        const email = (body.email || '').trim().toLowerCase();
-        const password = (body.password || '').trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
-            return createMockResponse({ status: 'FAILED', error: 'INVALID_EMAIL', message: 'Please enter a valid email address (e.g. name@company.com).' }, 400);
-        }
-        if (!password || password.length < 4) {
-            return createMockResponse({ status: 'FAILED', error: 'INVALID_PASSWORD', message: 'Password must be at least 4 characters.' }, 400);
-        }
-        const namePart = email.split('@')[0];
-        const cleanName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+        const email = (body.email || '').trim().toLowerCase() || 'admin@aegistrace.com';
+        const namePart = email.includes('@') ? email.split('@')[0] : email;
+        const cleanName = (namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Enterprise Admin';
         return createMockResponse({
             status: 'SUCCESS',
             token: 'aegis-static-token-' + Date.now(),
@@ -1161,34 +1153,21 @@ async function login(email, password) {
     const cleanEmail = (email || (dom.loginEmail && dom.loginEmail.value) || '').trim().toLowerCase();
     const cleanPassword = (password !== undefined ? password : (dom.loginPassword ? dom.loginPassword.value : '')).trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+    if (!cleanEmail) {
         if (dom.loginError && dom.loginErrorText) {
             dom.loginError.classList.remove('hidden');
-            dom.loginErrorText.textContent = 'Please enter a valid email address (e.g. name@domain.com).';
+            dom.loginErrorText.textContent = 'Please enter an email address.';
         }
-        if (dom.loginEmail) {
-            dom.loginEmail.focus();
-            dom.loginEmail.style.borderColor = '#ef4444';
-            setTimeout(() => {
-                if (dom.loginEmail) dom.loginEmail.style.borderColor = 'rgba(255,255,255,0.22)';
-            }, 3000);
-        }
+        if (dom.loginEmail) dom.loginEmail.focus();
         return false;
     }
 
-    if (!cleanPassword || cleanPassword.length < 4) {
+    if (!cleanPassword) {
         if (dom.loginError && dom.loginErrorText) {
             dom.loginError.classList.remove('hidden');
-            dom.loginErrorText.textContent = 'Password must be at least 4 characters.';
+            dom.loginErrorText.textContent = 'Please enter a password.';
         }
-        if (dom.loginPassword) {
-            dom.loginPassword.focus();
-            dom.loginPassword.style.borderColor = '#ef4444';
-            setTimeout(() => {
-                if (dom.loginPassword) dom.loginPassword.style.borderColor = 'rgba(255,255,255,0.22)';
-            }, 3000);
-        }
+        if (dom.loginPassword) dom.loginPassword.focus();
         return false;
     }
 
@@ -2076,24 +2055,13 @@ function registerEventListeners() {
     }
 
     // Submit handler via form submit and direct button touch/click (Optimized for mobile touch)
-    const handleLoginAction = (e) => {
-        if (e && e.type !== 'submit') e.preventDefault();
-        const email = (dom.loginEmail && dom.loginEmail.value) || '';
-        const password = (dom.loginPassword && dom.loginPassword.value) || '';
-        login(email, password);
-    };
-
     if (dom.loginForm) {
         dom.loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            handleLoginAction(e);
+            const email = (dom.loginEmail && dom.loginEmail.value) || '';
+            const password = (dom.loginPassword && dom.loginPassword.value) || '';
+            login(email, password);
         });
-    }
-    if (dom.btnLoginSubmit) {
-        dom.btnLoginSubmit.addEventListener('click', handleLoginAction);
-        dom.btnLoginSubmit.addEventListener('touchend', (e) => {
-            handleLoginAction(e);
-        }, { passive: true });
     }
 
     const btnHeaderSignin = document.getElementById('btn-header-signin');
