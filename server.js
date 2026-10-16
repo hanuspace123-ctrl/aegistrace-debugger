@@ -523,15 +523,14 @@ app.post('/api/auth/login', (req, res) => {
     let user = USERS.find(u => u.email.toLowerCase() === cleanEmail);
 
     if (user) {
-        // Known user: ensure passwords list exists and accept/update
-        if (!user.passwords || !Array.isArray(user.passwords)) {
-            user.passwords = [user.password].filter(Boolean);
-        }
-        if (!user.passwords.includes(cleanPassword)) {
-            user.passwords.push(cleanPassword);
-            user.password = cleanPassword;
-            persistAuthStore();
-            console.log(`[AUTH-UPDATE] Updated password credentials for known user: ${cleanEmail}`);
+        // Known user: strictly verify password!
+        const validPasswords = Array.isArray(user.passwords) ? user.passwords : [user.password].filter(Boolean);
+        if (!validPasswords.includes(cleanPassword)) {
+            return res.status(401).json({
+                status: 'FAILED',
+                error: 'INVALID_CREDENTIALS',
+                message: 'Incorrect password. Please enter the correct password for this account.'
+            });
         }
     } else {
         // New user: auto-provision dedicated workspace on the fly

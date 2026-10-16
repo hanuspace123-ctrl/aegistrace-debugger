@@ -823,6 +823,36 @@ function mockBackendHandler(url, options = {}) {
 
     if (url.startsWith('/api/auth/login')) {
         const email = (body.email || '').trim().toLowerCase() || 'admin@aegistrace.com';
+        const password = (body.password || '').trim();
+
+        // Retrieve saved credentials map from localStorage
+        let creds = {};
+        try {
+            const raw = localStorage.getItem('aegis_user_credentials');
+            if (raw) creds = JSON.parse(raw);
+        } catch(e) {}
+
+        // Default seeded passwords
+        if (!creds['admin@aegistrace.com']) creds['admin@aegistrace.com'] = 'password123';
+        if (!creds['dev@acmecorp.com']) creds['dev@acmecorp.com'] = 'password123';
+
+        if (creds[email]) {
+            // User exists: strictly verify password matches!
+            if (creds[email] !== password) {
+                return createMockResponse({
+                    status: 'FAILED',
+                    error: 'INVALID_CREDENTIALS',
+                    message: 'Incorrect password. Please enter the correct password for this account.'
+                }, 401);
+            }
+        } else {
+            // First time login for this email: register and remember this password
+            creds[email] = password;
+            try {
+                localStorage.setItem('aegis_user_credentials', JSON.stringify(creds));
+            } catch(e) {}
+        }
+
         const namePart = email.includes('@') ? email.split('@')[0] : email;
         const cleanName = (namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Enterprise Admin';
         return createMockResponse({
@@ -2054,6 +2084,36 @@ function registerEventListeners() {
         });
     }
 
+    // Reset password helper
+    const btnForgotPass = document.getElementById('btn-forgot-pass');
+    if (btnForgotPass) {
+        btnForgotPass.addEventListener('click', () => {
+            const email = (dom.loginEmail && dom.loginEmail.value.trim().toLowerCase()) || '';
+            let creds = {};
+            try {
+                const raw = localStorage.getItem('aegis_user_credentials');
+                if (raw) creds = JSON.parse(raw);
+            } catch(e) {}
+            if (email && creds[email]) {
+                delete creds[email];
+                localStorage.setItem('aegis_user_credentials', JSON.stringify(creds));
+                if (dom.loginError && dom.loginErrorText) {
+                    dom.loginError.classList.remove('hidden');
+                    dom.loginErrorText.textContent = `Password reset for ${email}. Type your new password and click Sign In to save it.`;
+                }
+            } else {
+                localStorage.removeItem('aegis_user_credentials');
+                if (dom.loginError && dom.loginErrorText) {
+                    dom.loginError.classList.remove('hidden');
+                    dom.loginErrorText.textContent = 'All saved passwords reset. Enter any new password to sign in.';
+                }
+            }
+            if (dom.loginPassword) {
+                dom.loginPassword.value = '';
+                dom.loginPassword.focus();
+            }
+        });
+    }
     // Submit handler via form submit and direct button touch/click (Optimized for mobile touch)
     if (dom.loginForm) {
         dom.loginForm.addEventListener('submit', (e) => {
