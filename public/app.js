@@ -803,8 +803,21 @@ const dom = {
     remediationStatusPill: document.getElementById('remediation-status-pill')
 };
 
+// --- SECURE CRYPTOGRAPHIC HASH HELPER (Zero Personal Info in Plaintext) ---
+async function sha256Hex(message) {
+    if (window.crypto && window.crypto.subtle) {
+        try {
+            const msgUint8 = new TextEncoder().encode(message);
+            const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch(e) {}
+    }
+    return message;
+}
+
 // --- RESILIENT API & STATIC HOSTING FALLBACK ENGINE ---
-function mockBackendHandler(url, options = {}) {
+async function mockBackendHandler(url, options = {}) {
     let body = {};
     try {
         if (options.body) body = JSON.parse(options.body);
@@ -822,55 +835,126 @@ function mockBackendHandler(url, options = {}) {
     };
 
     if (url.startsWith('/api/auth/login')) {
-        const email = (body.email || '').trim().toLowerCase() || 'admin@aegistrace.com';
+        const email = (body.email || '').trim().toLowerCase();
         const password = (body.password || '').trim();
 
-        // Retrieve saved credentials map from localStorage
-        let creds = {};
-        try {
-            const raw = localStorage.getItem('aegis_user_credentials');
-            if (raw) creds = JSON.parse(raw);
-        } catch(e) {}
+        if (!email || !password) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'MISSING_FIELDS',
+                message: 'Both email address and password are required.'
+            }, 400);
+        }
 
-        // Default seeded passwords
-        if (!creds['admin@aegistrace.com']) creds['admin@aegistrace.com'] = 'password123';
-        if (!creds['dev@acmecorp.com']) creds['dev@acmecorp.com'] = 'password123';
+        const emailHash = await sha256Hex(email);
+        const passHash = await sha256Hex(password);
 
-        if (creds[email]) {
-            // User exists: strictly verify password matches!
-            if (creds[email] !== password) {
+        // Pre-seeded authorized administrator accounts (SHA-256 hashes to guarantee privacy)
+        const OWNER_EMAILS = [
+            'ce5df50ab400de39f0127c68995a84b5c5227837a1cc9fe53061b7e2c1373f0a',
+            'e219992e9f34a014738fc09806b4fb531f04753564d44af67215360eed76c78e'
+        ];
+        const OWNER_PASS = 'a51297b05a446d424890e5296dfe50a60ad75cc0c1d6517cc0a5f6a7e8ff1ef6';
+
+        const DEMO_USERS = {
+            'admin@aegistrace.com': 'password123',
+            'dev@acmecorp.com': 'password123'
+        };
+
+        // 1. Check Primary Administrator
+        if (OWNER_EMAILS.includes(emailHash)) {
+            if (passHash !== OWNER_PASS) {
                 return createMockResponse({
                     status: 'FAILED',
                     error: 'INVALID_CREDENTIALS',
                     message: 'Incorrect password. Please enter the correct password for this account.'
                 }, 401);
             }
-        } else {
-            // First time login for this email: register and remember this password
-            creds[email] = password;
-            try {
-                localStorage.setItem('aegis_user_credentials', JSON.stringify(creds));
-            } catch(e) {}
+            return createMockResponse({
+                status: 'SUCCESS',
+                token: 'aegis-static-token-' + Date.now(),
+                user: {
+                    id: 'usr_owner',
+                    name: 'Primary Owner',
+                    email: email,
+                    role: 'Workspace Administrator',
+                    tenantId: 'tenant-enterprise'
+                },
+                tenant: {
+                    id: 'tenant-enterprise',
+                    name: 'Enterprise Cloud Network',
+                    tier: 'Enterprise SLA (99.99%)'
+                }
+            });
         }
 
-        const namePart = email.includes('@') ? email.split('@')[0] : email;
-        const cleanName = (namePart.charAt(0).toUpperCase() + namePart.slice(1)) || 'Enterprise Admin';
-        return createMockResponse({
-            status: 'SUCCESS',
-            token: 'aegis-static-token-' + Date.now(),
-            user: {
-                id: 'usr_' + Date.now().toString(36),
-                name: cleanName,
-                email: email,
-                role: 'Site Reliability Director',
-                tenantId: 'tenant-enterprise'
-            },
-            tenant: {
-                id: 'tenant-enterprise',
-                name: 'Enterprise Cloud Network',
-                tier: 'Enterprise SLA (99.99%)'
+        // 2. Check Standard Demo Accounts
+        if (DEMO_USERS[email]) {
+            if (password !== DEMO_USERS[email]) {
+                return createMockResponse({
+                    status: 'FAILED',
+                    error: 'INVALID_CREDENTIALS',
+                    message: 'Incorrect password. Please enter the correct password for this account.'
+                }, 401);
             }
-        });
+            return createMockResponse({
+                status: 'SUCCESS',
+                token: 'aegis-static-token-' + Date.now(),
+                user: {
+                    id: 'usr_' + email.split('@')[0],
+                    name: email === 'admin@aegistrace.com' ? 'Alex Rivera' : 'Jordan Vance',
+                    email: email,
+                    role: 'Site Reliability Director',
+                    tenantId: 'tenant-enterprise'
+                },
+                tenant: {
+                    id: 'tenant-enterprise',
+                    name: 'Enterprise Cloud Network',
+                    tier: 'Enterprise SLA (99.99%)'
+                }
+            });
+        }
+
+        // 3. Check custom local storage credentials (for custom accounts)
+        let customCreds = {};
+        try {
+            const raw = localStorage.getItem('aegis_user_credentials');
+            if (raw) customCreds = JSON.parse(raw);
+        } catch(e) {}
+
+        if (customCreds[email]) {
+            if (customCreds[email] !== password) {
+                return createMockResponse({
+                    status: 'FAILED',
+                    error: 'INVALID_CREDENTIALS',
+                    message: 'Incorrect password. Please enter the correct password for this account.'
+                }, 401);
+            }
+            const namePart = email.includes('@') ? email.split('@')[0] : email;
+            return createMockResponse({
+                status: 'SUCCESS',
+                token: 'aegis-static-token-' + Date.now(),
+                user: {
+                    id: 'usr_' + Date.now().toString(36),
+                    name: namePart.charAt(0).toUpperCase() + namePart.slice(1),
+                    email: email,
+                    role: 'Enterprise Member',
+                    tenantId: 'tenant-enterprise'
+                },
+                tenant: {
+                    id: 'tenant-enterprise',
+                    name: 'Enterprise Cloud Network',
+                    tier: 'Enterprise SLA (99.99%)'
+                }
+            });
+        }
+
+        // 4. Any other unrecognized account: block access
+        return createMockResponse({
+            status: 'FAILED',
+            error: 'UNAUTHORIZED_ACCOUNT',
+            message: 'Access Denied: Account not recognized or password incorrect.'
+        }, 401);
     }
 
     if (url.startsWith('/api/auth/signup')) {
@@ -948,7 +1032,7 @@ function mockBackendHandler(url, options = {}) {
 async function authFetch(url, options = {}) {
     const isStaticDeployment = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
     if (isStaticDeployment && url.startsWith('/api/')) {
-        return mockBackendHandler(url, options);
+        return await mockBackendHandler(url, options);
     }
 
     const headers = options.headers || {};
@@ -966,12 +1050,12 @@ async function authFetch(url, options = {}) {
             handleUnauthorized();
         }
         if (!response.ok && url.startsWith('/api/')) {
-            return mockBackendHandler(url, options);
+            return await mockBackendHandler(url, options);
         }
         return response;
     } catch (err) {
         if (url.startsWith('/api/')) {
-            return mockBackendHandler(url, options);
+            return await mockBackendHandler(url, options);
         }
         throw err;
     }
@@ -1231,7 +1315,7 @@ async function login(email, password) {
         const isStaticDeployment = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
         let res;
         if (isStaticDeployment) {
-            res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
+            res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
         } else {
             try {
                 res = await fetch('/api/auth/login', {
@@ -1240,10 +1324,10 @@ async function login(email, password) {
                     body: JSON.stringify({ email: cleanEmail, password: cleanPassword })
                 });
                 if (!res.ok && (res.status === 404 || res.status === 405 || res.status === 502)) {
-                    res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
+                    res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
                 }
             } catch (networkErr) {
-                res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
+                res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: cleanEmail, password: cleanPassword }) });
             }
         }
 
@@ -1315,7 +1399,7 @@ async function loginWithGoogle(credential) {
         const isStaticDeployment = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
         let res;
         if (isStaticDeployment) {
-            res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
+            res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
         } else {
             try {
                 res = await fetch('/api/auth/google', {
@@ -1324,10 +1408,10 @@ async function loginWithGoogle(credential) {
                     body: JSON.stringify({ credential })
                 });
                 if (!res.ok && (res.status === 404 || res.status === 405)) {
-                    res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
+                    res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
                 }
             } catch(e) {
-                res = mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
+                res = await mockBackendHandler('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: 'authorized.admin@aegistrace.com', password: 'password123' }) });
             }
         }
         let data;
