@@ -1378,6 +1378,30 @@ function updateDynamicHostUrls() {
     if (curlHealthy) curlHealthy.textContent = `curl -X POST ${origin}/api/order -d "customer=VC Client&sku=SKU-8829"`;
     if (curlDeplete) curlDeplete.textContent = `curl -X POST ${origin}/api/order -d "customer=cURL Client&sku=SKU-4402"`;
     if (curlTimeout) curlTimeout.textContent = `curl -X POST ${origin}/api/scenario -d "scenario=gateway-timeout"`;
+
+    // Dynamic Environment Indicator (Staging vs Production vs Local)
+    const envBadge = document.querySelector('.sidebar-env-badge');
+    const envDot = document.querySelector('.sidebar-env-badge .env-dot');
+    const envText = document.querySelector('.sidebar-env-badge .env-text');
+    if (envText && envDot) {
+        const host = window.location.hostname;
+        if (host.includes('staging')) {
+            envText.innerHTML = 'Staging Sandbox &bull; Isolated';
+            envDot.style.background = '#f59e0b';
+            envDot.style.boxShadow = '0 0 8px #f59e0b';
+            if (envBadge) envBadge.title = 'Active Cluster: Staging Sandbox (Safe Testing Environment)';
+        } else if (host.includes('localhost') || host.includes('127.0.0.1')) {
+            envText.innerHTML = 'Local Dev &bull; Port 8000';
+            envDot.style.background = '#38bdf8';
+            envDot.style.boxShadow = '0 0 8px #38bdf8';
+            if (envBadge) envBadge.title = 'Active Cluster: Local Node.js Development Server';
+        } else {
+            envText.innerHTML = 'Production &bull; US-East Cluster';
+            envDot.style.background = '#10b981';
+            envDot.style.boxShadow = '0 0 8px #10b981';
+            if (envBadge) envBadge.title = 'Active Cluster: Production US-East (AWS EKS &bull; Multi-AZ)';
+        }
+    }
 }
 
 // --- SAAS CLIENT-SIDE SPA ROUTER ---
