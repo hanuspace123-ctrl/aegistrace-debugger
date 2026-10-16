@@ -504,56 +504,20 @@ app.post('/api/auth/login', (req, res) => {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanPassword = (password || '').trim();
 
-    if (!cleanEmail) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
         return res.status(400).json({
             status: 'FAILED',
-            error: 'MISSING_EMAIL',
-            message: 'Please enter an email address.'
+            error: 'INVALID_EMAIL',
+            message: 'Please provide a valid email address (e.g. name@gmail.com or name@company.com).'
         });
     }
 
-    if (!cleanPassword) {
+    if (!cleanPassword || cleanPassword.length < 4) {
         return res.status(400).json({
             status: 'FAILED',
-            error: 'MISSING_PASSWORD',
-            message: 'Please enter a password.'
-        });
-    }
-
-    const OWNER_EMAILS = [
-        'ce5df50ab400de39f0127c68995a84b5c5227837a1cc9fe53061b7e2c1373f0a',
-        'e219992e9f34a014738fc09806b4fb531f04753564d44af67215360eed76c78e'
-    ];
-    const OWNER_PASS = 'a51297b05a446d424890e5296dfe50a60ad75cc0c1d6517cc0a5f6a7e8ff1ef6';
-
-    const emailHash = crypto.createHash('sha256').update(cleanEmail).digest('hex');
-    const passHash = crypto.createHash('sha256').update(cleanPassword).digest('hex');
-
-    if (OWNER_EMAILS.includes(emailHash)) {
-        if (passHash !== OWNER_PASS) {
-            return res.status(401).json({
-                status: 'FAILED',
-                error: 'INVALID_CREDENTIALS',
-                message: 'Incorrect password. Please enter the correct password for this account.'
-            });
-        }
-        let user = USERS.find(u => u.id === 'usr_owner');
-        if (!user) {
-            user = {
-                id: 'usr_owner',
-                email: cleanEmail,
-                name: 'Primary Owner',
-                role: 'Workspace Administrator',
-                tenantId: 'tenant-enterprise'
-            };
-            USERS.push(user);
-        }
-        const token = createToken(user);
-        return res.status(200).json({
-            status: 'SUCCESS',
-            token,
-            user,
-            tenant: TENANTS['tenant-enterprise']
+            error: 'WEAK_PASSWORD',
+            message: 'Password must be at least 4 characters long.'
         });
     }
 
@@ -566,7 +530,7 @@ app.post('/api/auth/login', (req, res) => {
             return res.status(401).json({
                 status: 'FAILED',
                 error: 'INVALID_CREDENTIALS',
-                message: 'Incorrect password. Please enter the correct password for this account.'
+                message: `Incorrect password for ${cleanEmail}. Please enter the correct password for this account.`
             });
         }
     } else {

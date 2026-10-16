@@ -838,63 +838,37 @@ async function mockBackendHandler(url, options = {}) {
         const email = (body.email || '').trim().toLowerCase();
         const password = (body.password || '').trim();
 
-        if (!email || !password) {
+        // 1. Strict Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
             return createMockResponse({
                 status: 'FAILED',
-                error: 'MISSING_FIELDS',
-                message: 'Both email address and password are required.'
+                error: 'INVALID_EMAIL',
+                message: 'Please provide a valid email address (e.g. name@gmail.com or name@company.com).'
             }, 400);
         }
 
-        const emailHash = await sha256Hex(email);
-        const passHash = await sha256Hex(password);
+        // 2. Strict Password length check
+        if (!password || password.length < 4) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'WEAK_PASSWORD',
+                message: 'Password must be at least 4 characters long.'
+            }, 400);
+        }
 
-        // Pre-seeded authorized administrator accounts (SHA-256 hashes to guarantee privacy)
-        const OWNER_EMAILS = [
-            'ce5df50ab400de39f0127c68995a84b5c5227837a1cc9fe53061b7e2c1373f0a',
-            'e219992e9f34a014738fc09806b4fb531f04753564d44af67215360eed76c78e'
-        ];
-        const OWNER_PASS = 'a51297b05a446d424890e5296dfe50a60ad75cc0c1d6517cc0a5f6a7e8ff1ef6';
-
+        // 3. Pre-seeded Demo Accounts
         const DEMO_USERS = {
             'admin@aegistrace.com': 'password123',
             'dev@acmecorp.com': 'password123'
         };
 
-        // 1. Check Primary Administrator
-        if (OWNER_EMAILS.includes(emailHash)) {
-            if (passHash !== OWNER_PASS) {
-                return createMockResponse({
-                    status: 'FAILED',
-                    error: 'INVALID_CREDENTIALS',
-                    message: 'Incorrect password. Please enter the correct password for this account.'
-                }, 401);
-            }
-            return createMockResponse({
-                status: 'SUCCESS',
-                token: 'aegis-static-token-' + Date.now(),
-                user: {
-                    id: 'usr_owner',
-                    name: 'Primary Owner',
-                    email: email,
-                    role: 'Workspace Administrator',
-                    tenantId: 'tenant-enterprise'
-                },
-                tenant: {
-                    id: 'tenant-enterprise',
-                    name: 'Enterprise Cloud Network',
-                    tier: 'Enterprise SLA (99.99%)'
-                }
-            });
-        }
-
-        // 2. Check Standard Demo Accounts
         if (DEMO_USERS[email]) {
             if (password !== DEMO_USERS[email]) {
                 return createMockResponse({
                     status: 'FAILED',
                     error: 'INVALID_CREDENTIALS',
-                    message: 'Incorrect password. Please enter the correct password for this account.'
+                    message: 'Incorrect password for demo account. Password is: password123'
                 }, 401);
             }
             return createMockResponse({
@@ -915,7 +889,7 @@ async function mockBackendHandler(url, options = {}) {
             });
         }
 
-        // 3. Check custom local storage credentials (for custom accounts)
+        // 4. Stored user credentials in browser localStorage
         let customCreds = {};
         try {
             const raw = localStorage.getItem('aegis_user_credentials');
@@ -923,38 +897,42 @@ async function mockBackendHandler(url, options = {}) {
         } catch(e) {}
 
         if (customCreds[email]) {
+            // Returning user with this email: strictly verify password!
             if (customCreds[email] !== password) {
                 return createMockResponse({
                     status: 'FAILED',
                     error: 'INVALID_CREDENTIALS',
-                    message: 'Incorrect password. Please enter the correct password for this account.'
+                    message: `Incorrect password for ${email}. Please enter the correct password, or click "Reset password" above.`
                 }, 401);
             }
-            const namePart = email.includes('@') ? email.split('@')[0] : email;
-            return createMockResponse({
-                status: 'SUCCESS',
-                token: 'aegis-static-token-' + Date.now(),
-                user: {
-                    id: 'usr_' + Date.now().toString(36),
-                    name: namePart.charAt(0).toUpperCase() + namePart.slice(1),
-                    email: email,
-                    role: 'Enterprise Member',
-                    tenantId: 'tenant-enterprise'
-                },
-                tenant: {
-                    id: 'tenant-enterprise',
-                    name: 'Enterprise Cloud Network',
-                    tier: 'Enterprise SLA (99.99%)'
-                }
-            });
+        } else {
+            // First time this email is used: securely register it with this password!
+            customCreds[email] = password;
+            try {
+                localStorage.setItem('aegis_user_credentials', JSON.stringify(customCreds));
+            } catch(e) {}
         }
 
-        // 4. Any other unrecognized account: block access
+        const namePart = email.split('@')[0];
+        const displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+
         return createMockResponse({
-            status: 'FAILED',
-            error: 'UNAUTHORIZED_ACCOUNT',
-            message: 'Access Denied: Account not recognized or password incorrect.'
-        }, 401);
+            status: 'SUCCESS',
+            message: 'Authenticated successfully!',
+            token: 'aegis-static-token-' + Date.now(),
+            user: {
+                id: 'usr_' + namePart.replace(/[^a-z0-9]/gi, '_'),
+                name: displayName,
+                email: email,
+                role: 'Workspace Administrator',
+                tenantId: 'tenant-enterprise'
+            },
+            tenant: {
+                id: 'tenant-enterprise',
+                name: `${displayName}'s Cloud Network`,
+                tier: 'Enterprise SLA (99.99%)'
+            }
+        });
     }
 
     if (url.startsWith('/api/auth/signup')) {
@@ -1267,19 +1245,20 @@ async function login(email, password) {
     const cleanEmail = (email || (dom.loginEmail && dom.loginEmail.value) || '').trim().toLowerCase();
     const cleanPassword = (password !== undefined ? password : (dom.loginPassword ? dom.loginPassword.value : '')).trim();
 
-    if (!cleanEmail) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
         if (dom.loginError && dom.loginErrorText) {
             dom.loginError.classList.remove('hidden');
-            dom.loginErrorText.textContent = 'Please enter an email address.';
+            dom.loginErrorText.textContent = 'Please enter a valid email address (e.g. name@gmail.com).';
         }
         if (dom.loginEmail) dom.loginEmail.focus();
         return false;
     }
 
-    if (!cleanPassword) {
+    if (!cleanPassword || cleanPassword.length < 4) {
         if (dom.loginError && dom.loginErrorText) {
             dom.loginError.classList.remove('hidden');
-            dom.loginErrorText.textContent = 'Please enter a password.';
+            dom.loginErrorText.textContent = 'Password must be at least 4 characters long.';
         }
         if (dom.loginPassword) dom.loginPassword.focus();
         return false;
@@ -2183,19 +2162,29 @@ function registerEventListeners() {
                 localStorage.setItem('aegis_user_credentials', JSON.stringify(creds));
                 if (dom.loginError && dom.loginErrorText) {
                     dom.loginError.classList.remove('hidden');
-                    dom.loginErrorText.textContent = `Password reset for ${email}. Type your new password and click Sign In to save it.`;
+                    dom.loginErrorText.textContent = `Password reset for ${email}. Enter your new password below and click Sign In to save it.`;
                 }
             } else {
                 localStorage.removeItem('aegis_user_credentials');
                 if (dom.loginError && dom.loginErrorText) {
                     dom.loginError.classList.remove('hidden');
-                    dom.loginErrorText.textContent = 'All saved passwords reset. Enter any new password to sign in.';
+                    dom.loginErrorText.textContent = 'Password reset! Enter your email and new password to set it and sign in.';
                 }
             }
             if (dom.loginPassword) {
                 dom.loginPassword.value = '';
                 dom.loginPassword.focus();
             }
+        });
+    }
+
+    // Quick Demo Fill listener
+    const btnQuickDemo = document.getElementById('btn-quick-demo-login');
+    if (btnQuickDemo) {
+        btnQuickDemo.addEventListener('click', () => {
+            if (dom.loginEmail) dom.loginEmail.value = 'admin@aegistrace.com';
+            if (dom.loginPassword) dom.loginPassword.value = 'password123';
+            login('admin@aegistrace.com', 'password123');
         });
     }
     // Submit handler via form submit and direct button touch/click (Optimized for mobile touch)

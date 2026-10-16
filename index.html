@@ -1401,8 +1401,8 @@
                 <!-- Login Form -->
                 <form id="login-form" autocomplete="on">
                     <div class="form-group" style="margin-bottom: 0.95rem;">
-                        <label for="login-email" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Email Address or Username</label>
-                        <input type="text" id="login-email" placeholder="Enter email or username" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" style="width: 100%; min-height: 48px; padding: 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                        <label for="login-email" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Email Address</label>
+                        <input type="email" id="login-email" placeholder="name@domain.com (e.g. your email)" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" style="width: 100%; min-height: 48px; padding: 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
                     </div>
 
                     <div class="form-group" style="margin-bottom: 1.25rem;">
@@ -1411,7 +1411,7 @@
                             <button type="button" id="btn-forgot-pass" style="background: none; border: none; color: #38bdf8; font-size: 0.72rem; cursor: pointer; text-decoration: underline; padding: 0;">Reset password</button>
                         </div>
                         <div style="position: relative;">
-                            <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width: 100%; min-height: 48px; padding: 0.75rem 3rem 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                            <input type="password" id="login-password" placeholder="Enter password (min 4 characters)" required autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width: 100%; min-height: 48px; padding: 0.75rem 3rem 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
                             <button type="button" id="btn-toggle-main-pass" style="position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.15rem; color: #94a3b8; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; touch-action: manipulation;" title="Show/Hide password">👁</button>
                         </div>
                     </div>
@@ -1425,14 +1425,20 @@
                         </svg>
                         <span>Sign In / Log In</span>
                     </button>
+
+                    <button type="button" id="btn-quick-demo-login" style="width: 100%; min-height: 40px; margin-top: 0.75rem; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; touch-action: manipulation;">
+                        ⚡ Quick Demo Fill (admin@aegistrace.com / password123)
+                    </button>
                 </form>
 
-                <div style="margin-top: 1rem; padding: 0.65rem 0.85rem; background: rgba(30, 41, 59, 0.4); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.72rem; color: #94a3b8; line-height: 1.45;">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.2rem;">
+                <div style="margin-top: 1rem; padding: 0.75rem 0.85rem; background: rgba(30, 41, 59, 0.4); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.72rem; color: #94a3b8; line-height: 1.5;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.35rem;">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        Strict Security Gate
+                        Universal Verified Sign-In
                     </div>
-                    Only authorized accounts are permitted. Valid email format and credentials are required.
+                    • <b>Any Valid Email</b>: Enter any valid email (e.g. name@gmail.com).<br>
+                    • <b>Password Verification</b>: Strictly checks password match. Wrong password will be rejected.<br>
+                    • <b>Reset Anytime</b>: Click "Reset password" above to set a new password.
                 </div>
             </div>
         </div>
