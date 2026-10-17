@@ -77,6 +77,21 @@ const state = {
         recentOutagesPrevented: 0
     },
 
+    // --- PRODUCT ANALYTICS & GOOGLE ANALYTICS 4 DISPATCHER ---
+    trackEvent: function(eventName, params = {}) {
+        if (typeof window.gtag === 'function') {
+            try {
+                window.gtag('event', eventName, {
+                    app_name: 'AegisTrace',
+                    app_version: '2.4.0',
+                    tenant: state.currentTenant?.id || 'anonymous',
+                    scenario: state.currentScenario || 'healthy',
+                    ...params
+                });
+            } catch(e) {}
+        }
+    },
+
     // --- ACTIVE INCIDENT TRACKING ---
     activeTraceId: 'trace_idle',
     activeIncident: null,
@@ -1348,6 +1363,7 @@ async function login(email, password) {
             updateTenantUI();
             hideLoginModal();
             logConsole(`[AUTH] Authenticated as ${data.user.email} [${data.tenant.name}]`, 'system');
+            state.trackEvent('login', { method: 'email', user_role: data.user.role || 'admin' });
 
             await loadTenantData();
             startAutopilotDaemon();
@@ -2237,6 +2253,11 @@ function registerEventListeners() {
         });
     }
 
+    // --- COMPLIANCE & PRIVACY: COOKIE CONSENT, GDPR ERASURE & GA4 SETUP ---
+    initCookieConsent();
+    initGdprErasure();
+    initGaConfigModal();
+
     // --- 1. W3C TRACE ID COPY WITH VISUAL FEEDBACK ---
     if (dom.btnCopyTrace) {
         dom.btnCopyTrace.addEventListener('click', () => {
@@ -2741,6 +2762,7 @@ function handlePipelineFailure(scenarioType) {
     state.showCodeDiff = false;
     dom.btnToggleDiff.disabled = false;
     dom.btnApplyHotfix.disabled = false;
+    state.trackEvent('fault_injected', { scenario_type: scenarioType, failed_service: failedSvc, error_code: sc.errorCode });
     
     dom.debuggerStatusBadge.textContent = 'FAULT DETECTED';
     dom.debuggerStatusBadge.className = 'badge badge-pulse';
@@ -3846,6 +3868,7 @@ function escapeHtml(text) {
 function deployHotfix() {
     if (state.remediationInProgress || !state.hotfixAvailable) return;
     
+    state.trackEvent('hotfix_deployed', { service_node: state.activeCodeTab, scenario: state.currentScenario });
     state.remediationInProgress = true;
     dom.btnApplyHotfix.disabled = true;
     dom.btnToggleDiff.disabled = true;
@@ -4388,6 +4411,184 @@ function downloadStabilityReport() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// --- COMPLIANCE & PRIVACY INFRASTRUCTURE (GDPR & CCPA) ---
+function initCookieConsent() {
+    const banner = document.getElementById('cookie-consent-banner');
+    const btnAccept = document.getElementById('btn-cookie-accept');
+    const btnReject = document.getElementById('btn-cookie-reject');
+    const btnSettings = document.getElementById('btn-cookie-settings');
+
+    const consent = localStorage.getItem('aegis_cookie_consent');
+
+    if (!consent && banner) {
+        setTimeout(() => {
+            banner.style.display = 'block';
+        }, 1200);
+    }
+
+    if (btnAccept) {
+        btnAccept.addEventListener('click', () => {
+            localStorage.setItem('aegis_cookie_consent', 'all');
+            if (banner) banner.style.display = 'none';
+            if (typeof window.gtag === 'function') {
+                window.gtag('consent', 'update', {
+                    'analytics_storage': 'granted',
+                    'ad_storage': 'denied',
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied'
+                });
+            }
+            if (typeof window.initGA4 === 'function') {
+                window.initGA4(window.GA_MEASUREMENT_ID);
+            }
+            state.trackEvent('cookie_consent', { choice: 'all' });
+            logConsole('[PRIVACY] Cookie preferences updated: Analytics granted (GDPR Art. 6(1)(a)).', 'success');
+        });
+    }
+
+    if (btnReject) {
+        btnReject.addEventListener('click', () => {
+            localStorage.setItem('aegis_cookie_consent', 'necessary');
+            if (banner) banner.style.display = 'none';
+            if (typeof window.gtag === 'function') {
+                window.gtag('consent', 'update', {
+                    'analytics_storage': 'denied',
+                    'ad_storage': 'denied',
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied'
+                });
+            }
+            logConsole('[PRIVACY] Cookie preferences updated: Analytical cookies denied.', 'warn');
+        });
+    }
+
+    if (btnSettings) {
+        btnSettings.addEventListener('click', () => {
+            if (banner) {
+                banner.style.display = 'block';
+            }
+        });
+    }
+}
+
+function initGdprErasure() {
+    const modal = document.getElementById('modal-gdpr-wipe');
+    const btnOpen = document.getElementById('btn-gdpr-wipe');
+    const btnCancel = document.getElementById('btn-cancel-gdpr-wipe');
+    const btnConfirm = document.getElementById('btn-confirm-gdpr-wipe');
+
+    if (btnOpen) {
+        btnOpen.addEventListener('click', () => {
+            if (modal) modal.style.display = 'flex';
+        });
+    }
+
+    if (btnCancel && modal) {
+        btnCancel.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+
+    if (btnConfirm) {
+        btnConfirm.addEventListener('click', async () => {
+            // GDPR Article 17: Right to Erasure
+            try {
+                // 1. Wipe client-side storage
+                const keysToRemove = [
+                    'aegis_auth_token',
+                    'aegis_user_credentials',
+                    'aegis_user_accounts',
+                    'aegis_cookie_consent',
+                    'aegis_ga_measurement_id',
+                    'gemini_api_key'
+                ];
+                keysToRemove.forEach(k => localStorage.removeItem(k));
+                sessionStorage.clear();
+
+                // 2. Revoke consent
+                if (typeof window.gtag === 'function') {
+                    window.gtag('consent', 'update', { 'analytics_storage': 'denied' });
+                }
+
+                // 3. Reset state
+                state.authToken = '';
+                state.currentUser = null;
+                state.currentTenant = null;
+
+                if (modal) modal.style.display = 'none';
+                alert('GDPR Right to Erasure Executed:\n\nAll personal credentials, authentication sessions, and telemetry tokens have been permanently wiped from your browser.');
+                window.location.reload();
+            } catch (err) {
+                alert('Error wiping data: ' + err.message);
+            }
+        });
+    }
+}
+
+function initGaConfigModal() {
+    const modal = document.getElementById('modal-analytics-settings');
+    const btnOpen = document.getElementById('btn-open-analytics-modal');
+    const btnClose = document.getElementById('btn-close-ga-modal');
+    const inputId = document.getElementById('input-ga-id');
+    const btnSave = document.getElementById('btn-save-ga-id');
+    const statusLabel = document.getElementById('ga-status-label');
+
+    if (inputId) {
+        inputId.value = window.GA_MEASUREMENT_ID || 'G-AEGISTRACE1';
+    }
+
+    if (btnOpen) {
+        btnOpen.addEventListener('click', () => {
+            if (modal) modal.style.display = 'flex';
+            if (statusLabel) statusLabel.textContent = '';
+        });
+    }
+
+    if (btnClose && modal) {
+        btnClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+
+    if (btnSave && inputId) {
+        btnSave.addEventListener('click', () => {
+            const raw = inputId.value.trim().toUpperCase();
+            if (raw && raw.startsWith('G-')) {
+                localStorage.setItem('aegis_ga_measurement_id', raw);
+                window.GA_MEASUREMENT_ID = raw;
+                if (localStorage.getItem('aegis_cookie_consent') === 'all') {
+                    window.initGA4(raw);
+                }
+                if (statusLabel) {
+                    statusLabel.style.color = '#10b981';
+                    statusLabel.textContent = `Applied ${raw}!`;
+                }
+                setTimeout(() => {
+                    if (modal) modal.style.display = 'none';
+                }, 1000);
+                logConsole(`[ANALYTICS] Configured Google Analytics 4 Measurement ID: ${raw}`, 'success');
+            } else {
+                if (statusLabel) {
+                    statusLabel.style.color = '#ef4444';
+                    statusLabel.textContent = 'Invalid ID format. Must start with G- (e.g. G-XXXXXXXXXX)';
+                }
+            }
+        });
+    }
 }
 
 // Start the application

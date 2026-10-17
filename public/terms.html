@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service — AegisTrace</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05070c;
+            --bg-card: #0b0f19;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #38bdf8;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            line-height: 1.65;
+            padding: 2rem 1rem 4rem;
+        }
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #fff;
+        }
+        .brand svg { width: 32px; height: 32px; color: var(--primary); }
+        .brand h1 { font-size: 1.4rem; font-weight: 700; }
+        .badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 6px;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .back-link:hover { text-decoration: underline; }
+        h2 { font-size: 1.2rem; color: #fff; margin: 1.8rem 0 0.75rem; }
+        p, ul { color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1rem; }
+        ul { padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+        .callout {
+            background: rgba(56, 189, 248, 0.05);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.25rem 0;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+        }
+        .effective-date { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        footer { margin-top: 3rem; pt: 1.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="brand">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <div>
+                    <h1>AegisTrace™</h1>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Autonomous Order Path Resilience</span>
+                </div>
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="badge">Legal v2.4</span>
+                <a href="index.html" class="back-link">&larr; Back to Dashboard</a>
+            </div>
+        </div>
+
+        <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Terms of Service</h1>
+        <div class="effective-date">Last Updated &amp; Effective: October 17, 2026</div>
+
+        <div class="callout">
+            <strong>Summary:</strong> Welcome to AegisTrace. These Terms of Service govern your access to and use of our visual API debugging, fault injection, autonomous self-healing, and observability platform. By creating an account or accessing the console, you agree to these terms.
+        </div>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing, registering for, or using the AegisTrace platform, APIs, or hosted dashboards ("Service"), you ("Customer", "User", or "You") agree to be bound by these Terms of Service ("Terms"). If you are entering into this agreement on behalf of a company, organization, or other legal entity, you represent and warrant that you possess the authority to bind such entity.</p>
+
+        <h2>2. Description of the Service</h2>
+        <p>AegisTrace is a specialized Site Reliability Engineering (SRE) and Order Path Resilience middleware platform designed to:</p>
+        <ul>
+            <li>Trace multi-stage distributed transactions (Checkout, Inventory, Payment, Fulfillment, and Logistics).</li>
+            <li>Simulate infrastructure outages and chaotic failovers in isolated development and testing sandboxes.</li>
+            <li>Synthesize real-time financial business metrics including Revenue at Risk and Mean Time to Remediation (MTTR).</li>
+            <li>Provide automated remediation and circuit-breaking policies to prevent abandoned transactions.</li>
+        </ul>
+
+        <h2>3. User Accounts &amp; Access Controls</h2>
+        <p>You must provide accurate and verifiable account information, including a valid email address and password, to access the workspace console. You are solely responsible for safeguarding the credentials associated with your workspace and for all activities that occur under your account.</p>
+        <p>You agree to notify AegisTrace immediately upon discovering any unauthorized access to or compromise of your credentials.</p>
+
+        <h2>4. Acceptable Use Policy</h2>
+        <p>You agree not to misuse the Service or assist anyone else in doing so. Specifically, you agree NOT to:</p>
+        <ul>
+            <li>Dispatch Denial of Service (DoS) or Distributed Denial of Service (DDoS) stress tests against systems or networks that you do not own or have explicit, documented authorization to test.</li>
+            <li>Reverse-engineer, decompile, or attempt to extract source algorithms from the AegisTrace autonomous self-healing policy engine except to the extent permitted by applicable law.</li>
+            <li>Use the Service to transmit malicious software, rootkits, or payload exploits.</li>
+            <li>Circumvent or attempt to circumvent authentication gates, multi-tenant isolation barriers, or rate limiting thresholds.</li>
+        </ul>
+
+        <h2>5. Synthetic Data &amp; Test Credentials</h2>
+        <p>The AegisTrace sandbox environment operates using simulated customer accounts, test card signatures (such as industry-standard <code>4111 ••••</code> prefixes), and synthetic SKU catalog identifiers. You acknowledge that no real-world financial charges occur during simulated checkout flows, and you agree not to submit real, unencrypted consumer credit card data into non-PCI-scoped sandbox inputs.</p>
+
+        <h2>6. Proprietary Rights &amp; Telemetry Data</h2>
+        <p><strong>AegisTrace Intellectual Property:</strong> AegisTrace retains all right, title, and interest in and to the platform, including proprietary fault-injection algorithms, visualization UI widgets, and resilience policies.</p>
+        <p><strong>Customer Telemetry:</strong> You retain ownership of all runtime application telemetry, OpenTelemetry (OTLP) payloads, and logs ingested by your workspace. You grant AegisTrace a limited, worldwide license to process this data solely to provide, maintain, and optimize the Service on your behalf.</p>
+
+        <h2>7. Service Level Commitments &amp; Disclaimers</h2>
+        <p>While AegisTrace automated self-healing mechanisms are designed to mitigate real-world downtime within sub-second thresholds, THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE". TO THE MAXIMUM EXTENT PERMITTED BY LAW, AEGISTRACE DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.</p>
+
+        <h2>8. Limitation of Liability</h2>
+        <p>IN NO EVENT SHALL AEGISTRACE OR ITS AFFILIATES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE, DATA, OR USE, INCURRED BY YOU OR ANY THIRD PARTY, WHETHER IN AN ACTION IN CONTRACT OR TORT, ARISING FROM YOUR ACCESS TO OR USE OF THE SERVICE.</p>
+
+        <h2>9. Termination</h2>
+        <p>You may terminate your account at any time by exercising your right to deletion under the Account Settings or by contacting support. AegisTrace reserves the right to suspend or terminate accounts that breach the Acceptable Use Policy or fail to resolve critical security compromises.</p>
+
+        <h2>10. Governing Law</h2>
+        <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict of law principles.</p>
+
+        <h2>11. Contact Information</h2>
+        <p>For inquiries regarding these Terms of Service, please contact our legal and compliance desk at:</p>
+        <p><strong>Email:</strong> legal@aegistrace.com<br><strong>Entity:</strong> AegisTrace Resilience Inc.<br><strong>Address:</strong> Cloud Resilience Way, Dover, DE 19901</p>
+
+        <footer>
+            &copy; 2026 AegisTrace Inc. All rights reserved. &bull; <a href="privacy.html" style="color: var(--primary);">Privacy Policy</a> &bull; <a href="index.html" style="color: var(--primary);">Return to App</a>
+        </footer>
+    </div>
+</body>
+</html>
