@@ -3387,3 +3387,381 @@ input:checked + .slider:before {
         justify-content: space-between;
     }
 }
+
+/* ==========================================================================
+   REALISTIC E-COMMERCE POC DEMO & STORE PROFILES STYLING
+   ========================================================================== */
+
+/* Store Profile Selector Strip */
+.store-profile-strip {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.profile-strip-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.profile-strip-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profile-strip-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.profile-pills-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-pill-btn {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.profile-pill-btn:hover {
+    background: rgba(51, 65, 85, 0.8);
+    border-color: rgba(56, 189, 248, 0.4);
+    transform: translateY(-1px);
+}
+
+.profile-pill-btn.active {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(124, 58, 237, 0.25));
+    border-color: #38bdf8;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.profile-pill-btn .pill-icon {
+    font-size: 1.25rem;
+}
+
+.profile-pill-btn .pill-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-pill-btn .pill-body strong {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.profile-pill-btn.active .pill-body strong {
+    color: #38bdf8;
+}
+
+.profile-pill-btn .pill-metrics {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+/* Business Impact Live Story Card */
+.biz-impact-story-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.4));
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    margin: 1rem 0;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.story-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.story-badge {
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.story-scenario-tag {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.story-text {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #f8fafc;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+    border-left: 3px solid #38bdf8;
+    padding-left: 0.75rem;
+}
+
+.story-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.65rem;
+}
+
+.sm-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+    text-align: center;
+}
+
+.sm-card.sm-highlight {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.sm-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    display: block;
+    margin-bottom: 0.15rem;
+}
+
+.sm-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    display: block;
+}
+
+/* Industry Benchmarks Strip */
+.industry-benchmarks-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.85rem;
+}
+
+.benchmark-pill {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    line-height: 1.4;
+}
+
+.benchmark-pill:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+    background: rgba(30, 41, 59, 0.6);
+}
+
+.benchmark-pill .bm-icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+}
+
+/* Before vs After Comparison Card */
+.before-after-card {
+    background: var(--surface-color);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+}
+
+.before-after-table-wrap {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+}
+
+.before-after-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.78rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.before-after-table th {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.before-after-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: top;
+}
+
+.before-after-table tr:last-child td {
+    border-bottom: none;
+}
+
+.col-without {
+    background: rgba(239, 68, 68, 0.03);
+    color: #fca5a5;
+}
+
+.col-with {
+    background: rgba(16, 185, 129, 0.05);
+    color: #6ee7b7;
+}
+
+.comp-subtext {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    display: inline-block;
+    margin-top: 0.2rem;
+}
+
+.profile-contrast-callout {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.contrast-icon {
+    font-size: 1.4rem;
+}
+
+.contrast-content strong {
+    font-size: 0.8rem;
+    color: #38bdf8;
+    display: block;
+}
+
+.contrast-content p {
+    font-size: 0.74rem;
+    color: #e2e8f0;
+    margin: 0.2rem 0 0 0;
+}
+
+/* Light POC Modal Styling */
+.light-poc-nav {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+.light-poc-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.light-poc-tab.active {
+    color: #38bdf8;
+    border-bottom-color: #38bdf8;
+}
+
+.light-poc-pane {
+    display: none;
+}
+
+.light-poc-pane.active {
+    display: block;
+}
+
+/* POC Report Executive Print Layout */
+.poc-report-sheet {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: #f8fafc;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #modal-poc-report,
+    #modal-poc-report * {
+        visibility: visible !important;
+    }
+    #modal-poc-report {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        display: block !important;
+        z-index: 999999 !important;
+        padding: 0 !important;
+    }
+    .login-card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    .poc-report-sheet {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: none !important;
+    }
+    .btn-close-modal,
+    .report-action-buttons,
+    .no-print {
+        display: none !important;
+    }
+}

@@ -4,7 +4,6 @@
       "id": "tenant-enterprise",
       "name": "Enterprise Cloud Network",
       "tier": "Enterprise SLA (99.99%)",
-      "pendingEvents": [],
       "metrics": {
         "totalRuns": 0,
         "errorRuns": 0,
@@ -12,14 +11,12 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "logs": [],
       "activeScenario": "healthy"
     },
     "tenant-production": {
       "id": "tenant-production",
       "name": "Global Production Cloud",
       "tier": "Enterprise SLA (99.99%)",
-      "pendingEvents": [],
       "metrics": {
         "totalRuns": 0,
         "errorRuns": 0,
@@ -27,14 +24,25 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "logs": [],
+      "activeScenario": "healthy"
+    },
+    "tenant-aegis": {
+      "id": "tenant-aegis",
+      "name": "Aegis Enterprise Cloud",
+      "tier": "Enterprise SLA (99.99%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
       "activeScenario": "healthy"
     },
     "tenant-acme": {
       "id": "tenant-acme",
       "name": "Acme Corp eCommerce",
       "tier": "Standard SLA (99.9%)",
-      "pendingEvents": [],
       "metrics": {
         "totalRuns": 0,
         "errorRuns": 0,
@@ -42,7 +50,45 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "logs": [],
+      "activeScenario": "healthy"
+    },
+    "tenant-enterprise": {
+      "id": "tenant-enterprise",
+      "name": "Enterprise Cloud Network",
+      "tier": "Enterprise SLA (99.99%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-john-example-com-1m51": {
+      "id": "tenant-john-example-com-1m51",
+      "name": "john Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-hanuspace123-gmail-6ma6": {
+      "id": "tenant-hanuspace123-gmail-6ma6",
+      "name": "hanuspace123 Enterprise Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
       "activeScenario": "healthy"
     }
   },
@@ -68,6 +114,28 @@
       "name": "Jordan Vance",
       "role": "Lead Architect",
       "tenantId": "tenant-acme"
+    },
+    {
+      "id": "usr_1792153047485_26r7",
+      "email": "john@example.com",
+      "password": "mysecretpass",
+      "passwords": [
+        "mysecretpass"
+      ],
+      "name": "john",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-john-example-com-1m51"
+    },
+    {
+      "id": "usr_1792656080105_p93s",
+      "email": "hanuspace123@gmail.com",
+      "password": "daksh@123hanu",
+      "passwords": [
+        "daksh@123hanu"
+      ],
+      "name": "hanuspace123",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-hanuspace123-gmail-6ma6"
     }
   ]
 }

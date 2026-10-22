@@ -235,11 +235,14 @@
                 </p>
             </div>
             <div class="positioning-actions">
-                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-apm-comp" title="Compare AegisTrace against traditional APMs like Datadog and Dynatrace">
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-apm-comp" title="Compare AegisTrace against traditional manual APM">
                     ⚖️ Why AegisTrace vs APM
                 </button>
-                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-telemetry-modal" title="Connect external OpenTelemetry (OTLP) endpoint or webhook">
-                    📡 Connect Real Telemetry (OTLP)
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-light-poc" title="Connect Shopify Store or Webhooks for 7-14 Day Pilot POC">
+                    🔌 Connect Real Data (Light POC)
+                </button>
+                <button type="button" class="btn btn-secondary btn-small btn-banner-action" id="btn-open-poc-report" title="Generate Executive 1-Page POC Summary Report">
+                    📄 Executive POC Report
                 </button>
                 <button type="button" class="btn btn-primary btn-small btn-banner-action" id="btn-open-roi-modal" title="Calculate revenue saved based on Order Volume, AOV, and Conversion Rate">
                     💰 ROI Calculator
@@ -336,6 +339,37 @@
                      PAGE 1: DASHBOARD (HOME)
                      ========================================================================== -->
                 <section class="page-view active" id="page-dashboard" data-title="Dashboard">
+                    <!-- Selectable Store Profiles for Realistic E-Commerce POC (Requirement 1) -->
+                    <div class="store-profile-strip" id="store-profile-strip">
+                        <div class="profile-strip-header">
+                            <span class="profile-strip-title">🏪 Select Store Profile (POC Demo):</span>
+                            <span class="profile-strip-sub">Switch between realistic small to mid-sized e-commerce business models</span>
+                        </div>
+                        <div class="profile-pills-group" id="profile-pills-group">
+                            <button type="button" class="profile-pill-btn" data-profile="small" id="pill-profile-small" title="Small boutique store: $60k-$100k/mo revenue, AOV $70, normal traffic">
+                                <span class="pill-icon">🏪</span>
+                                <span class="pill-body">
+                                    <strong>Small Store</strong>
+                                    <span class="pill-metrics">~$80k/mo • AOV $70 • 38 ord/day</span>
+                                </span>
+                            </button>
+                            <button type="button" class="profile-pill-btn active" data-profile="growing" id="pill-profile-growing" title="Growing DTC brand: $150k-$250k/mo revenue, AOV $85, moderate complexity">
+                                <span class="pill-icon">🏬</span>
+                                <span class="pill-body">
+                                    <strong>Growing Store</strong>
+                                    <span class="pill-metrics">~$200k/mo • AOV $85 • 78 ord/day</span>
+                                </span>
+                            </button>
+                            <button type="button" class="profile-pill-btn" data-profile="sale-day" id="pill-profile-sale" title="Sale-day flash surge: 3.5x-5x traffic, high DB lock and gateway timeout risk">
+                                <span class="pill-icon">⚡</span>
+                                <span class="pill-body">
+                                    <strong>Sale-Day Surge</strong>
+                                    <span class="pill-metrics">3.5x Traffic • AOV $85 • 275 ord/day</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Dashboard Executive Simulation Strip -->
                     <div class="dashboard-sim-strip" style="background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(37, 99, 235, 0.15); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
@@ -419,14 +453,122 @@
                         </p>
                     </div>
 
+                    <!-- Business Impact Live Incident Narrative (Requirement 2 & 6) -->
+                    <div class="biz-impact-story-card" id="biz-impact-story-card">
+                        <div class="story-header-row">
+                            <span class="story-badge">💼 Real-World Business Impact</span>
+                            <span class="story-scenario-tag" id="story-scenario-tag">Scenario: Payment Gateway Timeout (Stripe/PayPal)</span>
+                        </div>
+                        <p class="story-text" id="biz-impact-story-text">
+                            "In this 18-minute incident, 47 orders were affected. Estimated revenue at risk: $3,995. AegisTrace detected the issue in 42 seconds and restored the flow in 2.1 minutes."
+                        </p>
+                        <div class="story-metrics-grid">
+                            <div class="sm-card">
+                                <span class="sm-label">Orders Affected</span>
+                                <span class="sm-value text-amber" id="story-orders-affected">47</span>
+                            </div>
+                            <div class="sm-card">
+                                <span class="sm-label">Revenue at Risk</span>
+                                <span class="sm-value text-red" id="story-rev-risk">$3,995</span>
+                            </div>
+                            <div class="sm-card">
+                                <span class="sm-label">Time to Detect (TTD)</span>
+                                <span class="sm-value text-cyan" id="story-ttd">42s</span>
+                            </div>
+                            <div class="sm-card">
+                                <span class="sm-label">Time to Recover (MTTR)</span>
+                                <span class="sm-value text-green" id="story-mttr">2.1 min</span>
+                            </div>
+                            <div class="sm-card sm-highlight">
+                                <span class="sm-label">Revenue Protected</span>
+                                <span class="sm-value text-green font-bold" id="story-rev-protected">$3,795</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Industry Benchmark Badges (Requirement 4) -->
+                    <div class="industry-benchmarks-strip">
+                        <div class="benchmark-pill" data-tooltip="Baymard Institute: 69.9% avg cart drop. Latency >2s triggers instant checkout bounce.">
+                            <span class="bm-icon">🛒</span>
+                            <span><strong>Cart Abandonment ~70%:</strong> Shoppers leave immediately if checkout stalls &gt; 2 seconds.</span>
+                        </div>
+                        <div class="benchmark-pill" data-tooltip="Stripe State of Checkout: checkout and gateway errors cause permanent customer loss.">
+                            <span class="bm-icon">💳</span>
+                            <span><strong>Payment Drops:</strong> Payment timeouts are the #1 technical driver of abandoned shopping carts.</span>
+                        </div>
+                        <div class="benchmark-pill" data-tooltip="Retail Systems Research: small stores lose thousands even during brief 30-min outages.">
+                            <span class="bm-icon">📉</span>
+                            <span><strong>Incident Cost:</strong> Even smaller stores lose $1,000–$5,000+ during short technical incidents.</span>
+                        </div>
+                    </div>
+
                     <!-- Action Triggers -->
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
                         <button type="button" class="btn btn-secondary btn-small" id="btn-open-roi-card" style="flex: 1;">
                             📊 Configure Revenue Model
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-open-before-after" style="flex: 1;">
+                            ⚖️ View Before vs After Impact
                         </button>
                         <button type="button" class="btn btn-secondary btn-small hidden" id="btn-view-incident-card" style="flex: 1; color: #f87171; border-color: rgba(248, 113, 113, 0.4);">
                             🚨 View Incident Card
                         </button>
+                    </div>
+                </div>
+
+                <!-- Before vs After AegisTrace Executive Comparison View (Requirement 3) -->
+                <div class="panel-card before-after-card" id="before-after-section" style="margin-top: 1.25rem;">
+                    <div class="card-header">
+                        <div>
+                            <h2>Before vs After AegisTrace <span class="info-tip" data-tooltip="Direct side-by-side contrast between traditional manual troubleshooting and autonomous revenue protection.">?</span></h2>
+                            <span class="sub-header-desc">Quantified impact for small to mid-sized e-commerce operations</span>
+                        </div>
+                        <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">Founder Comparison</span>
+                    </div>
+
+                    <div class="before-after-table-wrap">
+                        <table class="before-after-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Metric / Operational Area</th>
+                                    <th style="width: 37%; color: #f87171; background: rgba(239, 68, 68, 0.05);">❌ Without AegisTrace (Traditional Manual)</th>
+                                    <th style="width: 38%; color: #34d399; background: rgba(16, 185, 129, 0.08);">🛡️ With AegisTrace (Autonomous POC)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Detection Time (TTD)</strong></td>
+                                    <td class="col-without"><strong class="text-red">25 – 90 minutes</strong><br><span class="comp-subtext">Discovered only after angry customer emails or lost orders</span></td>
+                                    <td class="col-with"><strong class="text-green">Under 1 minute (&lt; 45s)</strong><br><span class="comp-subtext">Real-time W3C distributed trace anomaly detection</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Recovery Time (MTTR)</strong></td>
+                                    <td class="col-without"><strong class="text-red">1 – 4 hours</strong><br><span class="comp-subtext">Engineer woke up, triaged logs, patched or restarted pods manually</span></td>
+                                    <td class="col-with"><strong class="text-green">2 – 8 minutes (&lt; 2.5m avg)</strong><br><span class="comp-subtext">Autonomous self-healing (cache invalidation, gateway failover)</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Revenue Impact</strong></td>
+                                    <td class="col-without"><strong class="text-red" id="comp-without-rev">High ($1,200 – $15,000+ lost)</strong><br><span class="comp-subtext">Shoppers hit error screens and buy from competitors</span></td>
+                                    <td class="col-with"><strong class="text-green" id="comp-with-rev">Significantly Reduced (95%+ saved)</strong><br><span class="comp-subtext">Orders buffered and retried with 0 dropped customer carts</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Engineering Effort</strong></td>
+                                    <td class="col-without"><strong class="text-red">High (Manual On-Call Toil)</strong><br><span class="comp-subtext">Stressful 3 AM fire-drills, log digging, and emergency deploys</span></td>
+                                    <td class="col-with"><strong class="text-green">Low (Autonomous Protection)</strong><br><span class="comp-subtext">Zero developer intervention needed; automated post-mortem generated</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Live Store Profile Contrast Card -->
+                    <div class="profile-contrast-callout">
+                        <span class="contrast-icon">📊</span>
+                        <div class="contrast-content">
+                            <strong id="contrast-profile-title">Active Profile: Growing Store ($200k/mo)</strong>
+                            <p id="contrast-profile-desc">
+                                Without AegisTrace, an unmonitored checkout blip costs ~$3,850 and loses ~47 customers. With AegisTrace, detection happens in 42 seconds and self-healing preserves 95%+ of at-risk sales.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -680,25 +822,28 @@
                     </div>
                     <div class="sandbox-grid">
                         <div class="scenario-buttons">
-                            <h3>Pre-configured Scenarios</h3>
+                            <h3>Pre-configured Scenarios (E-Commerce Real-World Outages)</h3>
                             <div class="btn-grid">
                                 <button class="btn btn-scenario active" data-scenario="healthy" id="scen-healthy" data-tooltip="Healthy traffic: all 5 microservices respond with HTTP 200 OK.">
                                     <span class="badge badge-success-dot"></span> Healthy Traffic Loop
                                 </button>
-                                <button class="btn btn-scenario" data-scenario="out-of-stock" id="scen-stock" data-tooltip="Depleted stock (422): Auto-remediation restocks safety buffer (+100 items).">
-                                    <span class="badge badge-error-dot"></span> Inventory Depletion (422)
+                                <button class="btn btn-scenario" data-scenario="out-of-stock" id="scen-stock" data-tooltip="Inventory sync delay: item shows in stock but depleted in warehouse (422). Auto-heals via cache invalidation & safety restock.">
+                                    <span class="badge badge-error-dot"></span> Inventory Sync Delay (422)
                                 </button>
-                                <button class="btn btn-scenario" data-scenario="card-declined" id="scen-declined" data-tooltip="Declined card (402): Auto-remediation dispatches SMS checkout retry token.">
-                                    <span class="badge badge-error-dot"></span> Card Declined (402)
-                                </button>
-                                <button class="btn btn-scenario" data-scenario="gateway-timeout" id="scen-timeout" data-tooltip="Stripe timeout (504): Auto-remediation fails over to secondary Adyen gateway.">
+                                <button class="btn btn-scenario" data-scenario="gateway-timeout" id="scen-timeout" data-tooltip="Stripe/PayPal timeout (504): Checkout hangs for customer. Auto-remediation fails over to secondary Adyen gateway.">
                                     <span class="badge badge-error-dot"></span> Payment Gateway Timeout (504)
                                 </button>
-                                <button class="btn btn-scenario" data-scenario="fulfillment-db-crash" id="scen-db" data-tooltip="Postgres pool 20/20 full (500): Auto-remediation recycles handles & expands pool.">
-                                    <span class="badge badge-error-dot"></span> DB Pool Exhausted (500)
+                                <button class="btn btn-scenario" data-scenario="checkout-latency" id="scen-latency" data-tooltip="Checkout API latency spike (>3000ms): Shoppers bounce. Auto-remediation scales replicas & query cache.">
+                                    <span class="badge badge-error-dot"></span> Checkout Latency Spike (504)
                                 </button>
-                                <button class="btn btn-scenario" data-scenario="logistics-api-down" id="scen-logistics" data-tooltip="Carrier DNS down (503): Auto-remediation buffers shipment to RabbitMQ queue.">
-                                    <span class="badge badge-error-dot"></span> Logistics Service Down (503)
+                                <button class="btn btn-scenario" data-scenario="card-declined" id="scen-declined" data-tooltip="Cart degradation & soft decline (402): Auto-remediation dispatches SMS checkout rescue link to customer.">
+                                    <span class="badge badge-error-dot"></span> Cart Degradation / Decline (402)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="fulfillment-db-crash" id="scen-db" data-tooltip="PostgreSQL connection pool exhausted under flash sale (500). Auto-remediation reaps zombie handles & expands pool.">
+                                    <span class="badge badge-error-dot"></span> DB Pool Starvation (500)
+                                </button>
+                                <button class="btn btn-scenario" data-scenario="logistics-api-down" id="scen-logistics" data-tooltip="Logistics carrier DNS down (503). Auto-remediation buffers shipments to RabbitMQ queue with zero dropped orders.">
+                                    <span class="badge badge-error-dot"></span> Carrier Service Outage (503)
                                 </button>
                             </div>
                         </div>
@@ -1808,6 +1953,22 @@
             </div>
 
             <div style="overflow-y: auto; flex: 1; padding-right: 0.35rem;">
+                <!-- Store Profile Quick Presets (Requirement 1) -->
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                    <span style="font-size: 0.72rem; color: #cbd5e1; font-weight: 600;">⚡ Store Profile Presets:</span>
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary btn-small" id="preset-profile-small" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">
+                            🏪 Small Store ($80k/mo • AOV $70)
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="preset-profile-growing" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">
+                            🏬 Growing Store ($200k/mo • AOV $85)
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="preset-profile-sale" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">
+                            ⚡ Sale-Day Surge (3.5x • AOV $85)
+                        </button>
+                    </div>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;" class="roi-modal-grid">
                     <!-- Configuration Inputs -->
                     <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 0.85rem;">
@@ -1816,17 +1977,17 @@
                         <div class="form-group" style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
                                 <span>Daily Order Volume</span>
-                                <strong id="roi-val-volume" style="color: #fff;">10,000 orders/day</strong>
+                                <strong id="roi-val-volume" style="color: #fff;">78 orders/day</strong>
                             </label>
-                            <input type="range" id="roi-slider-volume" min="1000" max="50000" step="1000" value="10000" style="width: 100%; accent-color: var(--primary-color);">
+                            <input type="range" id="roi-slider-volume" min="20" max="25000" step="5" value="78" style="width: 100%; accent-color: var(--primary-color);">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
                                 <span>Average Order Value (AOV)</span>
-                                <strong id="roi-val-aov" style="color: #34d399;">$145.00</strong>
+                                <strong id="roi-val-aov" style="color: #34d399;">$85.00</strong>
                             </label>
-                            <input type="range" id="roi-slider-aov" min="25" max="500" step="5" value="145" style="width: 100%; accent-color: #10b981;">
+                            <input type="range" id="roi-slider-aov" min="20" max="500" step="5" value="85" style="width: 100%; accent-color: #10b981;">
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0.75rem;">
@@ -2174,6 +2335,287 @@ provider.register();</code></pre>
 
             <div style="display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 1rem;">
                 <button type="button" class="btn btn-primary" id="btn-done-apm-comp" style="font-size: 0.78rem;">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Connect Real Data (Light POC 7-14 Day Pilot) Modal (Requirement 5) -->
+    <div class="login-modal-overlay" id="modal-light-poc" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 820px; width: 94%; max-height: 90vh; display: flex; flex-direction: column; border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 0 35px rgba(56, 189, 248, 0.15);">
+            <!-- Modal Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.85rem; margin-bottom: 0.85rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #38bdf8; font-size: 1.4rem;">🔌</div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Connect Real Data &mdash; Light POC Mode</h3>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem;">7&ndash;14 Day Pilot Ready</span>
+                        </div>
+                        <p style="font-size: 0.72rem; color: #94a3b8; margin: 0;">Hook up your Shopify store or ingest webhooks to protect revenue on live order flows</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close-modal" id="btn-close-light-poc" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="light-poc-nav" id="light-poc-tabs">
+                <button type="button" class="light-poc-tab active" data-tab="shopify">🏪 Shopify Store Integration</button>
+                <button type="button" class="light-poc-tab" data-tab="webhook">📡 Webhook Ingestion</button>
+                <button type="button" class="light-poc-tab" data-tab="flight-plan">📋 7–14 Day Pilot Flight Plan</button>
+            </div>
+
+            <!-- Tab Panes Container -->
+            <div style="overflow-y: auto; flex: 1; padding-right: 0.35rem;">
+                <!-- Pane 1: Shopify Connect -->
+                <div class="light-poc-pane active" id="pane-shopify">
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                        <h4 style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">Shopify Custom App Connection</h4>
+                        <p style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 0.75rem;">
+                            Connect your Shopify Admin API in read-only mode to stream order telemetry and simulate automated circuit breaking without touching any frontend checkout liquid code.
+                        </p>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Shopify Store Domain (.myshopify.com)</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="input-shopify-domain" value="luxurydtc-sample.myshopify.com" placeholder="your-store.myshopify.com" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                                <button type="button" class="btn btn-secondary btn-small" id="btn-prefill-shopify" style="font-size: 0.72rem;">Load Sample Store</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0.85rem;">
+                            <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Admin API Read Access Token (Optional in Demo)</label>
+                            <input type="password" id="input-shopify-token" value="shpat_demo991823719283719" placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxx" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                            <button type="button" class="btn btn-primary" id="btn-test-shopify-connect" style="font-size: 0.78rem;">
+                                🚀 Verify Connection &amp; Stream 15 Live Orders
+                            </button>
+                            <span id="shopify-status-indicator" style="font-size: 0.74rem; color: #34d399; font-weight: 600;">
+                                Ready for Pilot Verification
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Connection Verification Feedback Banner -->
+                    <div id="shopify-connected-box" style="display: none; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.85rem; font-size: 0.74rem; color: #e2e8f0;">
+                        <div style="font-weight: 700; color: #34d399; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <span>✓</span> Shopify Store Connected Successfully
+                        </div>
+                        <p style="margin: 0; color: #cbd5e1;">
+                            Active Pilot connected to <code id="shopify-confirmed-domain" style="color: #38bdf8;">luxurydtc-sample.myshopify.com</code>. Ingested 15 sample checkout traces. Real-time anomaly detection active.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pane 2: Webhooks Ingestion -->
+                <div class="light-poc-pane" id="pane-webhook">
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.85rem;">
+                        <h4 style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">Ingest Real E-Commerce Webhooks</h4>
+                        <p style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 0.75rem;">
+                            Send live webhook events directly to AegisTrace from Shopify, WooCommerce, Stripe, or custom microservices.
+                        </p>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Live Webhook Ingestion Endpoint URL</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="webhook-endpoint-url" readonly value="https://ecommerce-visual-debugger.vercel.app/api/webhook/shopify" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #38bdf8; font-family: monospace; font-size: 0.76rem;">
+                                <button type="button" class="btn btn-secondary btn-small" id="btn-copy-webhook-url">Copy URL</button>
+                            </div>
+                        </div>
+
+                        <div style="background: #05070c; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.65rem; margin-bottom: 0.85rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">Sample JSON Payload</span>
+                                <button type="button" class="btn-copy-trace" id="btn-copy-sample-curl" style="font-size: 0.68rem;">Copy cURL</button>
+                            </div>
+                            <pre style="margin: 0; font-size: 0.72rem; color: #e2e8f0; font-family: monospace; white-space: pre-wrap;">{
+  "topic": "orders/create",
+  "shop": "your-store.myshopify.com",
+  "id": 994821039,
+  "total_price": "85.00",
+  "currency": "USD",
+  "line_items_count": 2
+}</pre>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" id="btn-send-test-webhook" style="font-size: 0.78rem;">
+                            🚀 Send Live Test Webhook Event
+                        </button>
+                        <span id="webhook-test-status" style="margin-left: 0.75rem; font-size: 0.72rem; color: #34d399;"></span>
+                    </div>
+                </div>
+
+                <!-- Pane 3: 7-14 Day Pilot Flight Plan -->
+                <div class="light-poc-pane" id="pane-flight-plan">
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem;">
+                        <h4 style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.35rem;">Structured 7–14 Day Pilot Roadmap</h4>
+                        <p style="font-size: 0.74rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 0.75rem;">
+                            How we run zero-risk POC trials for e-commerce founders to quantify revenue protection before any production cutover.
+                        </p>
+
+                        <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.75rem;">
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.6rem 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                                    <strong style="color: #38bdf8;">Phase 1: Zero-Code Setup (Day 1)</strong>
+                                    <span class="badge" style="background: rgba(16,185,129,0.15); color: #34d399; font-size: 0.62rem;">COMPLETED IN DEMO</span>
+                                </div>
+                                <span style="color: var(--text-muted);">Hook up Shopify read token or webhook endpoint. No liquid modifications or downtime.</span>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.6rem 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                                    <strong style="color: #c084fc;">Phase 2: Baseline Latency &amp; Error Profiling (Days 2–4)</strong>
+                                    <span class="badge" style="background: rgba(56,189,248,0.15); color: #38bdf8; font-size: 0.62rem;">AUTOMATED</span>
+                                </div>
+                                <span style="color: var(--text-muted);">Monitor checkout response times, gateway timeouts, and ghost stock inventory desyncs.</span>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.6rem 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                                    <strong style="color: #f59e0b;">Phase 3: Shadow Auto-Remediation (Days 5–10)</strong>
+                                    <span class="badge" style="background: rgba(245,158,11,0.15); color: #f59e0b; font-size: 0.62rem;">SHADOW PILOT</span>
+                                </div>
+                                <span style="color: var(--text-muted);">AegisTrace simulates automated gateway failovers and cache restocks without affecting real customer checkouts.</span>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; padding: 0.6rem 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem;">
+                                    <strong style="color: #10b981;">Phase 4: Executive ROI Review &amp; Rollout (Days 11–14)</strong>
+                                    <span class="badge" style="background: rgba(16,185,129,0.15); color: #34d399; font-size: 0.62rem;">1-PAGE REPORT</span>
+                                </div>
+                                <span style="color: var(--text-muted);">Generate 1-page POC summary of revenue protected, downtime avoided, and proceed to production.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn btn-primary" id="btn-done-light-poc" style="font-size: 0.78rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Executive 1-Page POC Summary Report Modal (Requirement 7) -->
+    <div class="login-modal-overlay" id="modal-poc-report" style="display: none; align-items: center; justify-content: center; z-index: 100000;">
+        <div class="login-card" style="max-width: 860px; width: 95%; max-height: 92vh; display: flex; flex-direction: column; border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);">
+            <!-- Modal Header -->
+            <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div class="logo-icon" style="color: #10b981; font-size: 1.4rem;">📄</div>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0;">Executive Proof-of-Concept (POC) Report</h3>
+                        <p style="font-size: 0.72rem; color: #34d399; margin: 0;">1-Page Executive Summary for E-Commerce Founders &amp; Leadership</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary btn-small" id="btn-copy-poc-summary" style="font-size: 0.75rem;">📋 Copy Summary</button>
+                    <button type="button" class="btn btn-primary btn-small" id="btn-print-poc-report" style="font-size: 0.75rem;">🖨️ Print / Save PDF</button>
+                    <button type="button" class="btn-close-modal" id="btn-close-poc-report" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+            </div>
+
+            <!-- Printable Sheet Area -->
+            <div class="poc-report-sheet" id="poc-report-sheet">
+                <!-- Report Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid rgba(56, 189, 248, 0.3); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: #38bdf8; letter-spacing: -0.5px;">AEGISTRACE RESILIENCE MESH</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: #f8fafc; margin-top: 0.15rem;">EXECUTIVE PROOF-OF-CONCEPT (POC) AUDIT</div>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 0.2rem;">Store Target: <strong id="rep-store-name" style="color: #fff;">Growing Store (DTC Brand)</strong> &bull; Evaluation Period: <strong>14-Day Pilot Simulation</strong></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-size: 0.7rem; font-weight: 700;">AUDIT CERTIFIED</span>
+                        <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.35rem;" id="rep-date-generated">Generated: Oct 2026</div>
+                    </div>
+                </div>
+
+                <!-- 4 Top-line KPI Cards -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; text-align: center;">
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem;">
+                        <span style="font-size: 0.65rem; color: #6ee7b7; text-transform: uppercase; font-weight: 700; display: block;">Revenue Protected</span>
+                        <strong style="font-size: 1.35rem; color: #34d399; display: block; margin-top: 0.2rem;" id="rep-rev-protected">$14,850.00</strong>
+                        <span style="font-size: 0.65rem; color: var(--text-muted);">95.2% of at-risk sales saved</span>
+                    </div>
+                    <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.75rem;">
+                        <span style="font-size: 0.65rem; color: #7dd3fc; text-transform: uppercase; font-weight: 700; display: block;">Orders Rescued</span>
+                        <strong style="font-size: 1.35rem; color: #38bdf8; display: block; margin-top: 0.2rem;" id="rep-orders-saved">175 Orders</strong>
+                        <span style="font-size: 0.65rem; color: var(--text-muted);">0 checkout cart drops</span>
+                    </div>
+                    <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 0.75rem;">
+                        <span style="font-size: 0.65rem; color: #d8b4fe; text-transform: uppercase; font-weight: 700; display: block;">Avg Detection (TTD)</span>
+                        <strong style="font-size: 1.35rem; color: #c084fc; display: block; margin-top: 0.2rem;" id="rep-ttd">42 Seconds</strong>
+                        <span style="font-size: 0.65rem; color: var(--text-muted);">vs 45–90 min manual APM</span>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 0.75rem;">
+                        <span style="font-size: 0.65rem; color: #fcd34d; text-transform: uppercase; font-weight: 700; display: block;">Avg Recovery (MTTR)</span>
+                        <strong style="font-size: 1.35rem; color: #f59e0b; display: block; margin-top: 0.2rem;" id="rep-mttr">2.1 Minutes</strong>
+                        <span style="font-size: 0.65rem; color: var(--text-muted);">vs 1–4 hours manual fix</span>
+                    </div>
+                </div>
+
+                <!-- Incidents Breakdown Table -->
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #cbd5e1; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">E-Commerce Failure Incidents Detected &amp; Neutralized</div>
+                    <table class="before-after-table" style="font-size: 0.72rem;">
+                        <thead>
+                            <tr>
+                                <th>Incident Scenario</th>
+                                <th>Root Cause</th>
+                                <th>Autonomous Self-Healing Action</th>
+                                <th>Orders Saved</th>
+                                <th>Money Protected</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rep-incident-rows">
+                            <tr>
+                                <td><strong>Stripe Gateway Timeout</strong></td>
+                                <td style="color: var(--text-muted);">API socket latency &gt; 2500ms</td>
+                                <td style="color: #34d399;">Circuit breaker tripped &rarr; routed to Adyen fallback</td>
+                                <td><strong>47</strong></td>
+                                <td style="color: #34d399; font-weight: 700;">$3,995.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inventory Sync Delay</strong></td>
+                                <td style="color: var(--text-muted);">Redis cache desync / ghost stock</td>
+                                <td style="color: #34d399;">Evicted Redis key &rarr; locked warehouse safety buffer</td>
+                                <td><strong>38</strong></td>
+                                <td style="color: #34d399; font-weight: 700;">$3,230.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Checkout Latency Spike</strong></td>
+                                <td style="color: var(--text-muted);">Unindexed session cart scan (&gt;3800ms)</td>
+                                <td style="color: #34d399;">Rerouted to read replicas &amp; scaled container pods</td>
+                                <td><strong>42</strong></td>
+                                <td style="color: #34d399; font-weight: 700;">$3,570.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DB Pool Starvation</strong></td>
+                                <td style="color: var(--text-muted);">PostgreSQL connection pool 20/20 full</td>
+                                <td style="color: #34d399;">Reaped 12 zombie handles &amp; expanded pool to 50</td>
+                                <td><strong>48</strong></td>
+                                <td style="color: #34d399; font-weight: 700;">$4,080.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Strategic Recommendations -->
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.4rem;">🎯 Strategic Recommendations for Store Leadership:</div>
+                    <ol style="margin: 0; padding-left: 1.2rem; font-size: 0.74rem; color: #cbd5e1; line-height: 1.55;">
+                        <li><strong>Enable Payment Gateway Circuit Breakers:</strong> Secondary gateway failover (Stripe &rarr; Adyen/PayPal) should remain active permanently to eliminate regional payment dropouts.</li>
+                        <li><strong>Maintain Automated Inventory Buffer Sync:</strong> Cache desynchronization is the leading cause of customer support complaints. Keep safety buffers armed for high-velocity SKUs.</li>
+                        <li><strong>Pre-scale Database Connection Handles before Flash Sales:</strong> Ensure pool limits dynamically expand during promotional sales to avoid cascading HTTP 500 checkout errors.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="no-print" style="display: flex; justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.75rem;">
+                <button type="button" class="btn btn-secondary" id="btn-close-poc-rep-bottom" style="font-size: 0.78rem;">Close</button>
             </div>
         </div>
     </div>
