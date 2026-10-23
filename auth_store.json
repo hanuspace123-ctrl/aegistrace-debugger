@@ -1,5 +1,18 @@
 {
   "tenants": {
+    "tenant-google": {
+      "id": "tenant-google",
+      "name": "Google Cloud Workspace",
+      "tier": "Enterprise SLA (99.99%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
     "tenant-enterprise": {
       "id": "tenant-enterprise",
       "name": "Enterprise Cloud Network",
@@ -52,19 +65,6 @@
       },
       "activeScenario": "healthy"
     },
-    "tenant-enterprise": {
-      "id": "tenant-enterprise",
-      "name": "Enterprise Cloud Network",
-      "tier": "Enterprise SLA (99.99%)",
-      "metrics": {
-        "totalRuns": 0,
-        "errorRuns": 0,
-        "preservedRevenue": 0,
-        "totalHoursSaved": 0,
-        "avgMttr": 0
-      },
-      "activeScenario": "healthy"
-    },
     "tenant-john-example-com-1m51": {
       "id": "tenant-john-example-com-1m51",
       "name": "john Enterprise Lab",
@@ -90,6 +90,32 @@
         "avgMttr": 0
       },
       "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-ow0p": {
+      "id": "tenant-enterprise-user-17-ow0p",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-p9wr": {
+      "id": "tenant-enterprise-user-17-p9wr",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
     }
   },
   "users": [
@@ -102,7 +128,7 @@
       "password": "password123",
       "name": "Alex Rivera",
       "role": "Site Reliability Director",
-      "tenantId": "tenant-enterprise"
+      "tenantId": "tenant-aegis"
     },
     {
       "id": "usr_acme",
@@ -136,6 +162,29 @@
       "name": "hanuspace123",
       "role": "Workspace Admin",
       "tenantId": "tenant-hanuspace123-gmail-6ma6"
+    },
+    {
+      "id": "usr_g_test_1792729017062",
+      "email": "alex.rivera.cloud@gmail.com",
+      "name": "Alex Rivera (Google Cloud)",
+      "role": "Workspace Administrator (Google SSO)",
+      "tenantId": "tenant-google"
+    },
+    {
+      "id": "usr_1792729017070_txdt",
+      "email": "enterprise_user_1792729017069@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-ow0p"
+    },
+    {
+      "id": "usr_1792747655680_v7tg",
+      "email": "enterprise_user_1792747655679@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-p9wr"
     }
   ]
 }

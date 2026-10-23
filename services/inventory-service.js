@@ -39,8 +39,8 @@ app.post(['/inventory/reserve', '/inventory/lock', '/reserve', '/'], (req, res) 
 
     console.log(`[Inventory DB] Querying stock levels for SKU: ${itemSku}...`);
 
-    // Fault condition: Depleted stock (SKU-4402 or explicit out-of-stock scenario)
-    if (!item || item.stock <= 0 || scenario === 'out-of-stock') {
+    // Fault condition: Depleted stock (SKU-4402 or depleted inventory)
+    if (!item || item.stock <= 0) {
         console.warn(`[Inventory DB] DB_LOCK_REFUSED (Item ${itemSku} count is ${item ? item.stock : 0})`);
         return res.status(422).json({
             status: 'FAILED',

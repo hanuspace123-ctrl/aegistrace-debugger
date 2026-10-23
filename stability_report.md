@@ -1,9 +1,9 @@
 # AegisTrace System Stability & Resilience Report
 
-**Generated:** 2026-10-03T09:38:43.676Z  
+**Generated:** 2026-10-23T04:00:58.586Z  
 **Target Goal:** Bring Service Error Rate to 1% or less than 1 (<= 1.0%) under concurrent load and fault injection  
 **Final Status:** **PASSED — SLA COMPLIANT (99.99% Availability)**  
-**Total Verification Time:** 2.4s  
+**Total Verification Time:** 2.7s  
 
 ---
 
@@ -16,7 +16,7 @@ AegisTrace was subjected to high-concurrency load testing and active chaos engin
 | **Service Error Rate (Chaos)** | **33.3%** | **0%** | **<= 1.0%** | **PASS** |
 | **Service Error Rate (Load)** | N/A | **0%** | **<= 1.0%** | **PASS** |
 | **Success Rate (Load)** | N/A | **100%** | > 95.0% | **PASS** |
-| **Throughput** | N/A | **46.7 req/sec** | > 20 req/sec | **PASS** |
+| **Throughput** | N/A | **42.7 req/sec** | > 20 req/sec | **PASS** |
 | **Autonomous Remediations** | 0 (Unmitigated Crash) | **5 Recoveries** | Auto-Detect & Heal | **PASS** |
 | **Preserved Revenue** | $0.00 | **$13525.85** | Zero Drop | **PASS** |
 
@@ -26,20 +26,20 @@ AegisTrace was subjected to high-concurrency load testing and active chaos engin
 
 - **Total Transactions:** 60
 - **Worker Pool Concurrency:** 12 parallel workers
-- **Total Duration:** 1284 ms
-- **System Throughput:** 46.7 orders/second
+- **Total Duration:** 1404 ms
+- **System Throughput:** 42.7 orders/second
 
 ### Latency Percentile Distribution (End-to-End Pipeline)
 
 | Percentile | Latency (ms) | Description |
 | :--- | :--- | :--- |
-| **Min** | 162 ms | Fastest execution |
-| **p50 (Median)** | 213 ms | 50% of orders completed faster |
-| **Average (Mean)** | 242.3 ms | Arithmetic mean round-trip |
-| **p90** | 384 ms | 90% of orders completed faster |
-| **p95** | 387 ms | 95% of orders completed faster |
-| **p99** | 389 ms | 99% of orders completed faster |
-| **Max** | 389 ms | Worst-case tail latency |
+| **Min** | 129 ms | Fastest execution |
+| **p50 (Median)** | 264 ms | 50% of orders completed faster |
+| **Average (Mean)** | 269.3 ms | Arithmetic mean round-trip |
+| **p90** | 335 ms | 90% of orders completed faster |
+| **p95** | 349 ms | 95% of orders completed faster |
+| **p99** | 352 ms | 99% of orders completed faster |
+| **Max** | 352 ms | Worst-case tail latency |
 
 ---
 

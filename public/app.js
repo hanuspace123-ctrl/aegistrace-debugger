@@ -403,7 +403,42 @@ func main() {
     r.Run(":8081")
 }`
         },
-        diff: ``
+        diff: `package main
+
+import (
+    "context"
+    "net/http"
+    "time"
+    "github.com/gin-gonic/gin"
+)
+
+func main() {
+    r := gin.Default()
+    r.POST("/checkout", func(c *gin.Context) {
+        var req CheckoutRequest
+        if err := c.ShouldBindJSON(&req); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "INVALID_PAYLOAD"})
+            return
+        }
+
+<<<< DIFF_DEL: -       // Blocking synchronous DB scan across unindexed session tables
+-       time.Sleep(3850 * time.Millisecond) // Simulated latency breach!
+-       c.JSON(http.StatusGatewayTimeout, gin.H{
+-           "error": "GATEWAY_TIMEOUT",
+-           "message": "Checkout service exceeded 3000ms SLA",
+-       }) >>>>
+<<<< DIFF_ADD: +       // HOTFIX: Async cart reservation with read-through cache & worker pool expansion
++       ctx, cancel := context.WithTimeout(c.Request.Context(), 120*time.Millisecond)
++       defer cancel()
++       orderID, err := asyncCartWorkerPool.ProcessFast(ctx, &req)
++       if err != nil {
++           c.JSON(http.StatusServiceUnavailable, gin.H{"error": "CHECKOUT_DEGRADED"})
++           return
++       }
++       c.JSON(http.StatusOK, gin.H{"status": "VALIDATED", "order_id": orderID}) >>>>
+    })
+    r.Run(":8081")
+}`
     },
     inventory: {
         path: 'inventory-service/db/pool.go',
@@ -1103,13 +1138,103 @@ async function mockBackendHandler(url, options = {}) {
         });
     }
 
-    if (url.startsWith('/api/checkout') || url.startsWith('/api/inventory') || url.startsWith('/api/payment') || url.startsWith('/api/fulfillment') || url.startsWith('/api/logistics')) {
+    // Scenario-aware mock simulation for static hosting / fallback mode
+    const scenario = body.scenario || state.currentScenario || 'healthy';
+    const isRemediated = state.isRemediating || state.remediationInProgress;
+
+    if (url.startsWith('/api/checkout')) {
+        if (scenario === 'checkout-latency' && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'ERR_CHECKOUT_LATENCY_SPIKE_3800MS',
+                errorCode: 'HTTP 504 Gateway Timeout',
+                message: 'Checkout API latency exceeded upstream threshold (3800ms vs 120ms SLA). Cart session lock aborted.',
+                latency: 3820
+            }, 504);
+        }
         return createMockResponse({
-            status: 'SUCCESS',
-            traceId: 'tr_' + Math.random().toString(36).substring(2, 10),
-            orderId: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
-            latencyMs: Math.floor(30 + Math.random() * 60)
+            status: 'VALIDATED',
+            orderId: body.id || ('ord_' + Math.random().toString(36).substring(2, 9)),
+            total: 2499.00,
+            subtotal: 2499.00,
+            currency: 'USD'
         });
+    }
+
+    if (url.startsWith('/api/inventory')) {
+        if ((scenario === 'out-of-stock' || body.sku === 'SKU-4402') && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'ERR_INVENTORY_DEPLETED',
+                errorCode: 'HTTP 422 Unprocessable Entity',
+                message: 'DB_LOCK_REFUSED: SKU-4402 depleted. Available safety stock is 0 units.'
+            }, 422);
+        }
+        return createMockResponse({
+            status: 'LOCKED',
+            stockRemaining: 4999,
+            reservationId: 'res_inv_' + Math.random().toString(36).substring(2, 8)
+        });
+    }
+
+    if (url.startsWith('/api/payment')) {
+        if (scenario === 'gateway-timeout' && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'CONN_TIMEOUT_STRIPE_API',
+                errorCode: 'HTTP 504 Gateway Timeout',
+                message: 'ReadTimeoutException: Connection closed by Stripe after 2500ms.',
+                latency: 2500
+            }, 504);
+        }
+        if ((scenario === 'card-declined' || String(body.card || '').includes('4402') || String(body.card || '').includes('declined')) && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'STRIPE_CARD_DECLINED',
+                errorCode: 'HTTP 402 Payment Required',
+                message: 'STRIPE_API_ERR: Insufficient Funds. Stripe Transaction ID: ch_declined_91823'
+            }, 402);
+        }
+        return createMockResponse({
+            status: 'CAPTURED',
+            transactionId: 'ch_' + Math.random().toString(36).substring(2, 10),
+            authCode: 'AUTH-88231',
+            gateway: isRemediated ? 'Adyen API Wrapper' : 'Stripe API v3'
+        });
+    }
+
+    if (url.startsWith('/api/fulfillment')) {
+        if (scenario === 'fulfillment-db-crash' && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'POSTGRES_POOL_EXHAUSTED',
+                errorCode: 'HTTP 500 Internal Server Error',
+                message: 'PostgresqlConnectionPoolError: Max connection limit of 20 exceeded. Query timed out in queue.'
+            }, 500);
+        }
+        return createMockResponse({
+            status: 'QUEUED',
+            packingQueueId: 'PQ-' + Math.floor(10000 + Math.random() * 90000) + '-US'
+        });
+    }
+
+    if (url.startsWith('/api/logistics')) {
+        if ((scenario === 'logistics-api-down' || String(body.zip || '') === '99999') && !isRemediated) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'LOGISTICS_DNS_RESOLUTION_FAIL',
+                errorCode: 'HTTP 503 Service Unavailable',
+                message: 'EgressProxyDNSResolutionError: Lookup logistics.dhl-provider.net failed.'
+            }, 503);
+        }
+        return createMockResponse({
+            status: 'DISPATCHED',
+            trackingNumber: 'TRK-DHL-' + Math.floor(10000 + Math.random() * 90000)
+        });
+    }
+
+    if (url.startsWith('/api/remediate') || url.includes('/remediate')) {
+        return createMockResponse({ status: 'REMEDIATED', message: 'Services self-healed successfully' });
     }
 
     if (url.startsWith('/api/events')) {
@@ -1158,7 +1283,7 @@ async function authFetch(url, options = {}) {
         if (response.status === 401) {
             handleUnauthorized();
         }
-        if (!response.ok && url.startsWith('/api/')) {
+        if (response.status === 404 && url.startsWith('/api/')) {
             return await mockBackendHandler(url, options);
         }
         return response;
@@ -2048,207 +2173,258 @@ function generateOrderId() {
 // --- EVENT LISTENERS ---
 function registerEventListeners() {
     // Autopilot toggle
-    dom.autopilotToggle.addEventListener('change', (e) => {
-        state.isAutopilot = e.target.checked;
-        logConsole(`Auto-Pilot Monitoring ${state.isAutopilot ? 'ENABLED' : 'DISABLED'}.`, 'system');
-        if (state.isAutopilot) {
-            startAutopilotDaemon();
-        }
-    });
-
-    // Remediation toggle
-    dom.remediationToggle.addEventListener('change', (e) => {
-        state.isRemediating = e.target.checked;
-        logConsole(`Auto-Remediation ${state.isRemediating ? 'ENABLED' : 'DISABLED'}.`, 'system');
-    });
-
-    // Pitch button
-    dom.btnPitch.addEventListener('click', () => {
-        if (state.pipelineActive || state.remediationInProgress || state.pitchModeActive) {
-            logConsole('System busy. Wait for active trace to complete.', 'warn');
-            return;
-        }
-        runPitchDemo();
-    });
-
-    // Speed Slider
-    dom.delaySlider.addEventListener('input', (e) => {
-        state.stepDelay = parseInt(e.target.value);
-        dom.delayVal.textContent = state.stepDelay;
-    });
-
-    // Reset button
-    dom.btnReset.addEventListener('click', () => {
-        state.totalRuns = 0;
-        state.errorRuns = 0;
-        state.latencyList = [];
-        state.preservedRevenue = 0.00;
-        state.totalHoursSaved = 0.0;
-        state.avgMttr = 0.0;
-        updateBusinessMetricsUI();
-        state.systemMetrics = {
-            latency: 120,
-            errorRate: 0.0,
-            dbPoolActive: 8,
-            dbPoolMax: 20,
-            cpu: 18
-        };
-        updateMetricsUI();
-        state.currentScenario = 'healthy';
-        
-        Object.values(dom.scenarios).forEach(btn => btn.classList.remove('active'));
-        dom.scenarios.healthy.classList.add('active');
-        
-        state.hotfixAvailable = false;
-        state.showCodeDiff = false;
-        syncCodeView();
-        
-        // Reset backend microservice states via HTTP
-        authFetch('/api/system/reset', { method: 'POST' }).catch(() => {});
-
-        logConsole('System metrics reset successfully.', 'system');
-    });
-
-    // Clear console button
-    dom.btnClearConsole.addEventListener('click', () => {
-        dom.consoleLogs.innerHTML = '';
-        logConsole('Console cleared.', 'system');
-    });
-
-    // Scenario Selection
-    Object.keys(dom.scenarios).forEach(key => {
-        dom.scenarios[key].addEventListener('click', () => {
-            Object.values(dom.scenarios).forEach(btn => btn.classList.remove('active'));
-            dom.scenarios[key].classList.add('active');
-            
-            const scenarioName = dom.scenarios[key].dataset.scenario;
-            state.currentScenario = scenarioName;
-            
-            logConsole(`Active testing profile set to: ${scenarios[scenarioName].name}`, 'system');
-            saveTenantData();
-            
-            if (scenarioName !== 'healthy') {
-                triggerSimulation(scenarioName);
+    if (dom.autopilotToggle) {
+        dom.autopilotToggle.addEventListener('change', (e) => {
+            state.isAutopilot = e.target.checked;
+            logConsole(`Auto-Pilot Monitoring ${state.isAutopilot ? 'ENABLED' : 'DISABLED'}.`, 'system');
+            if (state.isAutopilot) {
+                startAutopilotDaemon();
+            } else if (state.autopilotInterval) {
+                clearTimeout(state.autopilotInterval);
+                state.autopilotInterval = null;
             }
         });
-    });
+    }
+
+    // Remediation toggle
+    if (dom.remediationToggle) {
+        dom.remediationToggle.addEventListener('change', (e) => {
+            state.isRemediating = e.target.checked;
+            logConsole(`Auto-Remediation ${state.isRemediating ? 'ENABLED' : 'DISABLED'}.`, 'system');
+        });
+    }
+
+    // Pitch button
+    if (dom.btnPitch) {
+        dom.btnPitch.addEventListener('click', () => {
+            if (state.pipelineActive || state.remediationInProgress || state.pitchModeActive) {
+                logConsole('System busy. Wait for active trace to complete.', 'warn');
+                return;
+            }
+            runPitchDemo();
+        });
+    }
+
+    // Speed Slider
+    if (dom.delaySlider) {
+        dom.delaySlider.addEventListener('input', (e) => {
+            state.stepDelay = parseInt(e.target.value);
+            if (dom.delayVal) dom.delayVal.textContent = state.stepDelay;
+        });
+    }
+
+    // Reset button
+    if (dom.btnReset) {
+        dom.btnReset.addEventListener('click', () => {
+            cancelActiveSimulation();
+            state.totalRuns = 0;
+            state.errorRuns = 0;
+            state.latencyList = [];
+            state.preservedRevenue = 0.00;
+            state.totalHoursSaved = 0.0;
+            state.avgMttr = 0.0;
+            updateBusinessMetricsUI();
+            state.systemMetrics = {
+                latency: 120,
+                errorRate: 0.0,
+                dbPoolActive: 8,
+                dbPoolMax: 20,
+                cpu: 18
+            };
+            updateMetricsUI();
+            state.currentScenario = 'healthy';
+            
+            if (dom.scenarios) {
+                Object.values(dom.scenarios).forEach(btn => { if (btn) btn.classList.remove('active'); });
+                if (dom.scenarios.healthy) dom.scenarios.healthy.classList.add('active');
+            }
+            
+            state.hotfixAvailable = false;
+            state.showCodeDiff = false;
+            syncCodeView();
+            
+            // Reset backend microservice states via HTTP
+            authFetch('/api/system/reset', { method: 'POST' }).catch(() => {});
+
+            logConsole('System metrics and simulation state reset cleanly.', 'system');
+        });
+    }
+
+    // Clear console button
+    if (dom.btnClearConsole) {
+        dom.btnClearConsole.addEventListener('click', () => {
+            if (dom.consoleLogs) dom.consoleLogs.innerHTML = '';
+            logConsole('Console cleared.', 'system');
+        });
+    }
+
+    // Scenario Selection
+    if (dom.scenarios) {
+        Object.keys(dom.scenarios).forEach(key => {
+            const btn = dom.scenarios[key];
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                cancelActiveSimulation();
+                Object.values(dom.scenarios).forEach(b => { if (b) b.classList.remove('active'); });
+                btn.classList.add('active');
+                
+                const scenarioName = btn.dataset.scenario;
+                state.currentScenario = scenarioName;
+                
+                logConsole(`Active testing profile set to: ${scenarios[scenarioName] ? scenarios[scenarioName].name : scenarioName}`, 'system');
+                saveTenantData();
+                
+                if (scenarioName !== 'healthy') {
+                    triggerSimulation(scenarioName);
+                }
+            });
+        });
+    }
 
     // Custom Order injection
-    dom.btnSubmitOrder.addEventListener('click', () => {
-        if (state.pipelineActive || state.remediationInProgress) {
-            logConsole('Pipeline busy. Wait for active trace to finish.', 'warn');
-            return;
-        }
-        
-        const customOrder = {
-            id: generateOrderId(),
-            customer: dom.orderCustomer.value || 'Custom Guest',
-            sku: dom.orderSku.value,
-            card: dom.orderCard.value,
-            zip: dom.orderZip.value
-        };
+    if (dom.btnSubmitOrder) {
+        dom.btnSubmitOrder.addEventListener('click', () => {
+            if (state.pipelineActive || state.remediationInProgress) {
+                logConsole('Pipeline busy. Wait for active trace to finish.', 'warn');
+                return;
+            }
+            
+            const customOrder = {
+                id: generateOrderId(),
+                customer: (dom.orderCustomer && dom.orderCustomer.value) || 'Custom Guest',
+                sku: (dom.orderSku && dom.orderSku.value) || 'SKU-8829',
+                card: (dom.orderCard && dom.orderCard.value) || '4111 0000 0000 1111',
+                zip: (dom.orderZip && dom.orderZip.value) || '90210'
+            };
 
-        let scenarioType = 'healthy';
-        if (customOrder.sku === 'SKU-4402') {
-            scenarioType = 'out-of-stock';
-        } else if (customOrder.card.includes('4402') || customOrder.card.includes('declined')) {
-            scenarioType = 'card-declined';
-        } else if (customOrder.zip === '99999') {
-            scenarioType = 'logistics-api-down';
-        }
+            let scenarioType = 'healthy';
+            if (customOrder.sku === 'SKU-4402') {
+                scenarioType = 'out-of-stock';
+            } else if (customOrder.card.includes('4402') || customOrder.card.includes('declined')) {
+                scenarioType = 'card-declined';
+            } else if (customOrder.zip === '99999') {
+                scenarioType = 'logistics-api-down';
+            }
 
-        logConsole(`Custom transaction manual injection: Order ID ${customOrder.id}`, 'system');
-        runOrderTrace(scenarioType, customOrder);
-    });
+            logConsole(`Custom transaction manual injection: Order ID ${customOrder.id}`, 'system');
+            runOrderTrace(scenarioType, customOrder);
+        });
+    }
 
     // --- NEW LOGIC EVENT LISTENERS ---
     
     // Code tabs click handler
-    dom.debuggerTabsContainer.addEventListener('click', (e) => {
-        const btn = e.target.closest('.tab-btn');
-        if (!btn) return;
-        
-        Array.from(dom.debuggerTabsContainer.children).forEach(el => el.classList.remove('active'));
-        btn.classList.add('active');
-        
-        state.activeCodeTab = btn.dataset.file;
-        syncCodeView();
-    });
+    if (dom.debuggerTabsContainer) {
+        dom.debuggerTabsContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+            
+            Array.from(dom.debuggerTabsContainer.children).forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            state.activeCodeTab = btn.dataset.file;
+            syncCodeView();
+        });
+    }
 
     // Toggle Diff button
-    dom.btnToggleDiff.addEventListener('click', () => {
-        state.showCodeDiff = !state.showCodeDiff;
-        syncCodeView();
-        logConsole(`Code diff overlay ${state.showCodeDiff ? 'SHOWN' : 'HIDDEN'} in hotfix inspector.`, 'info');
-    });
+    if (dom.btnToggleDiff) {
+        dom.btnToggleDiff.addEventListener('click', () => {
+            state.showCodeDiff = !state.showCodeDiff;
+            syncCodeView();
+            logConsole(`Code diff overlay ${state.showCodeDiff ? 'SHOWN' : 'HIDDEN'} in hotfix inspector.`, 'info');
+        });
+    }
 
     // Apply Hotfix button
-    dom.btnApplyHotfix.addEventListener('click', () => {
-        if (state.pipelineActive || state.remediationInProgress || !state.hotfixAvailable) return;
-        deployHotfix();
-    });
+    if (dom.btnApplyHotfix) {
+        dom.btnApplyHotfix.addEventListener('click', () => {
+            if (state.pipelineActive || state.remediationInProgress || !state.hotfixAvailable) return;
+            deployHotfix();
+        });
+    }
 
     // Toggle AI Settings Panel
-    dom.btnToggleAiSettings.addEventListener('click', () => {
-        dom.aiSettingsPanel.classList.toggle('hidden');
-    });
+    if (dom.btnToggleAiSettings && dom.aiSettingsPanel) {
+        dom.btnToggleAiSettings.addEventListener('click', () => {
+            dom.aiSettingsPanel.classList.toggle('hidden');
+        });
+    }
 
     // Save Gemini Key
-    dom.btnSaveAiKey.addEventListener('click', () => {
-        const key = dom.geminiApiKeyInput.value.trim();
-        state.geminiKey = key;
-        localStorage.setItem('gemini_api_key', key);
-        
-        if (key) {
+    if (dom.btnSaveAiKey && dom.geminiApiKeyInput) {
+        dom.btnSaveAiKey.addEventListener('click', () => {
+            const key = dom.geminiApiKeyInput.value.trim();
+            state.geminiKey = key;
+            localStorage.setItem('gemini_api_key', key);
+            
+            if (key) {
+                if (dom.aiModeBadge) {
+                    dom.aiModeBadge.textContent = 'GEMINI 3.5 ACTIVE';
+                    dom.aiModeBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+                    dom.aiModeBadge.style.color = 'var(--success-color)';
+                    dom.aiModeBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                }
+                if (dom.keyStatusLabel) {
+                    dom.keyStatusLabel.textContent = 'Key configured. Routing requests to Gemini API.';
+                    dom.keyStatusLabel.style.color = 'var(--success-color)';
+                }
+            } else {
+                if (dom.aiModeBadge) {
+                    dom.aiModeBadge.textContent = 'SIMULATED MODE';
+                    dom.aiModeBadge.style.background = 'rgba(124, 58, 237, 0.15)';
+                    dom.aiModeBadge.style.color = 'var(--primary-color)';
+                    dom.aiModeBadge.style.borderColor = 'rgba(124, 58, 237, 0.3)';
+                }
+                if (dom.keyStatusLabel) {
+                    dom.keyStatusLabel.textContent = 'Using local simulation mode.';
+                    dom.keyStatusLabel.style.color = 'var(--text-muted)';
+                }
+            }
+            
+            setTimeout(() => {
+                if (dom.aiSettingsPanel) dom.aiSettingsPanel.classList.add('hidden');
+            }, 1500);
+        });
+    }
+
+    // Pre-populate Gemini API key if present
+    if (state.geminiKey && dom.geminiApiKeyInput) {
+        dom.geminiApiKeyInput.value = state.geminiKey;
+        if (dom.aiModeBadge) {
             dom.aiModeBadge.textContent = 'GEMINI 3.5 ACTIVE';
             dom.aiModeBadge.style.background = 'rgba(16, 185, 129, 0.15)';
             dom.aiModeBadge.style.color = 'var(--success-color)';
             dom.aiModeBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+        }
+        if (dom.keyStatusLabel) {
             dom.keyStatusLabel.textContent = 'Key configured. Routing requests to Gemini API.';
             dom.keyStatusLabel.style.color = 'var(--success-color)';
-        } else {
-            dom.aiModeBadge.textContent = 'SIMULATED MODE';
-            dom.aiModeBadge.style.background = 'rgba(124, 58, 237, 0.15)';
-            dom.aiModeBadge.style.color = 'var(--primary-color)';
-            dom.aiModeBadge.style.borderColor = 'rgba(124, 58, 237, 0.3)';
-            dom.keyStatusLabel.textContent = 'Using local simulation mode.';
-            dom.keyStatusLabel.style.color = 'var(--text-muted)';
         }
-        
-        setTimeout(() => {
-            dom.aiSettingsPanel.classList.add('hidden');
-        }, 1500);
-    });
-
-    // Pre-populate Gemini API key if present
-    if (state.geminiKey) {
-        dom.geminiApiKeyInput.value = state.geminiKey;
-        dom.aiModeBadge.textContent = 'GEMINI 3.5 ACTIVE';
-        dom.aiModeBadge.style.background = 'rgba(16, 185, 129, 0.15)';
-        dom.aiModeBadge.style.color = 'var(--success-color)';
-        dom.aiModeBadge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-        dom.keyStatusLabel.textContent = 'Key configured. Routing requests to Gemini API.';
-        dom.keyStatusLabel.style.color = 'var(--success-color)';
     }
 
     // Chatbot send handler
-    dom.chatInputForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = dom.chatInput.value.trim();
-        if (!text) return;
-        
-        dom.chatInput.value = '';
-        handleUserChatMessage(text);
-    });
+    if (dom.chatInputForm && dom.chatInput) {
+        dom.chatInputForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = dom.chatInput.value.trim();
+            if (!text) return;
+            
+            dom.chatInput.value = '';
+            handleUserChatMessage(text);
+        });
+    }
 
     // Prompt Chips click handlers
-    dom.promptChips.addEventListener('click', (e) => {
-        const btn = e.target.closest('.chip');
-        if (!btn) return;
-        
-        const promptText = btn.dataset.prompt;
-        handleUserChatMessage(promptText);
-    });
+    if (dom.promptChips) {
+        dom.promptChips.addEventListener('click', (e) => {
+            const btn = e.target.closest('.chip');
+            if (!btn) return;
+            
+            const promptText = btn.dataset.prompt;
+            handleUserChatMessage(promptText);
+        });
+    }
 
     // --- AUTH & MULTI-TENANT LISTENERS ---
     // Tab switching
@@ -2626,25 +2802,88 @@ function updateMetricsUI() {
 
 // --- AUTOPILOT DAEMON ---
 function startAutopilotDaemon() {
+    if (state.autopilotInterval) {
+        clearTimeout(state.autopilotInterval);
+        state.autopilotInterval = null;
+    }
     if (!state.isAutopilot) return;
     
     const runLoop = () => {
         if (!state.isAutopilot) return;
         
         if (!state.pipelineActive && !state.remediationInProgress) {
-            let runScenario = state.currentScenario;
-            
-            if (state.currentScenario === 'healthy') {
-                runScenario = 'healthy';
-            }
-            
+            let runScenario = state.currentScenario || 'healthy';
             triggerSimulation(runScenario);
         }
         
-        setTimeout(runLoop, 10000);
+        state.autopilotInterval = setTimeout(runLoop, 10000);
     };
     
-    setTimeout(runLoop, 2000);
+    state.autopilotInterval = setTimeout(runLoop, 2000);
+}
+
+// --- SIMULATION TIMERS & CANCELLATION ENGINE ---
+let activeSimulationTimers = [];
+
+function registerSimulationTimer(timerId) {
+    activeSimulationTimers.push(timerId);
+    return timerId;
+}
+
+function cancelActiveSimulation() {
+    // Clear all scheduled timeouts
+    activeSimulationTimers.forEach(id => clearTimeout(id));
+    activeSimulationTimers = [];
+
+    // Clear decay timer
+    if (state.downtimeDecayTimer) {
+        clearInterval(state.downtimeDecayTimer);
+        state.downtimeDecayTimer = null;
+    }
+
+    state.pipelineActive = false;
+    state.remediationInProgress = false;
+
+    // Reset all nodes and connectors to nominal/idle
+    if (dom.nodes) {
+        Object.keys(dom.nodes).forEach(nodeKey => {
+            const el = dom.nodes[nodeKey];
+            if (el) {
+                el.classList.remove('node-active', 'node-failed', 'node-success');
+                const statusText = el.querySelector('.node-status-text');
+                if (statusText) statusText.textContent = 'nominal';
+            }
+        });
+    }
+
+    if (dom.connectors) {
+        Object.keys(dom.connectors).forEach(connKey => {
+            const el = dom.connectors[connKey];
+            if (el) {
+                el.classList.remove('conn-active', 'conn-failed', 'conn-success');
+            }
+        });
+    }
+
+    // Reset status pills
+    if (dom.globalStatus) {
+        dom.globalStatus.className = 'status-pill status-healthy';
+    }
+    if (dom.globalStatusText) {
+        dom.globalStatusText.textContent = 'SYSTEM OPERATIONAL';
+    }
+    if (dom.orderIdBadge) {
+        dom.orderIdBadge.textContent = 'IDLE';
+        dom.orderIdBadge.style.backgroundColor = '';
+        dom.orderIdBadge.style.color = '';
+    }
+
+    // Reset RCA state
+    if (dom.rcaReportState) dom.rcaReportState.classList.add('hidden');
+    if (dom.rcaEmptyState) dom.rcaEmptyState.classList.remove('hidden');
+    if (dom.rcaPanel) dom.rcaPanel.classList.remove('anomaly-detected');
+    if (dom.remediationStrategyBanner) dom.remediationStrategyBanner.classList.add('hidden');
+    if (dom.remediationAuditLog) dom.remediationAuditLog.classList.add('hidden');
 }
 
 function triggerSimulation(scenarioName) {
@@ -2853,13 +3092,14 @@ function runOrderTrace(scenarioType, orderContext) {
                 const connKey = `${step.node}-${nextNode}`;
                 dom.connectors[connKey].classList.add('conn-active');
                 
-                setTimeout(() => {
+                registerSimulationTimer(setTimeout(() => {
+                    if (!state.pipelineActive) return;
                     dom.connectors[connKey].classList.remove('conn-active');
                     dom.connectors[connKey].classList.add('conn-success');
                     
                     currentStepIndex++;
                     executeNextStep();
-                }, Math.max(80, Math.round(state.stepDelay * 0.4)));
+                }, Math.max(80, Math.round(state.stepDelay * 0.4))));
             } else {
                 handlePipelineSuccess(orderContext.id);
             }
@@ -3050,6 +3290,8 @@ function handlePipelineFailure(scenarioType) {
         dom.manualStepsSection.classList.add('hidden');
         triggerAutoRemediation(scenarioType);
     } else {
+        state.pipelineActive = false;
+        state.remediationInProgress = false;
         if (dom.manualStepsSection) dom.manualStepsSection.classList.remove('hidden');
         if (dom.stepDetect) dom.stepDetect.className = 'timeline-step step-complete';
         if (dom.stepAction) dom.stepAction.className = 'timeline-step';
@@ -3126,7 +3368,7 @@ function triggerAutoRemediation(scenarioType) {
         const isLast = idx === policy.steps.length - 1;
         accumulatedDelay += Math.round(step.delay * speedFactor);
 
-        setTimeout(() => {
+        registerSimulationTimer(setTimeout(() => {
             if (dom.remediationAuditLog) {
                 const stepRow = document.createElement('div');
                 stepRow.className = 'audit-step-row active';
@@ -3143,7 +3385,7 @@ function triggerAutoRemediation(scenarioType) {
                 dom.remediationAuditLog.appendChild(stepRow);
                 dom.remediationAuditLog.scrollTop = dom.remediationAuditLog.scrollHeight;
 
-                setTimeout(() => {
+                registerSimulationTimer(setTimeout(() => {
                     stepRow.classList.remove('active');
                     stepRow.classList.add('complete');
                     const icon = stepRow.querySelector('.audit-icon');
@@ -3151,13 +3393,13 @@ function triggerAutoRemediation(scenarioType) {
                         icon.textContent = '✓';
                         icon.style.color = '#10b981';
                     }
-                }, Math.round(180 * speedFactor));
+                }, Math.round(180 * speedFactor)));
             }
 
             logConsole(`[REMEDY-STEP ${idx + 1}/${policy.steps.length}] ${step.title}: ${step.desc}`, 'remedy');
 
             if (isLast) {
-                setTimeout(() => {
+                registerSimulationTimer(setTimeout(() => {
                     if (dom.stepAction) {
                         dom.stepAction.className = 'timeline-step step-complete';
                         const b = dom.stepAction.querySelector('.step-bullet');
@@ -3184,7 +3426,7 @@ function triggerAutoRemediation(scenarioType) {
 
                     logConsole(`[REMEDY-ENGINE] Triggering automated verification trace on pipeline...`, 'remedy');
 
-                    setTimeout(() => {
+                    registerSimulationTimer(setTimeout(() => {
                         const mockVerificationOrder = {
                             id: 'verify_' + Math.random().toString(36).substring(2, 8),
                             customer: 'Aegis System Check',
@@ -3200,11 +3442,11 @@ function triggerAutoRemediation(scenarioType) {
                         logConsole(`[REMEDY-ENGINE] Sending verification transaction ${mockVerificationOrder.id}...`, 'remedy');
                         runVerificationOrder(mockVerificationOrder);
 
-                    }, Math.round(state.stepDelay * 1.5));
+                    }, Math.round(state.stepDelay * 1.5)));
 
-                }, Math.round(250 * speedFactor));
+                }, Math.round(250 * speedFactor)));
             }
-        }, accumulatedDelay);
+        }, accumulatedDelay));
     });
 }
 
@@ -3246,7 +3488,11 @@ async function applyRemediationFix(scenarioType) {
     updateMetricsUI();
 
     try {
-        if (scenarioType === 'out-of-stock') {
+        if (scenarioType === 'checkout-latency') {
+            await authFetch('/api/checkout/remediate', { method: 'POST' });
+            logConsole('[Checkout API] Worker pool capacity expanded from 8 to 64 threads. Async cart locking enabled.', 'success');
+            state.systemMetrics.latency = 42;
+        } else if (scenarioType === 'out-of-stock') {
             await authFetch('/api/inventory/remediate', { method: 'POST' });
             logConsole('[Inventory DB] Safety buffer refilled (+100 items). Catalog redis keys flushed.', 'success');
         } else if (scenarioType === 'card-declined') {
@@ -3525,6 +3771,9 @@ function renderBusinessImpactStory(scenarioKey = state.currentScenario) {
 
     const compWithoutRev = document.getElementById('comp-without-rev');
     if (compWithoutRev) compWithoutRev.textContent = `High (${profile.typicalLoss} lost)`;
+
+    const compWithRev = document.getElementById('comp-with-rev');
+    if (compWithRev) compWithRev.textContent = `Significantly Reduced ($${impact.revenueProtected.toLocaleString()} protected)`;
 }
 
 function setStoreProfile(profileKey) {

@@ -4,6 +4,11 @@ const cors = require('cors');
 const app = express();
 let activePort = process.env.CHECKOUT_PORT || 5001;
 
+let checkoutState = {
+    remediated: false,
+    latencyMs: 45
+};
+
 app.use(cors());
 app.use(express.json());
 
@@ -18,6 +23,8 @@ app.get('/health', (req, res) => {
     res.json({
         service: 'checkout-service',
         status: 'HEALTHY',
+        remediated: checkoutState.remediated,
+        latencyMs: checkoutState.latencyMs,
         port: activePort,
         uptime: process.uptime(),
         timestamp: new Date().toISOString()
@@ -35,6 +42,23 @@ app.post(['/checkout', '/'], (req, res) => {
             errorCode: 'HTTP 400 Bad Request',
             message: 'Validation failed: customer and sku are required fields.'
         });
+    }
+
+    // Fault Condition: Checkout Latency Spike / Worker Starvation
+    if (scenario === 'checkout-latency') {
+        if (!checkoutState.remediated) {
+            console.error('[Checkout API] ERR_CHECKOUT_LATENCY_SPIKE_3800MS: Checkout API bottleneck - session worker pool saturated.');
+            return res.status(504).json({
+                status: 'FAILED',
+                error: 'ERR_CHECKOUT_LATENCY_SPIKE_3800MS',
+                errorCode: 'HTTP 504 Gateway Timeout',
+                message: 'Checkout API latency exceeded upstream threshold (3800ms vs 120ms SLA). Cart session lock aborted.',
+                latency: 3820,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.log('[Checkout API] Auto-Remediation active: Async queue pipeline active, latency reduced to 42ms.');
+        }
     }
 
     const item = CATALOG[sku] || { name: 'Custom Hardware Item', price: 199.00 };
@@ -64,8 +88,25 @@ app.post(['/checkout', '/'], (req, res) => {
     });
 });
 
+// Auto-Remediation / Self-Healing: Expand Worker Pool & Enable Async Queue
+app.post(['/checkout/remediate', '/remediate'], (req, res) => {
+    checkoutState.remediated = true;
+    checkoutState.latencyMs = 42;
+    console.log('[Checkout API] Self-healing applied: Checkout worker pool expanded and async queue activated.');
+    res.status(200).json({
+        status: 'REMEDIATED',
+        service: 'checkout-service',
+        latencyMs: 42,
+        message: 'Worker pool capacity expanded from 8 to 64 threads. Async cart locking enabled.',
+        timestamp: new Date().toISOString()
+    });
+});
+
 app.post('/reset', (req, res) => {
-    res.json({ status: 'RESET', service: 'checkout-service' });
+    checkoutState.remediated = false;
+    checkoutState.latencyMs = 45;
+    console.log('[Checkout API] Reset to baseline configuration.');
+    res.json({ status: 'RESET', service: 'checkout-service', checkoutState });
 });
 
 function start(port = activePort) {

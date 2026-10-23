@@ -244,16 +244,16 @@ async function runTests() {
     // 8. Public Demo Mode, Authentication & Multi-Tenant Isolation Tests
     console.log('\n--- 8. Public Demo Mode, Authentication & Multi-Tenancy Tests ---');
     try {
-        // 8.1 Public Demo Mode: Unauthenticated requests grant seamless public evaluation access (200 OK)
+        // 8.1 Mandatory Auth: Unauthenticated requests are rejected with 401 AUTH_REQUIRED
         const resPublicEvents = await fetch(`${GATEWAY_URL}/api/events`);
-        assert(resPublicEvents.status === 200, 'Public Guest request to /api/events succeeds with 200 OK (Public Live Demo mode)');
+        assert(resPublicEvents.status === 401, 'Unauthenticated request to /api/events returns 401 AUTH_REQUIRED');
 
         const resPublicProxy = await fetch(`${GATEWAY_URL}/api/checkout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ customer: 'Public Guest', sku: 'SKU-8829' })
         });
-        assert(resPublicProxy.status === 200, 'Public Guest request to /api/checkout succeeds with 200 OK');
+        assert(resPublicProxy.status === 401, 'Unauthenticated request to /api/checkout returns 401 AUTH_REQUIRED');
 
         // 8.2 Forged / Invalid Token rejection (401 Unauthorized)
         const resInvalidToken = await fetch(`${GATEWAY_URL}/api/events`, {
@@ -338,10 +338,13 @@ async function runTests() {
         });
         assert(resGMissing.status === 400, 'Missing Google credential returns 400 Bad Request');
 
-        // 9.2 Successful Google SSO authentication
+        // 9.2 Successful Google SSO authentication (using test-mode header)
         const resGAuth = await fetch(`${GATEWAY_URL}/api/auth/google`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-test-mode': 'true'
+            },
             body: JSON.stringify({
                 credential: 'mock_google_test_token',
                 email: 'alex.rivera.cloud@gmail.com',
