@@ -116,6 +116,58 @@
         "avgMttr": 0
       },
       "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-pzat": {
+      "id": "tenant-enterprise-user-17-pzat",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-p0yk": {
+      "id": "tenant-enterprise-user-17-p0yk",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-8eqw": {
+      "id": "tenant-enterprise-user-17-8eqw",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
+    },
+    "tenant-enterprise-user-17-bi2x": {
+      "id": "tenant-enterprise-user-17-bi2x",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy"
     }
   },
   "users": [
@@ -185,6 +237,45 @@
       "name": "Cloud Engineer",
       "role": "Workspace Admin",
       "tenantId": "tenant-enterprise-user-17-p9wr"
+    },
+    {
+      "id": "usr_1793078731326_wo53",
+      "email": "enterprise_user_1793078731325@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-pzat"
+    },
+    {
+      "id": "usr_g_test_1793078732232",
+      "email": "sso.qa@example.com",
+      "name": "QA Engineer",
+      "role": "Workspace Administrator (Google SSO)",
+      "tenantId": "tenant-google"
+    },
+    {
+      "id": "usr_1793079771512_axw4",
+      "email": "enterprise_user_1793079771510@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-p0yk"
+    },
+    {
+      "id": "usr_1793080078207_q8e5",
+      "email": "enterprise_user_1793080078204@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-8eqw"
+    },
+    {
+      "id": "usr_1793080803597_zyp5",
+      "email": "enterprise_user_1793080803595@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-bi2x"
     }
   ]
 }

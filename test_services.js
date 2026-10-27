@@ -301,6 +301,12 @@ async function runTests() {
         const dataAuthProxy = await resAuthProxy.json();
         assert(resAuthProxy.status === 200 && dataAuthProxy.status === 'VALIDATED', 'Authenticated request to /api/checkout succeeds (200 VALIDATED)');
 
+        // Reset Tenant 1 pending events before multi-tenant test
+        await fetch(`${GATEWAY_URL}/api/system/reset`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${dataLoginAegis.token}` }
+        });
+
         // 8.6 MULTI-TENANT ISOLATION TEST:
         // Inject an order specifically into Tenant 1 (Aegis Enterprise)
         const resInject = await fetch(`${GATEWAY_URL}/api/order`, {
