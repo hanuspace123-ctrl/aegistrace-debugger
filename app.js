@@ -156,64 +156,64 @@ const state = {
     // --- CONCRETE NAMED REMEDIATION POLICIES ---
     remediationPolicies: {
         'checkout-latency': {
-            name: 'Adaptive Replica Scaling & Query Cache Isolation',
-            remedyTitle: 'Checkout Service Replica Auto-Scale & Cache Guard',
+            name: 'Automatic Server Capacity Boost & Cart Cache Protection',
+            remedyTitle: 'Checkout Service Capacity Boost & Cart Cache Guard',
             steps: [
-                { delay: 110, title: 'Breached 95th Percentile Latency SLA (>3000ms)', desc: 'Reverse proxy alarm triggered at 3,850ms on /checkout' },
-                { delay: 340, title: 'Reroute Session Sync to Read Replicas', desc: 'Shifted cart lock operations away from master primary' },
-                { delay: 580, title: 'Spin Up 3 Additional Checkout Container Pods', desc: 'Auto-scaled checkout cluster from 2 -> 5 replicas in 800ms' },
-                { delay: 820, title: 'Verification Probe Confirms 65ms SLA', desc: 'Synthetic checkout completed in 68ms with HTTP 200 OK' }
+                { delay: 110, title: 'Checkout Slowdown Detected (>3,000ms)', desc: 'Speed alert triggered at 3,850ms on checkout page' },
+                { delay: 340, title: 'Reroute Cart Lookups to Fast Read Servers', desc: 'Shifted cart queries away from main database to prevent slowdown' },
+                { delay: 580, title: 'Instantly Boosted Server Capacity', desc: 'Auto-scaled checkout capacity in under 800ms' },
+                { delay: 820, title: 'Speed Verification Passed (65ms)', desc: 'Test checkout confirmed successful in 68ms' }
             ]
         },
 
         'out-of-stock': {
-            name: 'Inventory Cache Invalidation & Safety Restock',
-            remedyTitle: 'Inventory Cache Invalidation & Safety Buffer Allocation',
+            name: 'Inventory Buffer Unlock & Cache Refresh',
+            remedyTitle: 'Inventory Buffer Unlock & Stock Cache Sync',
             steps: [
-                { delay: 120, title: 'Invalidate Desynchronized Redis Keys', desc: 'redis-cli UNLINK sku:stock:SKU-4402' },
-                { delay: 350, title: 'Query Master Warehouse DB Replica', desc: 'Allocated emergency buffer (+100 units) from warehouse tier' },
-                { delay: 620, title: 'Atomic Redis Stock Lock with TTL', desc: 'SETEX sku:stock:SKU-4402 60 100 with NX guard' },
-                { delay: 850, title: 'Verification Trace Auto-Dispatched', desc: 'Simulated customer checkout confirmed 200 LOCKED' }
+                { delay: 120, title: 'Clear Outdated Stock Cache', desc: 'Removed desynchronized stock count for SKU-4402' },
+                { delay: 350, title: 'Unlock Emergency Warehouse Safety Buffer', desc: 'Allocated emergency stock (+100 items) from warehouse inventory' },
+                { delay: 620, title: 'Lock Stock Count for Active Buyers', desc: 'Protected inventory reservation to stop overselling' },
+                { delay: 850, title: 'Stock Verification Passed', desc: 'Test checkout confirmed item reserved and ready to buy' }
             ]
         },
         'card-declined': {
-            name: 'Smart Retry & SMS Token Rescue',
-            remedyTitle: 'Smart Payment Retry Token & Async Customer Rescue',
+            name: 'Smart Cart Rescue & Customer SMS Link',
+            remedyTitle: 'Smart Payment Retry & Customer Cart Rescue Link',
             steps: [
-                { delay: 150, title: 'Soft Decline Classification', desc: 'Identified retryable code 51 (Insuff. Funds); cart retained' },
-                { delay: 380, title: 'Generate AES-256 Recovery Token', desc: 'Issued 15-min single-use checkout rescue token' },
-                { delay: 680, title: 'Dispatch Twilio SMS 1-Click Link', desc: 'Push notification sent to customer with alternative payment rail' },
-                { delay: 890, title: 'Park Order in Retry Buffer', desc: 'Order held in PENDING_CUSTOMER_ACTION without dropping session' }
+                { delay: 150, title: 'Card Soft Decline Identified', desc: 'Identified insufficient funds (Code 51); saved customer cart' },
+                { delay: 380, title: 'Create Secure 1-Click Payment Link', desc: 'Generated 15-minute checkout rescue token' },
+                { delay: 680, title: 'Send Instant SMS to Customer', desc: 'Sent text message with 1-click link to enter another card or PayPal' },
+                { delay: 890, title: 'Hold Cart Open for Customer', desc: 'Cart kept active so customer does not have to shop again' }
             ]
         },
         'gateway-timeout': {
-            name: 'Adaptive Gateway Failover (Stripe → Adyen)',
-            remedyTitle: 'Adaptive Circuit Breaker & Gateway Failover (Stripe → Adyen)',
+            name: 'Automatic Payment Routing Failover (Stripe → Adyen)',
+            remedyTitle: 'Automatic Payment Failover & Circuit Protection (Stripe → Adyen)',
             steps: [
-                { delay: 110, title: 'Circuit Breaker Tripped on Stripe', desc: 'Threshold 2500ms exceeded. Shifted circuit to Half-Open' },
-                { delay: 320, title: 'Switch Egress Routing to Adyen Adapter', desc: 'Dynamic router updated payments container cluster route' },
-                { delay: 580, title: 'Re-encrypt & Dispatch Tokenized Payload', desc: 'Processed with Adyen API 5000ms SLA boundary' },
-                { delay: 810, title: 'Verification Probe Confirms Throughput', desc: 'Auth code AUTH-88231 captured on secondary adapter' }
+                { delay: 110, title: 'Stripe Gateway Timeout Detected', desc: 'Payment took over 2,500ms without response. Switched route.' },
+                { delay: 320, title: 'Reroute Payments to Backup Processor (Adyen)', desc: 'Instantly switched outbound checkout payments to Adyen' },
+                { delay: 580, title: 'Process Customer Payment via Backup Rails', desc: 'Encrypted payment sent through Adyen network' },
+                { delay: 810, title: 'Payment Confirmed & Verified', desc: 'Payment approved on backup processor; order marked paid' }
             ]
         },
         'fulfillment-db-crash': {
-            name: 'DB Pool Resize & Zombie Reaper',
-            remedyTitle: 'PostgreSQL Zombie Connection Reaper & Pool Resizing',
+            name: 'Database Connection Cleanup & Expansion',
+            remedyTitle: 'Packing Database Connection Reaper & Pool Expansion',
             steps: [
-                { delay: 140, title: 'Scan pg_stat_activity Queries', desc: 'Identified 12 leaked handles in "idle in transaction > 15s"' },
-                { delay: 360, title: 'Terminate Orphaned DB Worker PIDs', desc: 'Executed pg_terminate_backend() across zombie workers' },
-                { delay: 590, title: 'Dynamically Resize Pool Capacity', desc: 'Scaled PostgreSQL pool limit from 20 -> 50 handles on RDS' },
-                { delay: 830, title: 'Verification DB Health Probe', desc: 'Confirmed 8/50 active handles with 0ms queue wait time' }
+                { delay: 140, title: 'Scan Stuck Database Tasks', desc: 'Identified 12 frozen database connections holding up packing' },
+                { delay: 360, title: 'Safely Clear Stuck Connections', desc: 'Terminated frozen database worker processes cleanly' },
+                { delay: 590, title: 'Expand Database Connection Capacity', desc: 'Increased connection limit from 20 to 50 handles' },
+                { delay: 830, title: 'Packing Database Health Verified', desc: 'All connections running normally with zero wait time' }
             ]
         },
         'logistics-api-down': {
-            name: 'Carrier Failover to Buffer Queue',
-            remedyTitle: 'Logistics Carrier Failover to Persistent RabbitMQ Queue',
+            name: 'Shipping Label Safe Queue & Deferred Retry',
+            remedyTitle: 'Shipping Carrier Failover to Safe Retry Queue',
             steps: [
-                { delay: 130, title: 'Detect Egress DNS Resolution Timeout', desc: 'NXDOMAIN on logistics.dhl-provider.net caught by envoy proxy' },
-                { delay: 340, title: 'Reroute to Persistent RabbitMQ Queue', desc: 'Labels directed to dhl-deferred-shipments queue buffer' },
-                { delay: 610, title: 'Issue Synthetic Provisional Tracking ID', desc: 'Issued QUEUED-LOCAL-DH-081 so customer checkout succeeds' },
-                { delay: 840, title: 'Verification Dispatch Probe Succeeded', desc: 'Order marked QUEUED_DEFERRED; delivery SLA preserved' }
+                { delay: 130, title: 'Shipping Carrier Outage Detected', desc: 'DHL shipping label service unreachable due to external DNS issue' },
+                { delay: 340, title: 'Buffer Labels in Safe Persistent Queue', desc: 'Saved shipping records safely to retry when carrier recovers' },
+                { delay: 610, title: 'Issue Instant Temporary Tracking ID', desc: 'Generated temporary tracking ID so customer checkout succeeds' },
+                { delay: 840, title: 'Customer Order Verified & Dispatched', desc: 'Order confirmed successfully with zero customer delay' }
             ]
         }
     }
@@ -230,13 +230,13 @@ const scenarios = {
         failureNode: 'checkout',
         errorCode: 'HTTP 504 Gateway Timeout',
         errorSignature: 'ERR_CHECKOUT_LATENCY_SPIKE_3800MS',
-        rcaDescription: 'The Checkout API service experienced a 3,850ms latency spike due to unindexed query locks on cart records under sudden customer traffic. Upstream reverse proxy reached its 3,000ms timeout boundary, dropping customer checkout submissions.',
+        rcaDescription: 'The Checkout step slowed down (taking 3.8 seconds) due to database query congestion during sudden customer traffic. This caused checkout requests to time out before completing.',
         remediationScript: 'scale_checkout_replicas.sh',
-        remediationMessage: 'Auto-scaled checkout container replicas, applied dynamic query caching, and isolated slow queries to read-replica. Latency restored to 65ms.',
+        remediationMessage: 'Automatically increased server capacity, activated fast query caching, and restored checkout speed to 65ms.',
         manualSteps: [
-            'Inspect slow query log on checkout PostgreSQL database.',
-            'Review Kubernetes Horizontal Pod Autoscaler (HPA) CPU metrics.',
-            'Verify nginx proxy_read_timeout setting.'
+            'Inspect slow queries on checkout database.',
+            'Review server CPU and memory usage graphs.',
+            'Verify checkout gateway timeout settings.'
         ]
     },
 
@@ -263,13 +263,13 @@ const scenarios = {
         failureNode: 'inventory',
         errorCode: 'HTTP 422 Unprocessable Entity',
         errorSignature: 'ERR_INVENTORY_DEPLETED',
-        rcaDescription: 'Database inventory lock query failed for Item SKU-4402 because the stock count is exactly zero (0). The frontend checkout was permitted because the catalog service redis cache was desynchronized and failed to refresh the stock status from the master warehouse database.',
+        rcaDescription: 'The inventory check failed for item SKU-4402 because the stock count reached zero. The checkout let the customer proceed because the store stock cache was out of sync with the warehouse database.',
         remediationScript: 'sync_stock_cache.sh',
-        remediationMessage: 'Restocked database safety buffer for SKU-4402 and invalidated desynchronized redis-cache keys.',
+        remediationMessage: 'Unlocked backup warehouse safety buffer for SKU-4402 and refreshed the store stock cache.',
         manualSteps: [
-            'Confirm Redis cache cluster health and master-replica replication latency.',
-            'Inspect inventory database triggers for catalog stock depletion events.',
-            'Review Redis eviction policies under high memory conditions.'
+            'Check warehouse database sync latency and stock updates.',
+            'Inspect inventory triggers for low-stock warnings.',
+            'Review cache expiration settings during busy sale hours.'
         ]
     },
     'card-declined': {
@@ -281,13 +281,13 @@ const scenarios = {
         failureNode: 'payment',
         errorCode: 'HTTP 402 Payment Required',
         errorSignature: 'STRIPE_CARD_DECLINED',
-        rcaDescription: 'The Stripe payment gateway API rejected the transaction attempt. Reason: card_declined. Issuer Response Code: "51" (Insufficient Funds). The customer card details are valid, but the credit threshold or debit account balance has been exceeded.',
+        rcaDescription: 'The payment provider declined the card due to insufficient funds (Bank Code 51). The customer details were entered correctly, but their bank did not approve the charge.',
         remediationScript: 'notify_customer_billing.sh',
-        remediationMessage: 'Sent real-time push notification and checkout retry token via Twilio SMS to Taylor Morgan. Parked Order in state PENDING_BILLING.',
+        remediationMessage: 'Sent an instant SMS rescue link to the customer and safely held their cart so they can complete checkout.',
         manualSteps: [
-            'Verify checkout webhook secret keys match stripe API signing key.',
-            'Inspect user notification queue logs to verify SMS delivery rate.',
-            'Confirm the payment microservice is parsing Stripe metadata correctly.'
+            'Verify payment webhook keys match processor settings.',
+            'Check customer SMS notification queue delivery rate.',
+            'Confirm payment logs show the correct decline reason.'
         ]
     },
     'gateway-timeout': {
@@ -299,13 +299,13 @@ const scenarios = {
         failureNode: 'payment',
         errorCode: 'HTTP 504 Gateway Timeout',
         errorSignature: 'CONN_TIMEOUT_STRIPE_API',
-        rcaDescription: 'The payment integration service initiated a POST request to stripe.com/v3/charges but failed to receive a socket reply within the configured Checkout API client timeout boundary of 2500ms. Diagnostic shows regional Cloudflare routing degradation from the payments container cluster.',
+        rcaDescription: 'The primary payment gateway (Stripe) failed to respond within 2.5 seconds due to upstream network lag. Checkouts were stuck waiting for payment confirmation.',
         remediationScript: 'failover_payment_gateway.sh',
-        remediationMessage: 'Updated dynamic API routing context. Failed over Primary Payment Gateway (Stripe) to Secondary Gateway (Adyen API Wrapper).',
+        remediationMessage: 'Switched payment routing automatically. Routed customer checkouts from Stripe to backup processor (Adyen).',
         manualSteps: [
-            'Check Stripe Global Status Dashboard for service availability issues.',
-            'Verify outbound NAT Gateway routing configurations and firewalls.',
-            'Consider increasing the payment microservice socket timeout limit to 5000ms.'
+            'Check Stripe status page for payment network outages.',
+            'Verify backup payment gateway credentials and failover rules.',
+            'Consider adjusting payment socket timeout limit.'
         ]
     },
     'fulfillment-db-crash': {
@@ -317,13 +317,13 @@ const scenarios = {
         failureNode: 'fulfillment',
         errorCode: 'HTTP 500 Internal Server Error',
         errorSignature: 'POSTGRES_POOL_EXHAUSTED',
-        rcaDescription: 'The fulfillment microservice was unable to retrieve a database connection handle. PostgreSQL Pool metrics show 20/20 active connections in state "idle in transaction". Connection leak detected in `generatePackingList()` routing function where client resources were not returned in a finally block.',
+        rcaDescription: 'The order packing database ran out of available connections (20 of 20 in use). Stuck database queries blocked new packing lists from being generated.',
         remediationScript: 'recycle_db_pool.sh',
-        remediationMessage: 'Forced-closed 12 zombie DB connections, bumped postgres connection pool size to 50, and restarted fulfillment container replica.',
+        remediationMessage: 'Cleared 12 stuck database connections, increased connection capacity from 20 to 50, and restarted the packing service.',
         manualSteps: [
-            'Inspect git history of fulfillment-service/db/pool.go for unclosed connection handles.',
-            'Enable pg_stat_activity alerts for transactions open longer than 15 seconds.',
-            'Verify DB max_connections setting on AWS RDS matches pool capacity.'
+            'Check database queries for unclosed connection handles.',
+            'Enable alerts for queries open longer than 15 seconds.',
+            'Ensure database connection limits match peak sale traffic.'
         ]
     },
     'logistics-api-down': {
@@ -335,13 +335,13 @@ const scenarios = {
         failureNode: 'logistics',
         errorCode: 'HTTP 503 Service Unavailable',
         errorSignature: 'LOGISTICS_DNS_RESOLUTION_FAIL',
-        rcaDescription: 'DNS lookup failure inside the egress proxy. The third-party logistics tracking service endpoint (logistics.dhl-provider.net) is unreachable due to a core DNS server malfunction at the logistics provider DNS host.',
+        rcaDescription: 'The shipping label service was temporarily unreachable due to external provider DNS connection issues.',
         remediationScript: 'route_local_shipping_queue.sh',
-        remediationMessage: 'Redirected shipping payload to local persistent RabbitMQ queue (dhl-deferred-shipments). Shipments will automatically retry once external DNS is resolved.',
+        remediationMessage: 'Safely buffered shipping labels in a backup queue and issued a temporary tracking ID so the customer checkout succeeded with zero delay.',
         manualSteps: [
-            'Ping target logistics gateway manually to confirm routing.',
-            'Inspect core DNS resolver caching rules in Kubernetes CoreDNS configmap.',
-            'Check if the local queuing worker daemon is online and consuming.'
+            'Test carrier API endpoint to confirm external network connectivity.',
+            'Review DNS resolver rules and caching settings.',
+            'Check that background shipping label workers are active.'
         ]
     }
 };
@@ -2260,7 +2260,7 @@ function registerEventListeners() {
             updateHeroOutcomeBanner({
                 icon: '💡',
                 title: 'Ready for Live Test',
-                desc: 'Click "Simulate a Checkout Problem" above to see how AegisTrace protects your store when payments fail. Watch the pipeline below light up in real time!',
+                desc: 'Click "Simulate a Checkout Problem" above to see how AegisTrace protects your store when payments fail. Watch the order path below light up in real time!',
                 pill: 'Ready',
                 pillClass: 'healthy',
                 bannerClass: ''
@@ -2891,10 +2891,10 @@ function cancelActiveSimulation() {
         dom.globalStatus.className = 'status-pill status-healthy';
     }
     if (dom.globalStatusText) {
-        dom.globalStatusText.textContent = 'SYSTEM OPERATIONAL';
+        dom.globalStatusText.textContent = 'STORE HEALTHY';
     }
     if (dom.orderIdBadge) {
-        dom.orderIdBadge.textContent = 'IDLE';
+        dom.orderIdBadge.textContent = 'READY';
         dom.orderIdBadge.style.backgroundColor = '';
         dom.orderIdBadge.style.color = '';
     }
@@ -3155,9 +3155,9 @@ function handlePipelineSuccess(orderId) {
     renderUptimeBars();
     
     dom.globalStatus.className = 'status-pill status-healthy';
-    dom.globalStatusText.textContent = 'SYSTEM OPERATIONAL';
+    dom.globalStatusText.textContent = 'STORE HEALTHY';
     
-    dom.orderIdBadge.textContent = 'DELIVERED';
+    dom.orderIdBadge.textContent = 'ORDER COMPLETE';
     dom.orderIdBadge.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
     dom.orderIdBadge.style.color = 'var(--success-color)';
     
@@ -3173,7 +3173,7 @@ function handlePipelineSuccess(orderId) {
     dom.debuggerStatusBadge.className = 'badge';
     syncCodeView();
 
-    appendAiChatBubble('ai', `Verification trace passed! Transaction order ${orderId} completed successfully. The hotfix has successfully self-healed the microservice stack. Visual pipeline nodes are restored to NOMINAL operational states.`);
+    appendAiChatBubble('ai', `Test order ${orderId} completed successfully! The automatic fix protected the checkout process. All store steps are running normally.`);
 }
 
 // --- PIPELINE FAILURE HANDLER & RCA ---
@@ -3205,9 +3205,9 @@ function handlePipelineFailure(scenarioType) {
     updateMetricsUI();
     
     dom.globalStatus.className = 'status-pill status-degraded';
-    dom.globalStatusText.textContent = 'SYSTEM FAULT DETECTED';
+    dom.globalStatusText.textContent = 'CHECKOUT ISSUE DETECTED';
     
-    dom.orderIdBadge.textContent = 'CRITICAL FAULT';
+    dom.orderIdBadge.textContent = 'ISSUE DETECTED';
     dom.orderIdBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
     dom.orderIdBadge.style.color = 'var(--error-color)';
     
@@ -3216,7 +3216,7 @@ function handlePipelineFailure(scenarioType) {
     dom.rcaEmptyState.classList.add('hidden');
     dom.rcaReportState.classList.remove('hidden');
     
-    dom.rcaHeaderBadge.textContent = `ANOMALY: ${sc.errorSignature}`;
+    dom.rcaHeaderBadge.textContent = `ISSUE: ${sc.name}`;
     dom.rcaHeaderBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
     dom.rcaHeaderBadge.style.color = 'var(--error-color)';
     
@@ -3313,10 +3313,10 @@ function handlePipelineFailure(scenarioType) {
         dom.nodes[failedSvc].classList.add('node-alert-failure');
     }
     updateHeroOutcomeBanner({
-        icon: '🚨',
-        title: `2. Problem Detected in 42ms: ${sc.name}!`,
-        desc: `${sc.rcaDescription}. Traditional monitoring takes 45+ min to discover. Estimated ${revRisk.toLocaleString()} at risk across ${ordersAtRisk} orders.`,
-        pill: 'Outage Detected',
+        icon: '⚠️',
+        title: `2. Problem Detected: ${sc.name}!`,
+        desc: `${sc.rcaDescription}. Old monitoring takes 45+ min to notice. Estimated $${revRisk.toLocaleString()} at risk across ${ordersAtRisk} orders.`,
+        pill: 'Problem Detected',
         pillClass: 'alert',
         bannerClass: 'banner-alert'
     });
@@ -3336,7 +3336,7 @@ function handlePipelineFailure(scenarioType) {
     }
 
     // Advise the chatbot to explain
-    appendAiChatBubble('ai', `🚨 System anomaly detected on microservice node [${failedSvc.toUpperCase()}]. Error Signature: <code>${sc.errorSignature}</code> (${sc.errorCode}). Revenue at risk: <b>$${revRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b>. Auto-remediation policy <code>${policy.name}</code> is active.`);
+    appendAiChatBubble('ai', `⚠️ Problem detected in the [${failedSvc.toUpperCase()}] step. Sales at risk: <b>$${revRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b>. Automatic fix policy <code>${policy.name}</code> is active.`);
 }
 
 // --- AUTO-REMEDIATION ENGINE (SELF-HEALING) ---
@@ -3355,7 +3355,7 @@ function triggerAutoRemediation(scenarioType) {
     };
     
     dom.globalStatus.className = 'status-pill status-remediating';
-    dom.globalStatusText.textContent = 'REMEDIATING SYSTEM';
+    dom.globalStatusText.textContent = 'FIXING ISSUE AUTOMATICALLY';
     
     // Update Hero Stepper & Outcome Banner (Guided Mode)
     updateHeroStepper(3, 'active');
@@ -3365,9 +3365,9 @@ function triggerAutoRemediation(scenarioType) {
     }
     updateHeroOutcomeBanner({
         icon: '⚙️',
-        title: `3. Self-Healing in Progress: ${policy.name}`,
-        desc: `Executing mitigation: ${policy.remedyTitle}. Rerouting checkout flow to secondary cluster with zero dropped carts...`,
-        pill: 'Auto-Healing',
+        title: `3. Automatic Fix in Progress: ${policy.name}`,
+        desc: `Applying fix: ${policy.remedyTitle}. Rerouting checkout flow safely with zero lost orders...`,
+        pill: 'Fixing Now',
         pillClass: 'healing',
         bannerClass: 'banner-healing'
     });
@@ -3645,9 +3645,9 @@ async function runVerificationOrder(orderContext) {
                 const mttrSec = state.avgMttr > 0 ? state.avgMttr.toFixed(1) + 's' : '1.8s';
                 updateHeroOutcomeBanner({
                     icon: '🎉',
-                    title: `4. All Fixed in ${mttrSec}! Preserved ${state.preservedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    desc: `Autonomous self-healing restored nominal flow with zero dropped orders! Saved an estimated ${state.totalHoursSaved.toFixed(1)} engineering on-call hours.`,
-                    pill: 'Revenue Protected',
+                    title: `4. All Fixed in ${mttrSec}! Protected $${state.preservedRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    desc: `Automatic fix restored normal checkouts with zero lost orders! Saved an estimated ${state.totalHoursSaved.toFixed(1)} hours of manual troubleshooting.`,
+                    pill: 'Money Protected',
                     pillClass: 'healed',
                     bannerClass: 'banner-healed'
                 });
@@ -3655,7 +3655,7 @@ async function runVerificationOrder(orderContext) {
                 dom.rcaPanel.classList.remove('anomaly-detected');
                 
                 dom.globalStatus.className = 'status-pill status-healthy';
-                dom.globalStatusText.textContent = 'SYSTEM OPERATIONAL';
+                dom.globalStatusText.textContent = 'STORE HEALTHY';
                 state.systemMetrics.errorRate = 0.0;
                 updateMetricsUI();
                 
@@ -4081,9 +4081,9 @@ function initGuidedExperience() {
 
         updateHeroOutcomeBanner({
             icon: '🔍',
-            title: '1. Tracing Order Across 5 Microservices...',
-            desc: `Testing live order flow for SKU-8829 (${state.roi.aov.toFixed(2)}). Checking Checkout API, Inventory DB, and Payment Gateway...`,
-            pill: 'Tracing',
+            title: '1. Following Order Across 5 Store Steps...',
+            desc: `Testing live order flow for SKU-8829 ($${state.roi.aov.toFixed(2)}). Checking Checkout, Warehouse Stock, and Payment Processing...`,
+            pill: 'Processing',
             pillClass: 'healthy',
             bannerClass: ''
         });
@@ -5031,7 +5031,7 @@ function appendAiChatBubble(sender, text) {
     const bubble = document.createElement('div');
     bubble.className = `chat-bubble ${sender}`;
     
-    const meta = sender === 'ai' ? 'Aegis AI Assistant • Online' : 'User (Client Developer)';
+    const meta = sender === 'ai' ? 'Aegis AI Assistant • Online' : 'Store Owner';
     const metaColor = sender === 'ai' ? 'var(--primary-color)' : 'var(--info-color)';
     
     bubble.innerHTML = `
@@ -5053,34 +5053,33 @@ function queryLocalSimulatedAI(userText, typingBubbleElement) {
 
     if (state.activeIncident && (query.includes('executive') || query.includes('incident') || query.includes('brief') || query.includes('summary'))) {
         const inc = state.activeIncident;
-        answerText = `<b>Executive Incident Brief [${inc.id}]</b><br>` +
-                     `• <b>Service Affected:</b> ${inc.service.toUpperCase()} Service (Trace ID: <code>${inc.traceId}</code>)<br>` +
-                     `• <b>Root Cause:</b> ${inc.rcaDescription}<br>` +
-                     `• <b>Remediation Policy:</b> <code>${inc.policy ? inc.policy.name : 'Automated Circuit Mitigation'}</code><br>` +
-                     `• <b>Business Impact Protected:</b> <b>$${inc.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b> preserved, <b>0 cart abandonments</b>, and MTTR reduced from ${state.roi.traditionalMttrMin} minutes to <b>1.24 seconds</b>.`;
+        answerText = `<b>Store Issue Summary [${inc.id}]</b><br>` +
+                     `• <b>Where It Happened:</b> ${inc.service.toUpperCase()} Step (Order Trace: <code>${inc.traceId}</code>)<br>` +
+                     `• <b>Why This Happened:</b> ${inc.rcaDescription}<br>` +
+                     `• <b>Automatic Fix:</b> <code>${inc.policy ? inc.policy.name : 'Automated Circuit Protection'}</code><br>` +
+                     `• <b>Sales Protected:</b> <b>$${inc.revenueAtRisk.toLocaleString('en-US', { minimumFractionDigits: 2 })}</b> preserved, <b>0 lost checkouts</b>, and fixed in <b>1.24 seconds</b> (instead of ${state.roi.traditionalMttrMin} minutes of downtime).`;
     } else if (state.currentScenario === 'healthy') {
         if (query.includes('cause') || query.includes('why') || query.includes('error') || query.includes('failure')) {
-            answerText = "The system is currently <b>Healthy</b>. Telemetries show normal response curves (Latency: " + state.systemMetrics.latency + "ms, Error rate: 0.0%). No active failure logs require investigation.";
+            answerText = "Your store order pipeline is currently <b>Healthy</b>. Telemetry shows normal speeds (Speed: " + state.systemMetrics.latency + "ms, Issues: 0.0%). Every shopper can check out without interruption.";
         } else if (query.includes('remed') || query.includes('fix') || query.includes('hotfix')) {
-            answerText = "No hotfixes are required at this time because all microservices are running normally. Click any scenario button in the <b>Fault Injection Lab</b> to simulate and fix a failure.";
+            answerText = "No fixes are needed right now because your store checkout is running smoothly. Click any scenario button in the <b>Test Store Problems</b> tab to test how AegisTrace protects your store.";
         } else if (query.includes('roi') || query.includes('revenue') || query.includes('saved')) {
-            answerText = `AegisTrace is currently protecting your order path. Based on configured daily volume (${state.roi.dailyOrders.toLocaleString()} orders/day @ $${state.roi.aov.toFixed(2)} AOV), each prevented incident protects approximately <b>$${((state.roi.dailyOrders / 1440) * state.roi.traditionalMttrMin * state.roi.aov).toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> in otherwise lost revenue.`;
+            answerText = `AegisTrace is currently protecting your store sales. Based on your daily volume (${state.roi.dailyOrders.toLocaleString()} orders/day @ $${state.roi.aov.toFixed(2)} AOV), each prevented incident protects approximately <b>$${((state.roi.dailyOrders / 1440) * state.roi.traditionalMttrMin * state.roi.aov).toLocaleString('en-US', { maximumFractionDigits: 0 })}</b> in sales that would otherwise be lost.`;
         } else {
-            answerText = "I am the Aegis AI debugger agent. I monitor production pipelines. If you trigger an outage in the <b>Fault Injection Sandbox</b> on the left, I will explain the root cause and supply fixes!";
+            answerText = "I am your Aegis AI Store Assistant. I watch your checkout flow 24/7 to make sure customers can buy without errors. If you test a problem on the left, I'll explain what happened and how we fixed it!";
         }
     } else {
         // FAILURES ARE ACTIVE
         if (query.includes('cause') || query.includes('why') || query.includes('error') || query.includes('failure') || query.includes('problem')) {
-            answerText = `We detected an outage in the <b>${node.toUpperCase()} Service</b>. The error code is <b>${activeSc.errorCode}</b>, signature: <code>${activeSc.errorSignature}</code>.<br><br><b>Root Cause:</b> ${activeSc.rcaDescription}`;
+            answerText = `We detected a checkout problem in the <b>${node.toUpperCase()} Step</b>. Error: <b>${activeSc.errorCode}</b>.<br><br><b>Why This Happened:</b> ${activeSc.rcaDescription}`;
         } else if (query.includes('remed') || query.includes('fix') || query.includes('hotfix') || query.includes('code') || query.includes('repair')) {
-            answerText = `To repair the <b>${node.toUpperCase()} Service</b>, apply this mitigation:<br><code>${activeSc.remediationMessage}</code>.<br><br>I have prepared a code correction diff in the <b>Hotfix Inspector</b> (middle screen). Click <b>Toggle AI Patch View</b> to view changes or click <b>Deploy Hotfix</b> to fix it.`;
+            answerText = `To fix the <b>${node.toUpperCase()} Step</b>, here is what AegisTrace does:<br><code>${activeSc.remediationMessage}</code>.<br><br>You can see the automatic code changes in the <b>Automatic Code Fix</b> tab. Click <b>Toggle Code Changes View</b> or click <b>Apply Fix Now</b> to restore checkouts.`;
         } else if (query.includes('sla') || query.includes('revenue') || query.includes('impact') || query.includes('business')) {
             const risk = state.activeIncident ? state.activeIncident.revenueAtRisk.toFixed(2) : (state.errorRuns * 150).toFixed(2);
-            answerText = `The current outage has degraded the <b>${node.toUpperCase()} API</b> uptime to <b>${state.uptimePercentages[node].toFixed(2)}%</b>. ` +
-                         `This failure has breached target service SLAs. At current order frequencies, you are risking approximately <b>\$${risk} USD</b> in blocked transactions. Applying the remediation fix will restore revenue flow immediately.`;
+            answerText = `This checkout issue is slowing down your store. At your current order volume, you have approximately <b>\$${risk}</b> in sales at risk right now. Applying the automatic fix will protect these sales immediately.`;
         } else {
-            answerText = `We are responding to a critical anomaly on service node <b>${node.toUpperCase()}</b>. Code signature: <code>${activeSc.errorSignature}</code>. ` +
-                         `Ask me "What caused the error?" or "Show me the proposed hotfix" for code mitigations.`;
+            answerText = `We are responding to an active checkout problem on <b>${node.toUpperCase()}</b>. ` +
+                         `Ask me "Why did this happen?" or "How do we fix this?" to learn more.`;
         }
     }
     
