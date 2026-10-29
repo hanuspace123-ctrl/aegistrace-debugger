@@ -4656,8 +4656,8 @@ function downloadPostMortem() {
 function initMobileNav() {
     if (!dom.mobileNavTabs) return;
 
-    // Load persisted mobile mode
-    const savedMobileMode = localStorage.getItem('aegis_mobile_view_mode') || 'tabbed';
+    // Load persisted mobile mode (defaults to full unified dashboard view)
+    const savedMobileMode = localStorage.getItem('aegis_mobile_view_mode') || 'full';
     if (dom.dashboardGrid) {
         if (savedMobileMode === 'tabbed') {
             dom.dashboardGrid.classList.add('mobile-tabbed');
