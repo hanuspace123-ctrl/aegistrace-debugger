@@ -11,7 +11,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise": {
       "id": "tenant-enterprise",
@@ -24,7 +44,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-production": {
       "id": "tenant-production",
@@ -37,7 +77,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-aegis": {
       "id": "tenant-aegis",
@@ -50,7 +110,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "mystic-dtc.myshopify.com",
+        "storeName": "Mystic DTC Apparel",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": "2026-11-02T04:41:13.856Z",
+        "lastPingAt": "2026-11-02T04:51:21.593Z",
+        "webhookSecret": "",
+        "accessToken": "shpat_****1234"
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 6,
+        "totalMonitoredRevenue": 818,
+        "problemsDetected": 5,
+        "revenueAtRisk": 669,
+        "revenueProtected": 669,
+        "lastProblemAt": "2026-11-02T04:51:21.591Z"
+      }
     },
     "tenant-acme": {
       "id": "tenant-acme",
@@ -63,7 +143,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-john-example-com-1m51": {
       "id": "tenant-john-example-com-1m51",
@@ -76,7 +176,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-hanuspace123-gmail-6ma6": {
       "id": "tenant-hanuspace123-gmail-6ma6",
@@ -89,7 +209,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-ow0p": {
       "id": "tenant-enterprise-user-17-ow0p",
@@ -102,7 +242,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-p9wr": {
       "id": "tenant-enterprise-user-17-p9wr",
@@ -115,7 +275,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-pzat": {
       "id": "tenant-enterprise-user-17-pzat",
@@ -128,7 +308,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-p0yk": {
       "id": "tenant-enterprise-user-17-p0yk",
@@ -141,7 +341,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-8eqw": {
       "id": "tenant-enterprise-user-17-8eqw",
@@ -154,7 +374,27 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     },
     "tenant-enterprise-user-17-bi2x": {
       "id": "tenant-enterprise-user-17-bi2x",
@@ -167,7 +407,126 @@
         "totalHoursSaved": 0,
         "avgMttr": 0
       },
-      "activeScenario": "healthy"
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-enterprise-user-17-ife4": {
+      "id": "tenant-enterprise-user-17-ife4",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-enterprise-user-17-0vry": {
+      "id": "tenant-enterprise-user-17-0vry",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-enterprise-user-17-ti5k": {
+      "id": "tenant-enterprise-user-17-ti5k",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     }
   },
   "users": [
@@ -276,6 +635,30 @@
       "name": "Cloud Engineer",
       "role": "Workspace Admin",
       "tenantId": "tenant-enterprise-user-17-bi2x"
+    },
+    {
+      "id": "usr_1793594277127_pgef",
+      "email": "enterprise_user_1793594277126@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-ife4"
+    },
+    {
+      "id": "usr_1793594992143_fv6y",
+      "email": "enterprise_user_1793594992141@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-0vry"
+    },
+    {
+      "id": "usr_1793595080522_twut",
+      "email": "enterprise_user_1793595080520@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-ti5k"
     }
   ]
 }

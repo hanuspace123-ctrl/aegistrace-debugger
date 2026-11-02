@@ -340,6 +340,32 @@
                      ========================================================================== -->
                 <section class="page-view active" id="page-dashboard" data-title="Dashboard">
 
+                    <!-- Primary Operational Mode Switcher: Simulation vs Real Store -->
+                    <div class="data-mode-bar" id="data-mode-bar">
+                        <div class="data-mode-controls">
+                            <div class="data-mode-toggle" role="tablist" aria-label="Operational Mode">
+                                <button type="button" class="data-mode-btn active" id="btn-mode-simulation" role="tab" aria-selected="true" data-mode="simulation" title="Interactive demo with simulated order flows, failure scenarios, and self-healing">
+                                    <span class="mode-icon">⚡</span>
+                                    <span class="mode-label-box">
+                                        <span class="mode-name">Simulation Mode</span>
+                                        <span class="mode-tag">Interactive Sandbox</span>
+                                    </span>
+                                </button>
+                                <button type="button" class="data-mode-btn" id="btn-mode-realstore" role="tab" aria-selected="false" data-mode="realstore" title="Connect a live or dev Shopify store to monitor real customer purchases and detect payment failures">
+                                    <span class="mode-icon">🏪</span>
+                                    <span class="mode-label-box">
+                                        <span class="mode-name">Real Store Mode</span>
+                                        <span class="mode-tag" id="badge-realstore-status">Shopify Ready</span>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="data-mode-status-pill" id="data-mode-status-pill">
+                                <span class="status-indicator-dot" id="mode-status-dot"></span>
+                                <span id="mode-status-text">Simulated Traffic &bull; Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Top View Mode & Fast Reset Bar -->
                     <div class="view-mode-bar" id="view-mode-bar">
                         <div class="mode-toggle-group" role="group" aria-label="View Mode">
@@ -486,6 +512,126 @@
                             </div>
                             <div class="outcome-tag-box">
                                 <span class="outcome-pill" id="hero-outcome-pill">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real Store Operations Deck (Visible in Real Store Mode) -->
+                    <div class="real-store-deck" id="real-store-operations-deck" style="display: none; margin-bottom: 1.25rem;">
+                        <!-- Store Connection Card -->
+                        <div class="panel-card real-store-conn-card" id="real-store-conn-card" style="padding: 1.15rem; margin-bottom: 1rem; border-color: rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
+                            <!-- Disconnected State View -->
+                            <div id="real-store-disconnected-view" class="store-conn-view">
+                                <div class="store-conn-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                                    <div class="store-conn-title-box" style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                                        <div class="store-conn-logo" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">🏪</div>
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #fff;">Connect Your Shopify Store</h2>
+                                                <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); font-size: 0.65rem;">Shopify Custom App &bull; Webhooks</span>
+                                            </div>
+                                            <p style="margin: 0.25rem 0 0; font-size: 0.78rem; color: #94a3b8; max-width: 650px; line-height: 1.45;">
+                                                Monitor real checkouts, detect payment drops in real time, and protect customer orders with automated self-healing.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="store-conn-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button type="button" class="btn btn-primary" id="btn-open-store-connect-modal" style="font-size: 0.82rem; min-height: 40px; font-weight: 700;">
+                                            🔌 Connect Store
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="btn-quick-connect-demo-store" style="font-size: 0.78rem; min-height: 40px;" title="Connect a realistic pre-configured development store with 1-click">
+                                            ⚡ Try With Demo Store (1-Click)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Webhook URL Quick Copy Box -->
+                                <div class="store-webhook-quickbox" style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 0.85rem;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+                                        <span style="font-size: 0.72rem; font-weight: 600; color: #cbd5e1;">Live Webhook Ingestion Address (Shopify Admin &rarr; Notifications &rarr; Webhooks)</span>
+                                        <span style="font-size: 0.68rem; color: #64748b;">Supports: orders/create, checkouts/update, refunds/create</span>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                        <input type="text" id="real-store-webhook-url" readonly value="https://ecommerce-visual-debugger.vercel.app/api/webhook/shopify" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #38bdf8; font-family: monospace; font-size: 0.76rem;">
+                                        <button type="button" class="btn btn-secondary btn-small" id="btn-copy-real-webhook" style="white-space: nowrap;">📋 Copy URL</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Connected State View -->
+                            <div id="real-store-connected-view" class="store-conn-view" style="display: none;">
+                                <div class="store-conn-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                    <div class="store-conn-title-box" style="display: flex; align-items: flex-start; gap: 0.75rem;">
+                                        <div class="store-conn-logo" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #34d399;">🟢</div>
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #fff;">
+                                                    Live Store Monitoring: <span id="real-store-domain-title" style="color: #38bdf8;">mystic-dtc.myshopify.com</span>
+                                                </h2>
+                                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.65rem;">Protected &bull; 100% Delivery</span>
+                                            </div>
+                                            <p style="margin: 0.25rem 0 0; font-size: 0.78rem; color: #94a3b8;" id="real-store-status-summary">
+                                                Connected via Shopify Webhooks &bull; Currency: USD &bull; Listening for live customer orders
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="store-conn-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button type="button" class="btn btn-secondary btn-small" id="btn-edit-store-connection" title="Edit store settings or API tokens">
+                                            ⚙️ Settings
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-small" id="btn-disconnect-store-action" style="color: #f87171; border-color: rgba(239, 68, 68, 0.3);" title="Disconnect this store from monitoring">
+                                            🔌 Disconnect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real Store Problem Alert Banner (Dynamic on Caught Issues) -->
+                        <div class="real-problem-banner" id="real-problem-banner" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="problem-banner-icon" id="real-problem-banner-icon" style="font-size: 1.4rem;">🚨</div>
+                                <div class="problem-banner-body">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                        <strong id="real-problem-banner-title" style="font-size: 0.88rem; color: #f87171;">Real Store Issue Detected: Order #1043 Payment Declined</strong>
+                                        <span class="badge" id="real-problem-banner-stage" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 0.65rem;">Payment Gateway</span>
+                                    </div>
+                                    <p id="real-problem-banner-desc" style="font-size: 0.75rem; color: #cbd5e1; margin: 0.25rem 0 0;">
+                                        Customer Jordan Vance experienced a card authorization soft decline ($89.50 at risk). AegisTrace triggered automated Cart Rescue Link via SMS.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="problem-banner-action-box">
+                                <span class="badge" id="real-problem-protected-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.74rem; font-weight: 700; padding: 0.4rem 0.75rem;">
+                                    🛡️ +$89.50 Protected
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Real Store Event Testing Bar (Emit Sample Real Events) -->
+                        <div class="real-sim-strip" id="real-store-sim-strip" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <div class="real-sim-label" style="font-size: 0.74rem; font-weight: 700; color: #cbd5e1; white-space: nowrap;">
+                                <span>🧪 Test Real Store Engine:</span>
+                            </div>
+                            <div class="real-sim-chips" style="display: flex; gap: 0.4rem; flex-wrap: wrap; flex: 1;">
+                                <button type="button" class="hero-chip" id="btn-sim-real-paid" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; border-color: rgba(52, 211, 153, 0.3);" title="Simulate a real paid customer order flowing through Shopify">
+                                    🟢 Paid Order ($135)
+                                </button>
+                                <button type="button" class="hero-chip" id="btn-sim-real-declined" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; border-color: rgba(239, 68, 68, 0.3);" title="Simulate a payment soft-decline on Shopify Payments">
+                                    ⚠️ Payment Declined ($89.50)
+                                </button>
+                                <button type="button" class="hero-chip" id="btn-sim-real-timeout" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; border-color: rgba(251, 191, 36, 0.3);" title="Simulate a payment gateway timeout during checkout">
+                                    ⚠️ Gateway Timeout ($245)
+                                </button>
+                                <button type="button" class="hero-chip" id="btn-sim-real-stockout" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; border-color: rgba(249, 115, 22, 0.3);" title="Simulate an inventory out-of-stock delay during checkout">
+                                    ⚠️ Out of Stock ($65)
+                                </button>
+                                <button type="button" class="hero-chip" id="btn-sim-real-dropoff" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; border-color: rgba(168, 85, 247, 0.3);" title="Simulate a stalled checkout session with customer drop-off">
+                                    ⚠️ Checkout Stalled ($180)
+                                </button>
+                                <button type="button" class="hero-chip" id="btn-reset-real-metrics" style="font-size: 0.72rem; padding: 0.35rem 0.65rem; color: #94a3b8;" title="Reset real store metrics and incident history">
+                                    🔄 Reset Real Metrics
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -767,6 +913,80 @@
                                 <p id="contrast-profile-desc">
                                     Without AegisTrace, an unmonitored checkout blip costs ~$3,850 and loses ~47 customers. With AegisTrace, detection happens in 42 seconds and self-healing preserves 95%+ of at-risk sales.
                                 </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real Store Revenue Impact & Incidents Feed (Visible in Real Store Mode) -->
+                    <div class="panel-card real-store-impact-card" id="real-store-impact-card" style="display: none; margin-top: 1.25rem;">
+                        <div class="card-header">
+                            <div>
+                                <h2>Real Store Impact &amp; Protected Sales <span class="info-tip" data-tooltip="Live revenue metrics and incidents caught on your connected Shopify store.">?</span></h2>
+                                <span class="sub-header-desc">Track real checkout drop-offs, payment failures, and the exact dollar amount saved</span>
+                            </div>
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 700;">🟢 Live Store Feed</span>
+                        </div>
+
+                        <!-- 4 Real Store KPI Metric Boxes -->
+                        <div class="business-grid" style="margin-bottom: 1.25rem;">
+                            <div class="biz-card-metric" style="border-left: 3px solid #38bdf8;">
+                                <div class="biz-metric-label">Real Orders Monitored</div>
+                                <div class="biz-metric-value" id="real-kpi-orders" style="color: #38bdf8;">0</div>
+                                <div class="biz-metric-sub" id="real-kpi-orders-sub">Live Shopify checkout events</div>
+                            </div>
+                            <div class="biz-card-metric" style="border-left: 3px solid #f87171;">
+                                <div class="biz-metric-label">Store Issues Caught</div>
+                                <div class="biz-metric-value" id="real-kpi-problems" style="color: #f87171;">0</div>
+                                <div class="biz-metric-sub">Payment declines &amp; drop-offs</div>
+                            </div>
+                            <div class="biz-card-metric" style="border-left: 3px solid #fbbf24;">
+                                <div class="biz-metric-label">Real Money At Risk</div>
+                                <div class="biz-metric-value" id="real-kpi-risk" style="color: #fbbf24;">$0.00</div>
+                                <div class="biz-metric-sub">Potential lost sales detected</div>
+                            </div>
+                            <div class="biz-card-metric" style="border-left: 3px solid #34d399;">
+                                <div class="biz-metric-label">Real Money Protected</div>
+                                <div class="biz-metric-value" id="real-kpi-protected" style="color: #34d399;">$0.00</div>
+                                <div class="biz-metric-sub">Recovered via automated healing</div>
+                            </div>
+                        </div>
+
+                        <!-- Narrative Summary Story -->
+                        <div class="biz-story-card" style="margin-bottom: 1.25rem; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 1rem;">
+                            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 0.35rem; font-size: 0.82rem;">
+                                📊 Live Store Protection Summary
+                            </div>
+                            <p id="real-impact-narrative" style="font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; margin: 0;">
+                                AegisTrace is monitoring your store in real time. Incoming customer orders and checkouts are automatically validated across payment and inventory rails. Any disruptions are caught and self-healed instantly.
+                            </p>
+                        </div>
+
+                        <!-- Real Incidents & Live Events Feed Table -->
+                        <div class="real-events-feed-box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                                <h3 style="font-size: 0.85rem; font-weight: 700; color: #fff; margin: 0;">Recent Store Events &amp; Caught Incidents</h3>
+                                <span style="font-size: 0.72rem; color: #94a3b8;" id="real-events-count-label">0 events recorded</span>
+                            </div>
+                            <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                                <table class="real-events-table" style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #e2e8f0;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; text-align: left;">
+                                            <th style="padding: 0.5rem;">Order</th>
+                                            <th style="padding: 0.5rem;">Customer &amp; Item</th>
+                                            <th style="padding: 0.5rem;">Value</th>
+                                            <th style="padding: 0.5rem;">Status &amp; Issue</th>
+                                            <th style="padding: 0.5rem;">Action Taken</th>
+                                            <th style="padding: 0.5rem; text-align: right;">Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="real-events-table-body">
+                                        <tr>
+                                            <td colspan="6" style="padding: 1.5rem; text-align: center; color: #64748b;">
+                                                No store events yet. Use the test buttons above or send a Shopify webhook to start streaming real data.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -2502,22 +2722,53 @@ provider.register();</code></pre>
                         <div class="form-group" style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Shopify Store Domain (.myshopify.com)</label>
                             <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="input-shopify-domain" value="luxurydtc-sample.myshopify.com" placeholder="your-store.myshopify.com" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                                <input type="text" id="input-shopify-domain" value="mystic-dtc.myshopify.com" placeholder="your-store.myshopify.com" style="flex: 1; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
                                 <button type="button" class="btn btn-secondary btn-small" id="btn-prefill-shopify" style="font-size: 0.72rem;">Load Sample Store</button>
                             </div>
                         </div>
 
-                        <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <div class="form-group">
+                                <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Environment</label>
+                                <select id="select-shopify-env" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                                    <option value="development" selected>Development Store / Sandbox</option>
+                                    <option value="production">Live Production Store</option>
+                                    <option value="pilot">Free Pilot Demo (14 Days)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Store Currency</label>
+                                <select id="select-shopify-currency" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                                    <option value="USD" selected>USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="CAD">CAD ($)</option>
+                                    <option value="AUD">AUD ($)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Admin API Read Access Token (Optional in Demo)</label>
                             <input type="password" id="input-shopify-token" value="shpat_demo991823719283719" placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxx" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
                         </div>
 
+                        <div class="form-group" style="margin-bottom: 0.85rem;">
+                            <label style="font-size: 0.72rem; color: #cbd5e1; display: block; margin-bottom: 0.25rem;">Shopify Webhook Secret (for HMAC verification &bull; Optional)</label>
+                            <input type="password" id="input-shopify-secret" placeholder="shpss_xxxxxxxxxxxxxxxxxxxxxxxx" style="width: 100%; background: #05070c; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-size: 0.8rem;">
+                        </div>
+
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                            <button type="button" class="btn btn-primary" id="btn-test-shopify-connect" style="font-size: 0.78rem;">
-                                🚀 Verify Connection &amp; Stream 15 Live Orders
-                            </button>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-primary" id="btn-save-shopify-connect" style="font-size: 0.78rem; font-weight: 700;">
+                                    💾 Save &amp; Connect Store
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="btn-test-shopify-connect" style="font-size: 0.78rem;">
+                                    🚀 Verify Connection &amp; Stream 15 Live Orders
+                                </button>
+                            </div>
                             <span id="shopify-status-indicator" style="font-size: 0.74rem; color: #34d399; font-weight: 600;">
-                                Ready for Pilot Connection
+                                Ready for Connection
                             </span>
                         </div>
                     </div>

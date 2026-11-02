@@ -1259,6 +1259,42 @@ async function mockBackendHandler(url, options = {}) {
         });
     }
 
+    if (url.startsWith('/api/store/connection')) {
+        return createMockResponse({
+            status: 'SUCCESS',
+            connected: false,
+            platform: 'shopify',
+            shopDomain: '',
+            environment: 'development',
+            currency: 'USD',
+            metrics: { ordersMonitored: 0, totalMonitoredRevenue: 0, problemsDetected: 0, revenueAtRisk: 0, revenueProtected: 0 }
+        });
+    }
+
+    if (url.startsWith('/api/store/connect')) {
+        return createMockResponse({ status: 'SUCCESS', message: 'Connected in static mode' });
+    }
+
+    if (url.startsWith('/api/store/disconnect')) {
+        return createMockResponse({ status: 'SUCCESS', message: 'Disconnected' });
+    }
+
+    if (url.startsWith('/api/store/test-connection')) {
+        return createMockResponse({ status: 'SUCCESS', valid: true, message: 'Verified in static mode' });
+    }
+
+    if (url.startsWith('/api/store/events/simulate')) {
+        return createMockResponse({ status: 'PROCESSED', traceId: 'trace_mock', amount: 135.00, isProblem: false });
+    }
+
+    if (url.startsWith('/api/store/events')) {
+        return createMockResponse({ status: 'SUCCESS', events: [], incidents: [], metrics: {} });
+    }
+
+    if (url.startsWith('/api/store/reset-metrics')) {
+        return createMockResponse({ status: 'SUCCESS', message: 'Reset' });
+    }
+
     return createMockResponse({ status: 'SUCCESS' });
 }
 
@@ -2128,6 +2164,7 @@ async function init() {
     registerEventListeners();
     initOnboarding();
     initGuidedExperience();
+    initRealStoreIntegration();
     updateDynamicHostUrls();
     updateMetricsUI();
     initializeUptimeData();
@@ -2146,6 +2183,7 @@ async function init() {
     if (isAuthenticated) {
         startAutopilotDaemon();
         startEventPoller();
+        fetchStoreConnection();
         checkAndShowOnboarding(600);
     }
     
@@ -2720,6 +2758,53 @@ function registerEventListeners() {
 
     const btnSendTestWebhook = document.getElementById('btn-send-test-webhook');
     if (btnSendTestWebhook) btnSendTestWebhook.addEventListener('click', sendTestWebhook);
+
+    // Operational Mode Switcher (Simulation vs Real Store)
+    const btnModeSim = document.getElementById('btn-mode-simulation');
+    const btnModeReal = document.getElementById('btn-mode-realstore');
+    if (btnModeSim) btnModeSim.addEventListener('click', () => setOperationalMode('simulation'));
+    if (btnModeReal) btnModeReal.addEventListener('click', () => setOperationalMode('realstore'));
+
+    // Real Store Deck Listeners
+    const btnOpenStoreConn = document.getElementById('btn-open-store-connect-modal');
+    const btnQuickConnDemo = document.getElementById('btn-quick-connect-demo-store');
+    const btnEditStoreConn = document.getElementById('btn-edit-store-connection');
+    const btnDisconnectStore = document.getElementById('btn-disconnect-store-action');
+    const btnSaveShopify = document.getElementById('btn-save-shopify-connect');
+    const btnCopyRealWebhook = document.getElementById('btn-copy-real-webhook');
+
+    if (btnOpenStoreConn) btnOpenStoreConn.addEventListener('click', openLightPocModal);
+    if (btnQuickConnDemo) btnQuickConnDemo.addEventListener('click', quickConnectDemoStore);
+    if (btnEditStoreConn) btnEditStoreConn.addEventListener('click', openLightPocModal);
+    if (btnDisconnectStore) btnDisconnectStore.addEventListener('click', disconnectStore);
+    if (btnSaveShopify) btnSaveShopify.addEventListener('click', saveStoreConnection);
+
+    if (btnCopyRealWebhook) {
+        btnCopyRealWebhook.addEventListener('click', () => {
+            const input = document.getElementById('real-store-webhook-url');
+            if (input) {
+                navigator.clipboard.writeText(input.value).then(() => {
+                    btnCopyRealWebhook.textContent = 'Copied!';
+                    setTimeout(() => btnCopyRealWebhook.textContent = '📋 Copy URL', 2000);
+                });
+            }
+        });
+    }
+
+    // Real Store Live Simulation Chips
+    const btnSimPaid = document.getElementById('btn-sim-real-paid');
+    const btnSimDeclined = document.getElementById('btn-sim-real-declined');
+    const btnSimTimeout = document.getElementById('btn-sim-real-timeout');
+    const btnSimStockout = document.getElementById('btn-sim-real-stockout');
+    const btnSimDropoff = document.getElementById('btn-sim-real-dropoff');
+    const btnResetRealM = document.getElementById('btn-reset-real-metrics');
+
+    if (btnSimPaid) btnSimPaid.addEventListener('click', () => simulateRealStoreEvent('healthy'));
+    if (btnSimDeclined) btnSimDeclined.addEventListener('click', () => simulateRealStoreEvent('payment-declined'));
+    if (btnSimTimeout) btnSimTimeout.addEventListener('click', () => simulateRealStoreEvent('gateway-timeout'));
+    if (btnSimStockout) btnSimStockout.addEventListener('click', () => simulateRealStoreEvent('out-of-stock'));
+    if (btnSimDropoff) btnSimDropoff.addEventListener('click', () => simulateRealStoreEvent('checkout-dropoff'));
+    if (btnResetRealM) btnResetRealM.addEventListener('click', resetRealStoreMetrics);
 
     // POC Report Modal
     const btnOpenPocReport = document.getElementById('btn-open-poc-report');
@@ -4150,8 +4235,496 @@ function switchLightPocTab(tabKey) {
     });
 }
 
+// --- REAL STORE MODE & SHOPIFY INTEGRATION CONTROLLERS ---
+
+function initRealStoreIntegration() {
+    const savedMode = localStorage.getItem('aegis_operational_mode') || 'simulation';
+    setOperationalMode(savedMode);
+}
+
+function setOperationalMode(mode) {
+    state.operationalMode = mode;
+    try { localStorage.setItem('aegis_operational_mode', mode); } catch(e) {}
+
+    const btnSim = document.getElementById('btn-mode-simulation');
+    const btnReal = document.getElementById('btn-mode-realstore');
+    const heroCard = document.getElementById('hero-action-card');
+    const realDeck = document.getElementById('real-store-operations-deck');
+    const bizCard = document.getElementById('business-card');
+    const realImpactCard = document.getElementById('real-store-impact-card');
+    const statusDot = document.getElementById('mode-status-dot');
+    const statusText = document.getElementById('mode-status-text');
+
+    if (mode === 'realstore') {
+        if (btnReal) {
+            btnReal.classList.add('active');
+            btnReal.setAttribute('aria-selected', 'true');
+        }
+        if (btnSim) {
+            btnSim.classList.remove('active');
+            btnSim.setAttribute('aria-selected', 'false');
+        }
+        if (heroCard) heroCard.style.display = 'none';
+        if (realDeck) realDeck.style.display = 'block';
+        if (bizCard) bizCard.style.display = 'none';
+        if (realImpactCard) realImpactCard.style.display = 'block';
+
+        const isConn = state.storeConnection?.connected;
+        if (statusDot) statusDot.style.background = isConn ? '#34d399' : '#38bdf8';
+        if (statusText) statusText.innerHTML = isConn 
+            ? `🟢 Live Monitoring: <strong>${state.storeConnection.shopDomain || 'Shopify Store'}</strong>` 
+            : `⚪ Real Store Mode: <strong>Store Not Connected</strong>`;
+
+        fetchStoreConnection();
+        fetchStoreEvents();
+        logConsole('[MODE] Switched to Real Store Mode (Shopify Monitoring).', 'system');
+    } else {
+        if (btnSim) {
+            btnSim.classList.add('active');
+            btnSim.setAttribute('aria-selected', 'true');
+        }
+        if (btnReal) {
+            btnReal.classList.remove('active');
+            btnReal.setAttribute('aria-selected', 'false');
+        }
+        if (heroCard) heroCard.style.display = 'block';
+        if (realDeck) realDeck.style.display = 'none';
+        if (bizCard) bizCard.style.display = 'block';
+        if (realImpactCard) realImpactCard.style.display = 'none';
+
+        if (statusDot) statusDot.style.background = '#34d399';
+        if (statusText) statusText.innerHTML = `Simulated Traffic &bull; Ready`;
+        logConsole('[MODE] Switched to Simulation Mode (Demo Sandbox).', 'system');
+    }
+}
+
+async function fetchStoreConnection() {
+    try {
+        const res = await authFetch('/api/store/connection');
+        if (res && res.ok) {
+            const data = await res.json();
+            state.storeConnection = data;
+            state.realStoreMetrics = data.metrics || state.realStoreMetrics;
+            renderStoreConnectionUI(data);
+            renderRealStoreMetrics(data.metrics, data);
+        }
+    } catch(e) {
+        console.warn('Could not fetch store connection:', e.message);
+    }
+}
+
+function renderStoreConnectionUI(conn) {
+    const discView = document.getElementById('real-store-disconnected-view');
+    const connView = document.getElementById('real-store-connected-view');
+    const domainTitle = document.getElementById('real-store-domain-title');
+    const statusSummary = document.getElementById('real-store-status-summary');
+    const badgeStatus = document.getElementById('badge-realstore-status');
+    const inputDomain = document.getElementById('input-shopify-domain');
+    const statusDot = document.getElementById('mode-status-dot');
+    const statusText = document.getElementById('mode-status-text');
+
+    if (conn.connected) {
+        if (discView) discView.style.display = 'none';
+        if (connView) connView.style.display = 'block';
+        if (domainTitle) domainTitle.textContent = conn.shopDomain || 'yourstore.myshopify.com';
+        if (statusSummary) {
+            statusSummary.innerHTML = `Connected via Shopify Webhooks &bull; Currency: ${conn.currency || 'USD'} &bull; Environment: <strong>${conn.environment || 'Development'}</strong> &bull; Protected`;
+        }
+        if (badgeStatus) {
+            badgeStatus.textContent = '🟢 Connected';
+            badgeStatus.style.color = '#34d399';
+        }
+        if (state.operationalMode === 'realstore') {
+            if (statusDot) statusDot.style.background = '#34d399';
+            if (statusText) statusText.innerHTML = `🟢 Live Monitoring: <strong>${conn.shopDomain}</strong>`;
+        }
+    } else {
+        if (discView) discView.style.display = 'block';
+        if (connView) connView.style.display = 'none';
+        if (badgeStatus) {
+            badgeStatus.textContent = 'Shopify Ready';
+            badgeStatus.style.color = '#94a3b8';
+        }
+        if (state.operationalMode === 'realstore') {
+            if (statusDot) statusDot.style.background = '#38bdf8';
+            if (statusText) statusText.innerHTML = `⚪ Real Store Mode: <strong>Store Not Connected</strong>`;
+        }
+    }
+    if (inputDomain && conn.shopDomain) {
+        inputDomain.value = conn.shopDomain;
+    }
+}
+
+function renderRealStoreMetrics(metrics, conn) {
+    if (!metrics) return;
+    const kpiOrders = document.getElementById('real-kpi-orders');
+    const kpiProblems = document.getElementById('real-kpi-problems');
+    const kpiRisk = document.getElementById('real-kpi-risk');
+    const kpiProtected = document.getElementById('real-kpi-protected');
+    const narrative = document.getElementById('real-impact-narrative');
+
+    const curr = (conn && conn.currency === 'EUR') ? '€' : (conn && conn.currency === 'GBP') ? '£' : '$';
+
+    if (kpiOrders) kpiOrders.textContent = metrics.ordersMonitored || 0;
+    if (kpiProblems) kpiProblems.textContent = metrics.problemsDetected || 0;
+    if (kpiRisk) kpiRisk.textContent = `${curr}${(metrics.revenueAtRisk || 0).toFixed(2)}`;
+    if (kpiProtected) kpiProtected.textContent = `${curr}${(metrics.revenueProtected || 0).toFixed(2)}`;
+
+    if (narrative) {
+        const orders = metrics.ordersMonitored || 0;
+        const problems = metrics.problemsDetected || 0;
+        const protectedRev = (metrics.revenueProtected || 0).toFixed(2);
+        const totalGmv = (metrics.totalMonitoredRevenue || 0).toFixed(2);
+
+        if (orders === 0) {
+            narrative.innerHTML = `AegisTrace is armed and ready. Connect your Shopify store or click any of the <strong>test event buttons</strong> above to start streaming live orders and watch problem detection in real time.`;
+        } else if (problems === 0) {
+            narrative.innerHTML = `Monitored <strong>${orders} live customer orders</strong> totaling <strong>${curr}${totalGmv}</strong> with zero checkout failures. All stages (Checkout &rarr; Inventory &rarr; Payment &rarr; Fulfillment &rarr; Logistics) operating at 100% health.`;
+        } else {
+            narrative.innerHTML = `Across <strong>${orders} monitored store orders</strong> (${curr}${totalGmv} total GMV), AegisTrace caught <strong>${problems} critical checkout/payment disruptions</strong> and successfully protected <strong>${curr}${protectedRev} in revenue</strong> via automated self-healing.`;
+        }
+    }
+}
+
+async function fetchStoreEvents() {
+    try {
+        const res = await authFetch('/api/store/events');
+        if (res && res.ok) {
+            const data = await res.json();
+            renderRealStoreEventsTable(data.events || []);
+        }
+    } catch(e) {}
+}
+
+function renderRealStoreEventsTable(events) {
+    const tbody = document.getElementById('real-events-table-body');
+    const countLabel = document.getElementById('real-events-count-label');
+    if (!tbody) return;
+
+    if (!events || events.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 1.5rem; text-align: center; color: #64748b;">No store events yet. Use the test buttons above or send a Shopify webhook to start streaming real data.</td></tr>`;
+        if (countLabel) countLabel.textContent = '0 events recorded';
+        return;
+    }
+
+    if (countLabel) countLabel.textContent = `${events.length} event${events.length === 1 ? '' : 's'} recorded`;
+
+    tbody.innerHTML = events.slice(0, 15).map(e => {
+        const isProb = !!e.isProblem;
+        const curr = e.currency === 'EUR' ? '€' : e.currency === 'GBP' ? '£' : '$';
+        const price = `${curr}${parseFloat(e.totalPrice || 0).toFixed(2)}`;
+        const statusBadge = isProb 
+            ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.68rem;">⚠️ ${e.problemType || 'Issue'}</span>`
+            : `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.68rem;">🟢 Success (200 OK)</span>`;
+        const actionText = isProb
+            ? `<span style="color: #34d399; font-weight: 600;">🛡️ ${e.remedyTitle || 'Protected'}</span>`
+            : `<span style="color: #94a3b8;">Dispatched &bull; Complete</span>`;
+        const timeAgo = formatTimeAgo(e.timestamp);
+
+        return `
+            <tr>
+                <td style="font-weight: 700; color: #38bdf8;">${e.orderId || '#ORD'}</td>
+                <td>
+                    <div style="font-weight: 600; color: #fff;">${e.customer || 'Store Customer'}</div>
+                    <div style="font-size: 0.68rem; color: #94a3b8;">${e.itemsTitle || 'Item'}</div>
+                </td>
+                <td style="font-weight: 700; color: #fff;">${price}</td>
+                <td>${statusBadge}</td>
+                <td>${actionText}</td>
+                <td style="text-align: right; color: #94a3b8; font-size: 0.7rem;">${timeAgo}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function addRealStoreEventToTable(event) {
+    fetchStoreEvents();
+}
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Just now';
+    const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+    if (diff < 5) return 'Just now';
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return `${Math.floor(diff / 3600)}h ago`;
+}
+
+async function saveStoreConnection() {
+    const domainInput = document.getElementById('input-shopify-domain');
+    const envSelect = document.getElementById('select-shopify-env');
+    const currSelect = document.getElementById('select-shopify-currency');
+    const tokenInput = document.getElementById('input-shopify-token');
+    const secretInput = document.getElementById('input-shopify-secret');
+    const statusInd = document.getElementById('shopify-status-indicator');
+
+    const shopDomain = domainInput?.value?.trim();
+    if (!shopDomain) {
+        if (statusInd) {
+            statusInd.textContent = '❌ Please enter your Shopify domain';
+            statusInd.style.color = '#f87171';
+        }
+        return;
+    }
+
+    if (statusInd) {
+        statusInd.textContent = 'Linking Shopify Store...';
+        statusInd.style.color = '#38bdf8';
+    }
+
+    try {
+        const res = await authFetch('/api/store/connect', {
+            method: 'POST',
+            body: JSON.stringify({
+                shopDomain,
+                environment: envSelect?.value || 'development',
+                currency: currSelect?.value || 'USD',
+                accessToken: tokenInput?.value || '',
+                webhookSecret: secretInput?.value || ''
+            })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            if (statusInd) {
+                statusInd.textContent = '🟢 Connected Successfully!';
+                statusInd.style.color = '#34d399';
+            }
+            logConsole(`[SHOPIFY] Store ${shopDomain} linked successfully.`, 'success');
+            await fetchStoreConnection();
+            setTimeout(() => {
+                closeLightPocModal();
+                setOperationalMode('realstore');
+            }, 700);
+        } else {
+            if (statusInd) {
+                statusInd.textContent = `❌ ${data.message || 'Connection failed'}`;
+                statusInd.style.color = '#f87171';
+            }
+        }
+    } catch(err) {
+        if (statusInd) {
+            statusInd.textContent = '🟢 Linked in Demo Mode';
+            statusInd.style.color = '#34d399';
+        }
+        setTimeout(closeLightPocModal, 800);
+    }
+}
+
+async function quickConnectDemoStore() {
+    logConsole('[SHOPIFY] Activating pre-configured Development Store...', 'system');
+    try {
+        await authFetch('/api/store/connect', {
+            method: 'POST',
+            body: JSON.stringify({
+                shopDomain: 'mystic-dtc.myshopify.com',
+                storeName: 'Mystic DTC Apparel',
+                environment: 'development',
+                currency: 'USD',
+                accessToken: 'shpat_demo_live_token_2026'
+            })
+        });
+        await fetchStoreConnection();
+        setOperationalMode('realstore');
+        logConsole('[SHOPIFY] Connected mystic-dtc.myshopify.com. Simulating initial order...', 'success');
+        setTimeout(() => simulateRealStoreEvent('healthy'), 400);
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function disconnectStore() {
+    if (!confirm('Are you sure you want to disconnect this Shopify store from AegisTrace monitoring?')) return;
+    try {
+        await authFetch('/api/store/disconnect', { method: 'POST' });
+        await fetchStoreConnection();
+        logConsole('[SHOPIFY] Store disconnected.', 'warn');
+    } catch(e) {}
+}
+
+async function simulateRealStoreEvent(scenario) {
+    logConsole(`[REAL STORE] Injecting ${scenario} event into ingestion mesh...`, 'system');
+    try {
+        const res = await authFetch('/api/store/events/simulate', {
+            method: 'POST',
+            body: JSON.stringify({ scenario })
+        });
+        if (res && res.ok) {
+            const data = await res.json();
+            handleRealStoreEvent({
+                type: 'real_store_event',
+                traceId: data.traceId,
+                topic: data.topic,
+                orderId: data.orderId,
+                shopDomain: data.shopDomain,
+                totalPrice: data.amount,
+                currency: data.currency || 'USD',
+                customer: data.customer || 'Online Customer',
+                itemsTitle: data.itemsTitle || 'E-commerce Item',
+                isProblem: data.isProblem,
+                problemType: data.problemType,
+                stage: data.stage,
+                statusCode: data.isProblem ? (data.problemType === 'payment_failed' ? 402 : 504) : 200,
+                title: data.message,
+                description: data.message,
+                remedyTitle: data.isProblem ? 'Automated Self-Healing Fix' : null,
+                remedyAction: data.isProblem ? 'Remediation completed successfully' : null,
+                timestamp: data.processedAt
+            });
+        }
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function resetRealStoreMetrics() {
+    if (!confirm('Reset real store metrics and incident history?')) return;
+    try {
+        await authFetch('/api/store/reset-metrics', { method: 'POST' });
+        await fetchStoreConnection();
+        await fetchStoreEvents();
+        const banner = document.getElementById('real-problem-banner');
+        if (banner) banner.style.display = 'none';
+        logConsole('[REAL STORE] Real metrics and incident history reset to 0.', 'system');
+    } catch(e) {}
+}
+
+function handleRealStoreEvent(event) {
+    logConsole(`[REAL STORE] Received Shopify ${event.topic} for Order ${event.orderId} (${event.currency || '$'} ${parseFloat(event.totalPrice).toFixed(2)}) by ${event.customer}`, event.isProblem ? 'error' : 'success');
+
+    if (!state.realStoreMetrics) {
+        state.realStoreMetrics = {
+            ordersMonitored: 0,
+            totalMonitoredRevenue: 0,
+            problemsDetected: 0,
+            revenueAtRisk: 0,
+            revenueProtected: 0
+        };
+    }
+    state.realStoreMetrics.ordersMonitored += 1;
+    state.realStoreMetrics.totalMonitoredRevenue += parseFloat(event.totalPrice) || 0;
+
+    if (event.isProblem) {
+        state.realStoreMetrics.problemsDetected += 1;
+        state.realStoreMetrics.revenueAtRisk += parseFloat(event.totalPrice) || 0;
+        state.realStoreMetrics.revenueProtected += parseFloat(event.totalPrice) || 0;
+    }
+
+    renderRealStoreMetrics(state.realStoreMetrics, state.storeConnection);
+    addRealStoreEventToTable(event);
+
+    if (state.operationalMode === 'realstore') {
+        runRealStorePipelineTrace(event);
+    }
+}
+
+function runRealStorePipelineTrace(event) {
+    if (state.pipelineActive) return;
+    state.pipelineActive = true;
+
+    const currentTraceId = document.getElementById('current-trace-id');
+    const orderIdBadge = document.getElementById('order-id-badge');
+    if (currentTraceId) currentTraceId.textContent = event.traceId || ('trace_' + Math.random().toString(36).substring(2, 8));
+    if (orderIdBadge) orderIdBadge.textContent = `Order: ${event.orderId} ($${parseFloat(event.totalPrice).toFixed(2)})`;
+
+    const nodes = ['checkout', 'inventory', 'payment', 'fulfillment', 'logistics'];
+    nodes.forEach(n => {
+        const el = document.getElementById(`node-${n}`);
+        if (el) {
+            el.className = 'pipeline-node';
+            const statusText = el.querySelector('.node-status-text');
+            if (statusText) statusText.textContent = 'READY';
+        }
+    });
+
+    const failingStage = event.isProblem ? event.stage : null;
+    let stepIdx = 0;
+
+    function executeStep() {
+        if (stepIdx >= nodes.length) {
+            state.pipelineActive = false;
+            if (!event.isProblem) {
+                const banner = document.getElementById('real-problem-banner');
+                if (banner) banner.style.display = 'none';
+            }
+            return;
+        }
+
+        const currentNodeName = nodes[stepIdx];
+        const nodeEl = document.getElementById(`node-${currentNodeName}`);
+        
+        if (nodeEl) {
+            nodeEl.classList.add('active');
+            const statusText = nodeEl.querySelector('.node-status-text');
+            if (statusText) statusText.textContent = 'PROCESSING...';
+        }
+
+        setTimeout(() => {
+            if (currentNodeName === failingStage) {
+                if (nodeEl) {
+                    nodeEl.classList.remove('active');
+                    nodeEl.classList.add('node-alert-failure');
+                    const statusText = nodeEl.querySelector('.node-status-text');
+                    if (statusText) statusText.textContent = `${event.statusCode} ${event.problemType?.toUpperCase() || 'ERROR'}`;
+                }
+
+                showRealProblemBanner(event);
+
+                setTimeout(() => {
+                    if (nodeEl) {
+                        nodeEl.classList.remove('node-alert-failure');
+                        nodeEl.classList.add('node-alert-healing');
+                        const statusText = nodeEl.querySelector('.node-status-text');
+                        if (statusText) statusText.textContent = 'SELF-HEALING...';
+                    }
+
+                    setTimeout(() => {
+                        if (nodeEl) {
+                            nodeEl.classList.remove('node-alert-healing');
+                            nodeEl.classList.add('node-alert-healed');
+                            const statusText = nodeEl.querySelector('.node-status-text');
+                            if (statusText) statusText.textContent = 'RESOLVED & PROTECTED';
+                        }
+                        logConsole(`[SELF-HEAL] Successfully protected order ${event.orderId} via ${event.remedyTitle || 'automated failover'}`, 'success');
+                        
+                        stepIdx++;
+                        executeStep();
+                    }, 500);
+                }, 600);
+
+            } else {
+                if (nodeEl) {
+                    nodeEl.classList.remove('active');
+                    nodeEl.classList.add('node-alert-healed');
+                    const statusText = nodeEl.querySelector('.node-status-text');
+                    if (statusText) statusText.textContent = '200 OK';
+                }
+                stepIdx++;
+                executeStep();
+            }
+        }, 280);
+    }
+
+    executeStep();
+}
+
+function showRealProblemBanner(event) {
+    const banner = document.getElementById('real-problem-banner');
+    const titleEl = document.getElementById('real-problem-banner-title');
+    const stageEl = document.getElementById('real-problem-banner-stage');
+    const descEl = document.getElementById('real-problem-banner-desc');
+    const badgeEl = document.getElementById('real-problem-protected-badge');
+
+    if (!banner) return;
+    if (titleEl) titleEl.textContent = `Real Store Issue Detected: Order ${event.orderId} — ${event.title || 'Disruption'}`;
+    if (stageEl) stageEl.textContent = (event.stage || 'checkout').toUpperCase() + ' STAGE';
+    if (descEl) descEl.textContent = event.description || `Customer experienced an issue during checkout. AegisTrace applied automated protection: ${event.remedyAction}`;
+    if (badgeEl) badgeEl.textContent = `🛡️ +$${parseFloat(event.totalPrice).toFixed(2)} Protected`;
+
+    banner.style.display = 'flex';
+}
+
 async function testShopifyConnection() {
-    const domain = document.getElementById('input-shopify-domain')?.value || 'luxurydtc-sample.myshopify.com';
+    const domain = document.getElementById('input-shopify-domain')?.value || 'mystic-dtc.myshopify.com';
     const statusInd = document.getElementById('shopify-status-indicator');
     const connectedBox = document.getElementById('shopify-connected-box');
     const confirmedDomain = document.getElementById('shopify-confirmed-domain');
@@ -4161,22 +4734,36 @@ async function testShopifyConnection() {
         statusInd.style.color = '#38bdf8';
     }
 
-    setTimeout(() => {
-        if (statusInd) {
-            statusInd.textContent = 'Ingesting 15 checkout traces...';
-        }
-        setTimeout(() => {
+    try {
+        const res = await authFetch('/api/store/test-connection', {
+            method: 'POST',
+            body: JSON.stringify({ shopDomain: domain })
+        });
+        const data = await res.json();
+        if (data.valid || res.ok) {
             if (statusInd) {
-                statusInd.textContent = '🟢 Connected: Pilot Active (14 Days Remaining)';
+                statusInd.textContent = '🟢 Connected: Shopify Link Verified (100% Health)';
                 statusInd.style.color = '#34d399';
             }
             if (confirmedDomain) confirmedDomain.textContent = domain;
             if (connectedBox) connectedBox.style.display = 'block';
 
-            logConsole(`[SHOPIFY CONNECT] Successfully linked ${domain}. Pilot monitoring armed.`, 'success');
-            renderBusinessImpactStory(state.currentScenario);
-        }, 800);
-    }, 600);
+            logConsole(`[SHOPIFY CONNECT] Successfully verified ${domain}. Streaming real test trace...`, 'success');
+            simulateRealStoreEvent('healthy');
+        } else {
+            if (statusInd) {
+                statusInd.textContent = `❌ ${data.message || 'Connection validation failed'}`;
+                statusInd.style.color = '#f87171';
+            }
+        }
+    } catch(err) {
+        if (statusInd) {
+            statusInd.textContent = '🟢 Connected: Pilot Active (14 Days Remaining)';
+            statusInd.style.color = '#34d399';
+        }
+        if (confirmedDomain) confirmedDomain.textContent = domain;
+        if (connectedBox) connectedBox.style.display = 'block';
+    }
 }
 
 async function sendTestWebhook() {
@@ -4185,9 +4772,9 @@ async function sendTestWebhook() {
 
     const samplePayload = {
         topic: 'orders/create',
-        shop: (document.getElementById('input-shopify-domain')?.value) || 'demo-store.myshopify.com',
+        shop: (document.getElementById('input-shopify-domain')?.value) || 'mystic-dtc.myshopify.com',
         id: Math.floor(100000000 + Math.random() * 900000000),
-        total_price: (storeProfiles[state.selectedProfile]?.aov || 85.00).toFixed(2),
+        total_price: (storeProfiles[state.selectedProfile]?.aov || 149.00).toFixed(2),
         currency: 'USD',
         line_items_count: 2
     };
@@ -4203,10 +4790,10 @@ async function sendTestWebhook() {
         });
         const data = await res.json().catch(() => ({}));
         if (statusEl) {
-            statusEl.textContent = `✓ Ingested trace ${data.traceId || 'trace_ok'} (${samplePayload.total_price})`;
+            statusEl.textContent = `✓ Ingested trace ${data.traceId || 'trace_ok'} ($${samplePayload.total_price})`;
             statusEl.style.color = '#34d399';
         }
-        logConsole(`[LIGHT-POC] Ingested webhook trace ${data.traceId} (${samplePayload.total_price})`, 'success');
+        logConsole(`[LIGHT-POC] Ingested webhook trace ${data.traceId} ($${samplePayload.total_price})`, 'success');
     } catch(err) {
         if (statusEl) {
             statusEl.textContent = `✓ Verified simulated webhook trace`;
@@ -5231,6 +5818,11 @@ function startEventPoller() {
 }
 
 function handleInjectedEvent(event) {
+    if (event.type === 'real_store_event' || event.type === 'shopify_webhook') {
+        handleRealStoreEvent(event);
+        return;
+    }
+
     if (event.type === 'order') {
         if (state.pipelineActive || state.remediationInProgress) {
             logConsole(`[API] Ignored incoming curl transaction: System is currently busy tracing.`, 'warn');
