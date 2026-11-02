@@ -57,6 +57,11 @@ async function verifyLive() {
     console.log('   Contains data-mode-bar:', home.text.includes('id="data-mode-bar"'));
     console.log('   Contains real-store-operations-deck:', home.text.includes('id="real-store-operations-deck"'));
     console.log('   Contains real-store-impact-card:', home.text.includes('id="real-store-impact-card"'));
+    console.log('   Contains founder-four-questions-deck:', home.text.includes('id="founder-four-questions-deck"'));
+    console.log('   Contains q-card-what (1. What broke?):', home.text.includes('id="q-card-what"'));
+    console.log('   Contains q-card-severity (2. How bad is it?):', home.text.includes('id="q-card-severity"'));
+    console.log('   Contains q-card-money (3. How much money?):', home.text.includes('id="q-card-money"'));
+    console.log('   Contains q-card-fixed (4. Is it fixed?):', home.text.includes('id="q-card-fixed"'));
 
     // 2. Login
     const login = await post('/api/auth/login', { email: 'admin@aegistrace.com', password: 'password123' });
