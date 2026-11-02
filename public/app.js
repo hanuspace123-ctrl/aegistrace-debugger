@@ -2303,6 +2303,7 @@ function registerEventListeners() {
                 pillClass: 'healthy',
                 bannerClass: ''
             });
+            updateFounderFourQuestions();
             Object.values(dom.nodes).forEach(n => {
                 n.classList.remove('node-alert-failure', 'node-alert-healing', 'node-alert-healed');
             });
@@ -3405,6 +3406,22 @@ function handlePipelineFailure(scenarioType) {
         pillClass: 'alert',
         bannerClass: 'banner-alert'
     });
+    updateFounderFourQuestions({
+        what: `${sc.name} (${failedSvc.toUpperCase()} Step)`,
+        whatSub: sc.rcaDescription,
+        severity: 'CRITICAL: Customer checkouts blocked!',
+        severityTag: 'High Risk',
+        severityTagClass: 'tag-alert',
+        severitySub: 'Shoppers will abandon carts and purchase elsewhere',
+        money: `$${revRisk.toLocaleString()} at risk`,
+        moneySub: `${ordersAtRisk} customer carts abandoned`,
+        fixed: 'Auto-Fix Initiating...',
+        fixedTag: 'Fixing',
+        fixedTagClass: 'tag-alert',
+        fixedSub: 'Self-healing policy executing in background',
+        statusBadge: '🚨 Problem Detected &bull; Auto-Healing Triggered',
+        statusBadgeClass: 'badge-alert'
+    });
     
     if (state.isRemediating) {
         dom.manualStepsSection.classList.add('hidden');
@@ -3455,6 +3472,23 @@ function triggerAutoRemediation(scenarioType) {
         pill: 'Fixing Now',
         pillClass: 'healing',
         bannerClass: 'banner-healing'
+    });
+    const impactRem = calculateScenarioImpact(scenarioType, state.selectedProfile);
+    updateFounderFourQuestions({
+        what: `${sc.name} (${failedSvc.toUpperCase()} Step)`,
+        whatSub: `Applying fix: ${policy.remedyTitle}`,
+        severity: 'Resolving: Rerouting checkout flow',
+        severityTag: 'Fixing Now',
+        severityTagClass: 'tag-healing',
+        severitySub: 'Automated failover in progress to save purchases',
+        money: `$${impactRem.revenueAtRisk.toLocaleString()} being protected`,
+        moneySub: 'Rescuing customer shopping sessions',
+        fixed: `Auto-Fixing: ${policy.name}`,
+        fixedTag: 'Fixing',
+        fixedTagClass: 'tag-healing',
+        fixedSub: 'Verification trace in progress...',
+        statusBadge: '⚙️ Fixing Issue Automatically...',
+        statusBadgeClass: 'badge-healing'
     });
 
     if (failedSvc) {
@@ -3736,6 +3770,23 @@ async function runVerificationOrder(orderContext) {
                     pillClass: 'healed',
                     bannerClass: 'banner-healed'
                 });
+                const impactHealed = calculateScenarioImpact(state.currentScenario, state.selectedProfile);
+                updateFounderFourQuestions({
+                    what: `${sc.name} (Resolved)`,
+                    whatSub: `Fixed in ${mttrSec} with zero dropped customer carts!`,
+                    severity: 'All Clear: Flow fully restored',
+                    severityTag: 'Resolved',
+                    severityTagClass: 'tag-healthy',
+                    severitySub: 'Checkouts flowing normally with 0% error rate',
+                    money: `$0.00 at risk ($${impactHealed.revenueProtected.toLocaleString()} Saved)`,
+                    moneySub: `${impactHealed.ordersAffected} orders rescued with 0 carts lost`,
+                    fixed: 'YES — Automatic fix succeeded!',
+                    fixedTag: 'Fixed',
+                    fixedTagClass: 'tag-healthy',
+                    fixedSub: `Saved ~${state.totalHoursSaved.toFixed(1)} hours of manual troubleshooting`,
+                    statusBadge: `🎉 Fixed in Under 2 Min &bull; $${impactHealed.revenueProtected.toLocaleString()} Protected`,
+                    statusBadgeClass: 'badge-healed'
+                });
                 
                 dom.rcaPanel.classList.remove('anomaly-detected');
                 
@@ -3971,6 +4022,12 @@ function setStoreProfile(profileKey) {
         if (btn.dataset.profile === profileKey) btn.classList.add('active');
         else btn.classList.remove('active');
     });
+    if (!state.pipelineActive && !state.remediationInProgress) {
+        updateFounderFourQuestions({
+            whatSub: `Store model: ${profile.name} (${profile.badge})`,
+            moneySub: `0 customer carts abandoned (~${profile.dailyOrders} orders/day)`
+        });
+    }
     logConsole(`[STORE PROFILE] Switched store model to ${profile.name} (AOV ${profile.aov.toFixed(2)}, ${profile.dailyOrders} ord/day, ${profile.badge})`, 'system');
 }
 window.selectStoreProfile = setStoreProfile;
@@ -4039,6 +4096,63 @@ function updateHeroOutcomeBanner({ icon, title, desc, pill, pillClass = 'healthy
         pillEl.className = 'outcome-pill ' + pillClass;
     }
 }
+
+// --- THE 4 CORE FOUNDER QUESTIONS CONTROLLER (Non-Technical Clarity) ---
+function updateFounderFourQuestions({
+    what = 'Nothing — All 5 order steps running smoothly',
+    whatSub = 'No checkout errors detected',
+    severity = 'Shoppers buying freely',
+    severityTag = 'Normal',
+    severityTagClass = 'tag-healthy',
+    severitySub = '100% checkout completion rate',
+    money = '$0.00 at risk',
+    moneySub = '0 customer carts abandoned',
+    fixed = 'Ready to Shield',
+    fixedTag = 'Protected',
+    fixedTagClass = 'tag-healthy',
+    fixedSub = 'Instant automatic protection active',
+    statusBadge = '🟢 All 5 Steps Running Smoothly',
+    statusBadgeClass = ''
+} = {}) {
+    const whatValEl = document.getElementById('q-val-what');
+    const whatSubEl = document.getElementById('q-sub-what');
+    const sevValEl = document.getElementById('q-val-severity');
+    const sevSubEl = document.getElementById('q-sub-severity');
+    const moneyValEl = document.getElementById('q-val-money');
+    const moneySubEl = document.getElementById('q-sub-money');
+    const fixedValEl = document.getElementById('q-val-fixed');
+    const fixedSubEl = document.getElementById('q-sub-fixed');
+    const statusBadgeEl = document.getElementById('founder-status-badge');
+
+    if (whatValEl) whatValEl.textContent = what;
+    if (whatSubEl) whatSubEl.textContent = whatSub;
+
+    if (sevValEl) {
+        sevValEl.innerHTML = `<span class="q-badge-tag ${severityTagClass || 'tag-healthy'}" id="q-badge-severity">${severityTag}</span> ${severity}`;
+    }
+    if (sevSubEl) sevSubEl.textContent = severitySub;
+
+    if (moneyValEl) {
+        moneyValEl.textContent = money;
+        if (money.startsWith('$0.00')) {
+            moneyValEl.className = 'q-val text-green';
+        } else {
+            moneyValEl.className = 'q-val text-red';
+        }
+    }
+    if (moneySubEl) moneySubEl.textContent = moneySub;
+
+    if (fixedValEl) {
+        fixedValEl.innerHTML = `<span class="q-badge-tag ${fixedTagClass || 'tag-healthy'}" id="q-badge-fixed">${fixedTag}</span> ${fixed}`;
+    }
+    if (fixedSubEl) fixedSubEl.textContent = fixedSub;
+
+    if (statusBadgeEl) {
+        statusBadgeEl.textContent = statusBadge;
+        statusBadgeEl.className = 'founder-q-badge ' + (statusBadgeClass || '');
+    }
+}
+window.updateFounderFourQuestions = updateFounderFourQuestions;
 
 function initGuidedExperience() {
     const btnModeSimple = document.getElementById('btn-mode-simple');
@@ -4173,6 +4287,25 @@ function initGuidedExperience() {
             bannerClass: ''
         });
 
+        const scHero = scenarios[scenarioKey] || scenarios['gateway-timeout'];
+        const impactHero = calculateScenarioImpact(scenarioKey, state.selectedProfile);
+        updateFounderFourQuestions({
+            what: `Testing Order Flow: ${scHero.name}`,
+            whatSub: `Simulating customer purchase on ${state.selectedProfile} store profile ($${impactHero.aov.toFixed(2)} AOV)`,
+            severity: 'Simulating Checkout Request',
+            severityTag: 'Testing',
+            severityTagClass: 'tag-healing',
+            severitySub: 'Observing checkout, warehouse stock, and payment steps...',
+            money: `$${impactHero.revenueAtRisk.toLocaleString()} being evaluated`,
+            moneySub: `Simulating ${impactHero.ordersAffected} orders in flight`,
+            fixed: 'Active Monitoring On',
+            fixedTag: 'Monitoring',
+            fixedTagClass: 'tag-healthy',
+            fixedSub: 'AegisTrace ready to auto-heal upon failure',
+            statusBadge: '⚡ Testing Order Flow...',
+            statusBadgeClass: 'badge-healing'
+        });
+
         // Sync with scenario buttons if present
         if (dom.scenarios) {
             Object.values(dom.scenarios).forEach(b => { if (b) b.classList.remove('active'); });
@@ -4200,6 +4333,7 @@ function initGuidedExperience() {
     }
 
     setViewMode(activeMode);
+    updateFounderFourQuestions();
 }
 
 
@@ -4584,6 +4718,7 @@ async function resetRealStoreMetrics() {
         await fetchStoreEvents();
         const banner = document.getElementById('real-problem-banner');
         if (banner) banner.style.display = 'none';
+        updateFounderFourQuestions();
         logConsole('[REAL STORE] Real metrics and incident history reset to 0.', 'system');
     } catch(e) {}
 }
@@ -4611,6 +4746,42 @@ function handleRealStoreEvent(event) {
 
     renderRealStoreMetrics(state.realStoreMetrics, state.storeConnection);
     addRealStoreEventToTable(event);
+
+    if (!event.isProblem) {
+        updateFounderFourQuestions({
+            what: `Shopify Order #${event.orderId} Paid`,
+            whatSub: `${event.customer} bought order items ($${parseFloat(event.totalPrice).toFixed(2)})`,
+            severity: 'Healthy Purchase',
+            severityTag: 'Paid',
+            severityTagClass: 'tag-healthy',
+            severitySub: 'Passed all checkout, inventory, and payment checks',
+            money: `$0.00 at risk (+$${parseFloat(event.totalPrice).toFixed(2)} GMV)`,
+            moneySub: 'Revenue captured and ready for fulfillment',
+            fixed: 'Monitored & Protected',
+            fixedTag: 'Protected',
+            fixedTagClass: 'tag-healthy',
+            fixedSub: 'Real-time store shield active',
+            statusBadge: `🟢 Shopify Order #${event.orderId} Paid ($${parseFloat(event.totalPrice).toFixed(2)})`,
+            statusBadgeClass: 'badge-healed'
+        });
+    } else {
+        updateFounderFourQuestions({
+            what: `Order #${event.orderId}: ${event.title || 'Store Issue'}`,
+            whatSub: event.description || 'Customer experienced an issue during checkout.',
+            severity: 'Issue Caught in Real Time',
+            severityTag: 'Problem',
+            severityTagClass: 'tag-alert',
+            severitySub: `Order for ${event.customer} encountered checkout disruption`,
+            money: `$${parseFloat(event.totalPrice).toFixed(2)} at risk ($${parseFloat(event.totalPrice).toFixed(2)} Protected)`,
+            moneySub: 'Order was rescued via automated action',
+            fixed: `YES — ${event.remedyAction || 'Automated Failover'}`,
+            fixedTag: 'Fixed',
+            fixedTagClass: 'tag-healthy',
+            fixedSub: 'Automated recovery executed instantly',
+            statusBadge: `🚨 Real Issue Caught &bull; +$${parseFloat(event.totalPrice).toFixed(2)} Protected`,
+            statusBadgeClass: 'badge-healed'
+        });
+    }
 
     if (state.operationalMode === 'realstore') {
         runRealStorePipelineTrace(event);

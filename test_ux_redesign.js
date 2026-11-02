@@ -46,6 +46,33 @@ heroElements.forEach(id => {
     console.log(`  [PASS] Element #${id} present in index.html`);
 });
 
+// 1.5. The 4 Core Founder Questions Deck (Non-Technical Clarity)
+console.log('\n--- 1.5. The 4 Core Founder Questions Deck ---');
+const founderQuestionsElements = [
+    'founder-four-questions-deck',
+    'founder-status-badge',
+    'q-card-what',
+    'q-val-what',
+    'q-sub-what',
+    'q-card-severity',
+    'q-val-severity',
+    'q-sub-severity',
+    'q-badge-severity',
+    'q-card-money',
+    'q-val-money',
+    'q-sub-money',
+    'q-card-fixed',
+    'q-val-fixed',
+    'q-sub-fixed',
+    'q-badge-fixed'
+];
+founderQuestionsElements.forEach(id => {
+    assert(html.includes(`id="${id}"`), `Missing founder questions element: #${id}`);
+    console.log(`  [PASS] Founder Clarity element #${id} present`);
+});
+assert(js.includes('function updateFounderFourQuestions'), 'Missing updateFounderFourQuestions function in app.js');
+console.log('  [PASS] Controller updateFounderFourQuestions() verified in app.js');
+
 // 2. Verify Order Pipeline Elements
 console.log('\n--- 2. Order Pipeline (Visual Centerpiece) ---');
 const pipelineElements = [
@@ -124,7 +151,8 @@ const cssClasses = [
     '.node-alert-healed',
     '.advanced-tools-section',
     '.btn-toggle-advanced-drawer',
-    '.advanced-drawer-content.collapsed'
+    '.advanced-drawer-content.collapsed',
+    '.founder-four-questions-deck'
 ];
 cssClasses.forEach(cls => {
     assert(css.includes(cls), `Missing CSS rule: ${cls}`);

@@ -4296,6 +4296,208 @@ input:checked + .slider:before {
     border-color: rgba(16, 185, 129, 0.4);
 }
 
+/* ==========================================================================
+   THE 4 CORE FOUNDER QUESTIONS DECK (Non-Technical Clarity)
+   Answers: 1. What broke? 2. How bad is it? 3. How much money? 4. Is it fixed?
+   ========================================================================== */
+.founder-four-questions-deck {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+}
+
+.founder-q-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.founder-q-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.founder-q-icon {
+    font-size: 1.15rem;
+}
+
+.founder-q-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #e2e8f0;
+}
+
+.founder-q-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    transition: all 0.25s ease;
+}
+
+.founder-q-badge.badge-alert {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
+    animation: pulseBorder 1.5s infinite;
+}
+
+.founder-q-badge.badge-healing {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.founder-q-badge.badge-healed {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.45);
+}
+
+.founder-q-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.85rem;
+}
+
+.founder-q-card {
+    background: rgba(30, 41, 59, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 108px;
+    transition: all 0.25s ease;
+}
+
+.founder-q-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.founder-q-card.q-card-what {
+    border-left: 3px solid #f59e0b;
+}
+
+.founder-q-card.q-card-severity {
+    border-left: 3px solid #ef4444;
+}
+
+.founder-q-card.q-card-money {
+    border-left: 3px solid #10b981;
+}
+
+.founder-q-card.q-card-fixed {
+    border-left: 3px solid #06b6d4;
+}
+
+.founder-q-card .q-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.45rem;
+}
+
+.founder-q-card .q-number {
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.founder-q-card .q-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
+.founder-q-card .q-val {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.35;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.founder-q-card .q-sub {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.35;
+}
+
+.q-badge-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+    margin-right: 0.3rem;
+    vertical-align: middle;
+}
+
+.q-badge-tag.tag-healthy {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.q-badge-tag.tag-alert {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.q-badge-tag.tag-healing {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+/* Responsive Scaling for Founder Questions Deck */
+@media (max-width: 950px) {
+    .founder-q-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 580px) {
+    .founder-q-grid {
+        grid-template-columns: 1fr;
+    }
+    .founder-q-card {
+        min-height: auto;
+    }
+}
+
 /* Visual Alert on Pipeline Nodes */
 .node-alert-failure {
     border-color: #ef4444 !important;
