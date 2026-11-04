@@ -63,6 +63,19 @@ async function verifyLive() {
     console.log('   Contains q-card-money (3. How much money?):', home.text.includes('id="q-card-money"'));
     console.log('   Contains q-card-fixed (4. Is it fixed?):', home.text.includes('id="q-card-fixed"'));
 
+    // 1b. Auth DOM components verification
+    console.log('1b. Auth Components:');
+    console.log('   Contains tab-signup:', home.text.includes('id="tab-signup"'));
+    console.log('   Contains tab-login:', home.text.includes('id="tab-login"'));
+    console.log('   Contains section-signup:', home.text.includes('id="section-signup"'));
+    console.log('   Contains section-login:', home.text.includes('id="section-login"'));
+    console.log('   Contains signup-form:', home.text.includes('id="signup-form"'));
+    console.log('   Contains signup-confirm-password:', home.text.includes('id="signup-confirm-password"'));
+    console.log('   Contains signup-pass-match-hint:', home.text.includes('id="signup-pass-match-hint"'));
+    console.log('   Contains btn-header-logout:', home.text.includes('id="btn-header-logout"'));
+    console.log('   Contains btn-guest-mode-login:', home.text.includes('id="btn-guest-mode-login"'));
+    console.log('   Contains btn-guest-mode-signup:', home.text.includes('id="btn-guest-mode-signup"'));
+
     // 2. Login
     const login = await post('/api/auth/login', { email: 'admin@aegistrace.com', password: 'password123' });
     console.log('2. Live Auth status:', login.status, 'User:', login.data.user ? login.data.user.email : 'fail');
