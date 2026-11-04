@@ -201,19 +201,18 @@
                         Place Test Order
                     </button>
 
-                    <!-- Header Google Sign In Button (Top-Right Corner) -->
-                    <button type="button" class="btn btn-primary btn-small btn-header-signin" id="btn-header-signin" style="display: flex; align-items: center; gap: 6px; background: #ffffff; color: #1f2937; font-weight: 700; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.25); padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer;">
-                        <svg viewBox="0 0 24 24" width="16" height="16">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    <!-- Header Sign In Button (When Logged Out) -->
+                    <button type="button" class="btn btn-primary btn-small btn-header-signin" id="btn-header-signin" style="display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #ffffff; font-weight: 700; border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 2px 8px rgba(124,58,237,0.3); padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer;">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
                         </svg>
-                        <span>Sign In / Log In</span>
+                        <span>Log In / Sign Up</span>
                     </button>
 
-                    <!-- User & Tenant Pill -->
-                    <div class="header-user-pill" id="header-user-pill" style="display: none;">
+                    <!-- User & Tenant Pill (When Logged In) -->
+                    <div class="header-user-pill" id="header-user-pill" style="display: none; align-items: center; gap: 0.5rem;">
                         <span class="tenant-pill" id="tenant-pill">
                             <span class="tenant-badge-dot"></span>
                             <span id="tenant-name">Aegis Enterprise</span>
@@ -221,6 +220,14 @@
                         <span class="user-pill" id="user-pill">
                             <span id="user-display">admin@aegistrace.com</span>
                         </span>
+                        <button type="button" class="btn btn-secondary btn-small btn-header-logout" id="btn-header-logout" title="Log Out of your account">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            <span>Log Out</span>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -1958,31 +1965,41 @@
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
                 </div>
-                <h2>Sign In / Log In</h2>
-                <p class="login-sub" style="color: #60a5fa; font-weight: 600;">Enter your valid email and password to access the console</p>
+                <h2 id="auth-modal-title">AegisTrace Account Access</h2>
+                <p class="login-sub" id="auth-modal-subtitle" style="color: #60a5fa; font-weight: 600;">E-Commerce Visual Debugger &amp; Self-Healing Pipeline</p>
             </div>
 
-            <!-- Error Banner -->
-            <div class="login-error-banner hidden" id="login-error">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <span id="login-error-text">Authentication required</span>
+            <!-- Auth Mode Switcher Tabs (Log In vs Sign Up) -->
+            <div class="auth-tabs" id="auth-tabs" role="tablist" aria-label="Account Access Options" style="display: flex; gap: 6px; background: rgba(0, 0, 0, 0.45); padding: 5px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 1.25rem;">
+                <button type="button" class="auth-tab-btn active" id="tab-login" role="tab" aria-selected="true" aria-controls="section-login" style="flex: 1; min-height: 42px; padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.4); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; background: linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(79, 70, 229, 0.55)); color: #ffffff; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);">
+                    Log In
+                </button>
+                <button type="button" class="auth-tab-btn" id="tab-signup" role="tab" aria-selected="false" aria-controls="section-signup" style="flex: 1; min-height: 42px; padding: 0.55rem 0.85rem; border-radius: 8px; border: 1px solid transparent; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; background: transparent; color: #94a3b8;">
+                    Sign Up
+                </button>
             </div>
 
-            <!-- Success Banner -->
-            <div class="login-success-banner hidden" id="login-success">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                <span id="login-success-text">Authenticated! Unlocking dashboard...</span>
-            </div>
+            <!-- SECTION 1: LOG IN -->
+            <div id="section-login" class="auth-section">
+                <!-- Error Banner -->
+                <div class="login-error-banner hidden" id="login-error">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span id="login-error-text">Authentication required</span>
+                </div>
 
-            <!-- SECTION: SIGN IN / LOG IN -->
-            <div id="section-login">
+                <!-- Success Banner -->
+                <div class="login-success-banner hidden" id="login-success">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span id="login-success-text">Authenticated! Unlocking dashboard...</span>
+                </div>
+
                 <!-- Login Form -->
                 <form id="login-form" autocomplete="on">
                     <div class="form-group" style="margin-bottom: 0.95rem;">
@@ -2001,34 +2018,106 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login-submit" id="btn-login-submit" style="width: 100%; justify-content: center; min-height: 48px; padding: 0.85rem 1rem; font-size: 16px; font-weight: 700; background: #ffffff; color: #1f2937; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
-                        <svg viewBox="0 0 24 24" width="20" height="20" style="margin-right: 10px;">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    <button type="submit" class="btn btn-primary btn-login-submit" id="btn-login-submit" style="width: 100%; justify-content: center; min-height: 48px; padding: 0.85rem 1rem; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #ffffff; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; cursor: pointer; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(124,58,237,0.35); transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
                         </svg>
-                        <span>Sign In / Log In</span>
+                        <span>Log In to AegisTrace</span>
                     </button>
 
-                    <button type="button" id="btn-quick-demo-login" style="width: 100%; min-height: 40px; margin-top: 0.75rem; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.45); color: #38bdf8; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; touch-action: manipulation;">
-                        ⚡ Quick Demo Fill (admin@aegistrace.com / password123)
+                    <!-- Guest Demo Access Button -->
+                    <button type="button" class="btn-guest-access" id="btn-guest-mode-login" style="width: 100%; min-height: 44px; margin-top: 0.75rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; touch-action: manipulation;">
+                        ⚡ Try Demo Mode (Explore as Guest)
+                    </button>
+
+                    <button type="button" id="btn-quick-demo-login" style="width: 100%; min-height: 38px; margin-top: 0.5rem; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15); color: #94a3b8; border-radius: 8px; font-size: 0.75rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; touch-action: manipulation;">
+                        Prefill Demo Credentials (admin@aegistrace.com)
                     </button>
                 </form>
 
-                <div style="margin-top: 1rem; padding: 0.75rem 0.85rem; background: rgba(30, 41, 59, 0.4); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.72rem; color: #94a3b8; line-height: 1.5;">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; color: #38bdf8; font-weight: 600; margin-bottom: 0.35rem;">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        Universal Verified Sign-In
-                    </div>
-                    • <b>Any Valid Email</b>: Enter any valid email (e.g. name@gmail.com).<br>
-                    • <b>Password Verification</b>: Strictly checks password match. Wrong password will be rejected.<br>
-                    • <b>Reset Anytime</b>: Click "Reset password" above to set a new password.
+                <!-- Switch to Sign Up link -->
+                <div style="margin-top: 1.15rem; text-align: center; font-size: 0.82rem; color: #94a3b8;">
+                    Don't have an account? <button type="button" id="link-go-to-signup" style="background: none; border: none; color: #38bdf8; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; font-size: 0.82rem;">Sign Up free</button>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SIGN UP -->
+            <div id="section-signup" class="auth-section" style="display: none;">
+                <!-- Error Banner -->
+                <div class="login-error-banner hidden" id="signup-error">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span id="signup-error-text">Sign up validation error</span>
                 </div>
 
-                <div style="margin-top: 0.85rem; text-align: center; font-size: 0.68rem; color: #64748b; line-height: 1.45;">
-                    By signing in, you agree to our <a href="terms.html" target="_blank" style="color: #38bdf8; text-decoration: underline;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
+                <!-- Success Banner -->
+                <div class="login-success-banner hidden" id="signup-success">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span id="signup-success-text">Account created! Preparing workspace...</span>
                 </div>
+
+                <!-- Sign Up Form -->
+                <form id="signup-form" autocomplete="on">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="signup-name" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Full Name <span style="color: #64748b; font-weight: 400;">(optional)</span></label>
+                        <input type="text" id="signup-name" placeholder="e.g. Alex Rivera" autocomplete="name" autocapitalize="words" autocorrect="off" spellcheck="false" style="width: 100%; min-height: 48px; padding: 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="signup-email" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Work or Personal Email <span style="color: #ef4444;">*</span></label>
+                        <input type="email" id="signup-email" placeholder="name@company.com" required autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" style="width: 100%; min-height: 48px; padding: 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="signup-password" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Password <span style="color: #64748b; font-weight: 400;">(min 4 characters)</span> <span style="color: #ef4444;">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" id="signup-password" placeholder="Create a secure password" required autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width: 100%; min-height: 48px; padding: 0.75rem 3rem 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                            <button type="button" id="btn-toggle-signup-pass" style="position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.15rem; color: #94a3b8; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; touch-action: manipulation;" title="Show/Hide password">👁</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.15rem;">
+                        <label for="signup-confirm-password" style="font-size: 0.8rem; color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 0.35rem;">Confirm Password <span style="color: #ef4444;">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" id="signup-confirm-password" placeholder="Re-enter your password" required autocomplete="new-password" autocapitalize="none" autocorrect="off" spellcheck="false" style="width: 100%; min-height: 48px; padding: 0.75rem 3rem 0.75rem 0.85rem; background: #080b12; border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; -webkit-appearance: none;">
+                            <button type="button" id="btn-toggle-signup-confirm-pass" style="position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.15rem; color: #94a3b8; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; touch-action: manipulation;" title="Show/Hide confirm password">👁</button>
+                        </div>
+                        <span id="signup-pass-match-hint" style="display: block; font-size: 0.72rem; color: #94a3b8; margin-top: 0.25rem;"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-signup-submit" id="btn-signup-submit" style="width: 100%; justify-content: center; min-height: 48px; padding: 0.85rem 1rem; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; cursor: pointer; display: flex; align-items: center; box-shadow: 0 4px 15px rgba(16,185,129,0.35); transition: all 0.2s ease; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                        <span>Create Account &amp; Enter</span>
+                    </button>
+
+                    <!-- Guest Demo Access Button from Sign Up -->
+                    <button type="button" class="btn-guest-access" id="btn-guest-mode-signup" style="width: 100%; min-height: 44px; margin-top: 0.75rem; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; touch-action: manipulation;">
+                        ⚡ Try Demo Mode First (No sign up needed)
+                    </button>
+                </form>
+
+                <!-- Switch to Log In link -->
+                <div style="margin-top: 1.15rem; text-align: center; font-size: 0.82rem; color: #94a3b8;">
+                    Already have an account? <button type="button" id="link-go-to-login" style="background: none; border: none; color: #38bdf8; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; font-size: 0.82rem;">Log In</button>
+                </div>
+            </div>
+
+            <!-- Footer terms -->
+            <div style="margin-top: 1.1rem; text-align: center; font-size: 0.68rem; color: #64748b; line-height: 1.45;">
+                By accessing AegisTrace, you agree to our <a href="terms.html" target="_blank" style="color: #38bdf8; text-decoration: underline;">Terms</a> and <a href="privacy.html" target="_blank" style="color: #38bdf8; text-decoration: underline;">Privacy Policy</a>.
             </div>
         </div>
     </div>

@@ -475,7 +475,7 @@ async function proxyToService(targetUrl, req, res) {
 
 // User Sign Up (Registration for ANY person's valid email)
 app.post('/api/auth/signup', (req, res) => {
-    let { name, email, password, organizationName } = req.body || {};
+    let { name, email, password, confirmPassword, organizationName } = req.body || {};
     
     email = (email || '').trim().toLowerCase();
     name = (name || '').trim();
@@ -498,6 +498,15 @@ app.post('/api/auth/signup', (req, res) => {
             status: 'FAILED',
             error: 'WEAK_PASSWORD',
             message: 'Password must be at least 4 characters long.'
+        });
+    }
+
+    // 2b. Confirm password matching
+    if (confirmPassword !== undefined && confirmPassword !== null && confirmPassword !== password) {
+        return res.status(400).json({
+            status: 'FAILED',
+            error: 'PASSWORDS_DONT_MATCH',
+            message: 'Passwords do not match. Please verify and re-enter.'
         });
     }
 
@@ -794,6 +803,7 @@ app.get('/api/auth/demo-users', (req, res) => {
 // Get current user profile and tenant details
 app.get('/api/auth/me', requireAuth, (req, res) => {
     res.json({
+        status: 'SUCCESS',
         user: req.user,
         tenant: {
             id: req.tenant.id,

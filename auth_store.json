@@ -119,7 +119,7 @@
         "environment": "development",
         "currency": "USD",
         "connectedAt": "2026-11-02T04:41:13.856Z",
-        "lastPingAt": "2026-11-02T04:51:21.593Z",
+        "lastPingAt": "2026-11-04T13:32:15.070Z",
         "webhookSecret": "",
         "accessToken": "shpat_****1234"
       },
@@ -129,7 +129,7 @@
         "problemsDetected": 5,
         "revenueAtRisk": 669,
         "revenueProtected": 669,
-        "lastProblemAt": "2026-11-02T04:51:21.591Z"
+        "lastProblemAt": "2026-11-04T13:32:15.066Z"
       }
     },
     "tenant-acme": {
@@ -527,6 +527,237 @@
         "revenueProtected": 0,
         "lastProblemAt": null
       }
+    },
+    "tenant-enterprise-user-17-vpt3": {
+      "id": "tenant-enterprise-user-17-vpt3",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-enterprise-user-17-iolq": {
+      "id": "tenant-enterprise-user-17-iolq",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-mismatch-example-c-ykzk": {
+      "id": "tenant-mismatch-example-c-ykzk",
+      "name": "mismatch's Organization",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-testuser-179379900-zcrx": {
+      "id": "tenant-testuser-179379900-zcrx",
+      "name": "Cyberdyne Retail",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-testuser-179379910-5ihm": {
+      "id": "tenant-testuser-179379910-5ihm",
+      "name": "Cyberdyne Retail",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-enterprise-user-17-32mc": {
+      "id": "tenant-enterprise-user-17-32mc",
+      "name": "Global Cloud Lab",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
+    },
+    "tenant-testuser-179379913-1am8": {
+      "id": "tenant-testuser-179379913-1am8",
+      "name": "Cyberdyne Retail",
+      "tier": "Custom SLA (99.9%)",
+      "metrics": {
+        "totalRuns": 0,
+        "errorRuns": 0,
+        "preservedRevenue": 0,
+        "totalHoursSaved": 0,
+        "avgMttr": 0
+      },
+      "activeScenario": "healthy",
+      "storeConnection": {
+        "connected": false,
+        "platform": "shopify",
+        "shopDomain": "",
+        "storeName": "",
+        "environment": "development",
+        "currency": "USD",
+        "connectedAt": null,
+        "lastPingAt": null,
+        "webhookSecret": "",
+        "accessToken": ""
+      },
+      "realStoreMetrics": {
+        "ordersMonitored": 0,
+        "totalMonitoredRevenue": 0,
+        "problemsDetected": 0,
+        "revenueAtRisk": 0,
+        "revenueProtected": 0,
+        "lastProblemAt": null
+      }
     }
   },
   "users": [
@@ -659,6 +890,62 @@
       "name": "Cloud Engineer",
       "role": "Workspace Admin",
       "tenantId": "tenant-enterprise-user-17-ti5k"
+    },
+    {
+      "id": "usr_1793797043310_4g5v",
+      "email": "enterprise_user_1793797043309@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-vpt3"
+    },
+    {
+      "id": "usr_1793798854728_1dxp",
+      "email": "enterprise_user_1793798854727@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-iolq"
+    },
+    {
+      "id": "usr_1793799006932_qp2m",
+      "email": "mismatch@example.com",
+      "password": "Password123",
+      "name": "mismatch",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-mismatch-example-c-ykzk"
+    },
+    {
+      "id": "usr_1793799006937_ql5m",
+      "email": "testuser_1793799006914@example.com",
+      "password": "Password123!",
+      "name": "Sarah Connor",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-testuser-179379900-zcrx"
+    },
+    {
+      "id": "usr_1793799102174_8f7y",
+      "email": "testuser_1793799102045@example.com",
+      "password": "Password123!",
+      "name": "Sarah Connor",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-testuser-179379910-5ihm"
+    },
+    {
+      "id": "usr_1793799133776_5qqg",
+      "email": "enterprise_user_1793799133774@example.com",
+      "password": "secretPassword2026",
+      "name": "Cloud Engineer",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-enterprise-user-17-32mc"
+    },
+    {
+      "id": "usr_1793799135342_k0zc",
+      "email": "testuser_1793799135319@example.com",
+      "password": "Password123!",
+      "name": "Sarah Connor",
+      "role": "Workspace Admin",
+      "tenantId": "tenant-testuser-179379913-1am8"
     }
   ]
 }

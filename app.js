@@ -859,8 +859,19 @@ const dom = {
     signupName: document.getElementById('signup-name'),
     signupEmail: document.getElementById('signup-email'),
     signupPassword: document.getElementById('signup-password'),
+    signupConfirmPassword: document.getElementById('signup-confirm-password'),
+    signupPassMatchHint: document.getElementById('signup-pass-match-hint'),
     signupOrg: document.getElementById('signup-org'),
     btnSignupSubmit: document.getElementById('btn-signup-submit'),
+    signupError: document.getElementById('signup-error'),
+    signupErrorText: document.getElementById('signup-error-text'),
+    signupSuccess: document.getElementById('signup-success'),
+    signupSuccessText: document.getElementById('signup-success-text'),
+    btnToggleSignupPass: document.getElementById('btn-toggle-signup-pass'),
+    btnToggleSignupConfirmPass: document.getElementById('btn-toggle-signup-confirm-pass'),
+    btnGuestModeLogin: document.getElementById('btn-guest-mode-login'),
+    btnGuestModeSignup: document.getElementById('btn-guest-mode-signup'),
+    btnHeaderLogout: document.getElementById('btn-header-logout'),
     loginSuccess: document.getElementById('login-success'),
     loginSuccessText: document.getElementById('login-success-text'),
     linkGoToSignup: document.getElementById('link-go-to-signup'),
@@ -1102,19 +1113,71 @@ async function mockBackendHandler(url, options = {}) {
     }
 
     if (url.startsWith('/api/auth/signup')) {
+        const name = (body.name || '').trim();
+        const email = (body.email || '').trim().toLowerCase();
+        const password = (body.password || '').trim();
+        const confirmPassword = (body.confirmPassword || '').trim();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'INVALID_EMAIL',
+                message: 'Please provide a valid email address (e.g. name@company.com or name@gmail.com).'
+            }, 400);
+        }
+
+        if (!password || password.length < 4) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'WEAK_PASSWORD',
+                message: 'Password must be at least 4 characters long.'
+            }, 400);
+        }
+
+        if (confirmPassword && confirmPassword !== password) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'PASSWORDS_DONT_MATCH',
+                message: 'Passwords do not match. Please verify and re-enter.'
+            }, 400);
+        }
+
+        let customCreds = {};
+        try {
+            const raw = localStorage.getItem('aegis_user_credentials');
+            if (raw) customCreds = JSON.parse(raw);
+        } catch(e) {}
+
+        if (customCreds[email]) {
+            return createMockResponse({
+                status: 'FAILED',
+                error: 'EMAIL_EXISTS',
+                message: 'An account with this email already exists. Please log in instead.'
+            }, 409);
+        }
+
+        customCreds[email] = password;
+        try {
+            localStorage.setItem('aegis_user_credentials', JSON.stringify(customCreds));
+        } catch(e) {}
+
+        const displayName = name || email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+
         return createMockResponse({
             status: 'SUCCESS',
+            message: 'Account created successfully. Welcome to AegisTrace!',
             token: 'aegis-static-token-' + Date.now(),
             user: {
                 id: 'usr_' + Date.now().toString(36),
-                name: body.name || 'Cloud Engineer',
-                email: body.email,
-                role: 'Workspace Admin',
+                name: displayName,
+                email: email,
+                role: 'Workspace Administrator',
                 tenantId: 'tenant-enterprise'
             },
             tenant: {
                 id: 'tenant-enterprise',
-                name: body.organizationName || 'Enterprise Cloud Network',
+                name: displayName + "'s Store Lab",
                 tier: 'Enterprise SLA (99.99%)'
             }
         }, 201);
@@ -1373,17 +1436,70 @@ function hideLoginModal() {
 function switchAuthTab(tab) {
     if (dom.loginError) dom.loginError.classList.add('hidden');
     if (dom.loginSuccess) dom.loginSuccess.classList.add('hidden');
+    const signupError = dom.signupError || document.getElementById('signup-error');
+    const signupSuccess = dom.signupSuccess || document.getElementById('signup-success');
+    if (signupError) signupError.classList.add('hidden');
+    if (signupSuccess) signupSuccess.classList.add('hidden');
+
+    const tabLogin = dom.tabLogin || document.getElementById('tab-login');
+    const tabSignup = dom.tabSignup || document.getElementById('tab-signup');
+    const sectionLogin = dom.sectionLogin || document.getElementById('section-login');
+    const sectionSignup = dom.sectionSignup || document.getElementById('section-signup');
 
     if (tab === 'signup') {
-        if (dom.tabLogin) dom.tabLogin.classList.remove('active');
-        if (dom.tabSignup) dom.tabSignup.classList.add('active');
-        if (dom.sectionLogin) dom.sectionLogin.classList.add('hidden');
-        if (dom.sectionSignup) dom.sectionSignup.classList.remove('hidden');
+        if (tabLogin) {
+            tabLogin.classList.remove('active');
+            tabLogin.setAttribute('aria-selected', 'false');
+            tabLogin.style.background = 'transparent';
+            tabLogin.style.color = '#94a3b8';
+            tabLogin.style.borderColor = 'transparent';
+            tabLogin.style.boxShadow = 'none';
+        }
+        if (tabSignup) {
+            tabSignup.classList.add('active');
+            tabSignup.setAttribute('aria-selected', 'true');
+            tabSignup.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(5, 150, 105, 0.55))';
+            tabSignup.style.color = '#ffffff';
+            tabSignup.style.borderColor = 'rgba(52, 211, 153, 0.5)';
+            tabSignup.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.25)';
+        }
+        if (sectionLogin) sectionLogin.style.display = 'none';
+        if (sectionSignup) sectionSignup.style.display = 'block';
+
+        const sub = document.getElementById('auth-modal-subtitle');
+        if (sub) sub.textContent = 'Create your account to protect your store revenue';
+
+        const signupEmail = dom.signupEmail || document.getElementById('signup-email');
+        if (signupEmail) {
+            setTimeout(() => signupEmail.focus(), 100);
+        }
     } else {
-        if (dom.tabSignup) dom.tabSignup.classList.remove('active');
-        if (dom.tabLogin) dom.tabLogin.classList.add('active');
-        if (dom.sectionSignup) dom.sectionSignup.classList.add('hidden');
-        if (dom.sectionLogin) dom.sectionLogin.classList.remove('hidden');
+        if (tabSignup) {
+            tabSignup.classList.remove('active');
+            tabSignup.setAttribute('aria-selected', 'false');
+            tabSignup.style.background = 'transparent';
+            tabSignup.style.color = '#94a3b8';
+            tabSignup.style.borderColor = 'transparent';
+            tabSignup.style.boxShadow = 'none';
+        }
+        if (tabLogin) {
+            tabLogin.classList.add('active');
+            tabLogin.setAttribute('aria-selected', 'true');
+            tabLogin.style.background = 'linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(79, 70, 229, 0.55))';
+            tabLogin.style.color = '#ffffff';
+            tabLogin.style.borderColor = 'rgba(139, 92, 246, 0.5)';
+            tabLogin.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.25)';
+        }
+        if (sectionSignup) sectionSignup.style.display = 'none';
+        if (sectionLogin) sectionLogin.style.display = 'block';
+
+        const sub = document.getElementById('auth-modal-subtitle');
+        if (sub) sub.textContent = 'Enter your credentials to access your store';
+
+        const loginEmail = dom.loginEmail || document.getElementById('login-email');
+        if (loginEmail) {
+            setTimeout(() => loginEmail.focus(), 100);
+        }
     }
 }
 
@@ -1397,59 +1513,129 @@ function showLoginSuccess(text) {
     }
 }
 
-async function signup(name, email, password, organizationName) {
+function showSignupError(text) {
+    const signupError = dom.signupError || document.getElementById('signup-error');
+    const signupErrorText = dom.signupErrorText || document.getElementById('signup-error-text');
+    if (signupError && signupErrorText) {
+        signupErrorText.textContent = text;
+        signupError.classList.remove('hidden');
+    }
+    const signupSuccess = dom.signupSuccess || document.getElementById('signup-success');
+    if (signupSuccess) {
+        signupSuccess.classList.add('hidden');
+    }
+}
+
+function showSignupSuccess(text) {
+    const signupSuccess = dom.signupSuccess || document.getElementById('signup-success');
+    const signupSuccessText = dom.signupSuccessText || document.getElementById('signup-success-text');
+    if (signupSuccess && signupSuccessText) {
+        signupSuccessText.textContent = text;
+        signupSuccess.classList.remove('hidden');
+    }
+    const signupError = dom.signupError || document.getElementById('signup-error');
+    if (signupError) {
+        signupError.classList.add('hidden');
+    }
+}
+
+async function signup(name, email, password, confirmPassword) {
     try {
-        if (dom.loginError) dom.loginError.classList.add('hidden');
-        if (dom.loginSuccess) dom.loginSuccess.classList.add('hidden');
+        const signupError = dom.signupError || document.getElementById('signup-error');
+        const signupSuccess = dom.signupSuccess || document.getElementById('signup-success');
+        if (signupError) signupError.classList.add('hidden');
+        if (signupSuccess) signupSuccess.classList.add('hidden');
 
-        // Client side validation
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const cleanPassword = (password || '').trim();
+        const cleanConfirm = (confirmPassword !== undefined ? confirmPassword : '').trim();
+        const cleanName = (name || '').trim();
+
+        // 1. Email format check
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
-            showLoginModal('Please enter a valid email address (e.g. name@company.com or name@gmail.com).');
+        if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+            showSignupError('Please enter a valid email address (e.g. name@company.com or name@gmail.com).');
+            const signupEmail = dom.signupEmail || document.getElementById('signup-email');
+            if (signupEmail) signupEmail.focus();
             return false;
         }
 
-        if (!password || password.length < 4) {
-            showLoginModal('Password must be at least 4 characters long.');
+        // 2. Password minimum length check
+        if (!cleanPassword || cleanPassword.length < 4) {
+            showSignupError('Password must be at least 4 characters long.');
+            const signupPassword = dom.signupPassword || document.getElementById('signup-password');
+            if (signupPassword) signupPassword.focus();
             return false;
         }
 
-        if (dom.btnSignupSubmit) {
-            dom.btnSignupSubmit.disabled = true;
-            dom.btnSignupSubmit.innerHTML = 'Creating Account & Workspace...';
+        // 3. Passwords must match check
+        if (cleanConfirm && cleanConfirm !== cleanPassword) {
+            showSignupError('Passwords do not match. Please verify your password.');
+            const signupConfirmPassword = dom.signupConfirmPassword || document.getElementById('signup-confirm-password');
+            if (signupConfirmPassword) signupConfirmPassword.focus();
+            return false;
         }
 
-        const res = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password, organizationName })
-        });
-        const data = await res.json();
+        const btnSignup = dom.btnSignupSubmit || document.getElementById('btn-signup-submit');
+        if (btnSignup) {
+            btnSignup.disabled = true;
+            btnSignup.innerHTML = '<span>Creating Account & Setting Up Workspace...</span>';
+        }
 
-        if (dom.btnSignupSubmit) {
-            dom.btnSignupSubmit.disabled = false;
-            dom.btnSignupSubmit.innerHTML = `
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 0.35rem;">
+        const isStaticDeployment = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+        let res;
+        const payload = {
+            name: cleanName || cleanEmail.split('@')[0],
+            email: cleanEmail,
+            password: cleanPassword,
+            confirmPassword: cleanConfirm
+        };
+
+        if (isStaticDeployment) {
+            res = await mockBackendHandler('/api/auth/signup', { method: 'POST', body: JSON.stringify(payload) });
+        } else {
+            try {
+                res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok && (res.status === 404 || res.status === 405 || res.status === 502)) {
+                    res = await mockBackendHandler('/api/auth/signup', { method: 'POST', body: JSON.stringify(payload) });
+                }
+            } catch(netErr) {
+                res = await mockBackendHandler('/api/auth/signup', { method: 'POST', body: JSON.stringify(payload) });
+            }
+        }
+
+        const data = await res.json().catch(() => ({ status: 'FAILED', message: 'Unable to parse server response.' }));
+
+        if (btnSignup) {
+            btnSignup.disabled = false;
+            btnSignup.innerHTML = `
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 8px;">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                     <circle cx="8.5" cy="7" r="4"/>
                     <line x1="20" y1="8" x2="20" y2="14"/>
                     <line x1="23" y1="11" x2="17" y2="11"/>
                 </svg>
-                Create Account & Launch Console
+                <span>Create Account &amp; Enter</span>
             `;
         }
 
         if (!res.ok || data.status !== 'SUCCESS') {
-            showLoginModal(data.message || 'Account registration failed.');
+            showSignupError(data.message || 'Account registration failed.');
             return false;
         }
 
-        showLoginSuccess('Account created! Launching your custom workspace...');
+        // Registration Success: Automatically log in
+        showSignupSuccess(`Account created! Welcome, ${data.user.name || cleanEmail}. Unlocking dashboard...`);
 
         state.authToken = data.token;
         state.currentUser = data.user;
         state.currentTenant = data.tenant;
         localStorage.setItem('aegis_auth_token', data.token);
+        localStorage.removeItem('aegis_guest_mode');
 
         setTimeout(async () => {
             updateTenantUI();
@@ -1459,29 +1645,59 @@ async function signup(name, email, password, organizationName) {
             startAutopilotDaemon();
             startEventPoller();
             checkAndShowOnboarding(700);
-        }, 600);
+            router.navigate('#/dashboard');
+        }, 700);
 
         return true;
     } catch (e) {
-        if (dom.btnSignupSubmit) {
-            dom.btnSignupSubmit.disabled = false;
+        const btnSignup = dom.btnSignupSubmit || document.getElementById('btn-signup-submit');
+        if (btnSignup) {
+            btnSignup.disabled = false;
         }
-        showLoginModal('Sign up connection error: ' + e.message);
+        showSignupError('Registration error: ' + e.message);
         return false;
     }
 }
 
+function enterGuestDemoMode() {
+    state.authToken = 'aegis-guest-demo-token-' + Date.now();
+    state.currentUser = {
+        id: 'usr_guest_demo',
+        name: 'Demo Guest',
+        email: 'guest@aegistrace.demo',
+        role: 'Demo Operator',
+        isGuest: true
+    };
+    state.currentTenant = {
+        id: 'tenant-demo',
+        name: 'Demo Sandbox Store',
+        tier: 'Demo Access'
+    };
+    localStorage.setItem('aegis_auth_token', state.authToken);
+    localStorage.setItem('aegis_guest_mode', 'true');
+    hideLoginModal();
+    updateTenantUI();
+    logConsole('[AUTH] Entered Demo Guest Mode. Explore all features freely! Click Sign Up anytime to create your account.', 'info');
+    loadTenantData();
+    startAutopilotDaemon();
+    startEventPoller();
+    router.navigate('#/dashboard');
+}
+
 function enterPublicDemoMode() {
-    // Zero guest bypass: Authentication is strictly mandatory
-    showLoginModal('Authentication required: Please enter your valid email and password.');
+    showLoginModal();
+    switchAuthTab('login');
 }
 
 function updateTenantUI() {
     const btnHeaderSignin = document.getElementById('btn-header-signin');
     const headerUserPill = document.getElementById('header-user-pill');
 
-    if (!state.currentUser || state.currentUser?.isPublicGuest) {
-        if (btnHeaderSignin) btnHeaderSignin.style.display = 'flex';
+    if (!state.currentUser) {
+        if (btnHeaderSignin) {
+            btnHeaderSignin.style.display = 'flex';
+            btnHeaderSignin.onclick = () => { showLoginModal(); switchAuthTab('login'); };
+        }
         if (headerUserPill) headerUserPill.style.display = 'none';
         if (dom.tenantName) dom.tenantName.textContent = '🔒 Sign In Required';
         if (dom.userDisplay) dom.userDisplay.textContent = 'Sign In Required';
@@ -1492,9 +1708,41 @@ function updateTenantUI() {
                     <polyline points="10 17 15 12 10 7"/>
                     <line x1="15" y1="12" x2="3" y2="12"/>
                 </svg>
-                Sign In / Log In
+                Log In / Sign Up
             `;
-            dom.btnLogout.title = 'Sign In / Log In';
+            dom.btnLogout.title = 'Log In or Sign Up';
+        }
+    } else if (state.currentUser.isGuest) {
+        if (btnHeaderSignin) {
+            btnHeaderSignin.style.display = 'flex';
+            btnHeaderSignin.innerHTML = `
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span>Create Free Account</span>
+            `;
+            btnHeaderSignin.onclick = () => { showLoginModal(); switchAuthTab('signup'); };
+        }
+        if (headerUserPill) headerUserPill.style.display = 'flex';
+        if (dom.tenantName) dom.tenantName.textContent = '⚡ Demo Store (Guest)';
+        if (dom.userDisplay) dom.userDisplay.textContent = 'Demo Mode (Guest)';
+        const sidebarUserName = document.getElementById('sidebar-user-name');
+        const sidebarTenantName = document.getElementById('sidebar-tenant-name');
+        if (sidebarUserName) sidebarUserName.textContent = 'Demo Guest';
+        if (sidebarTenantName) sidebarTenantName.textContent = 'Guest Sandbox';
+        if (dom.btnLogout) {
+            dom.btnLogout.innerHTML = `
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.2rem;">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Exit Demo
+            `;
+            dom.btnLogout.title = 'Exit Demo';
         }
     } else {
         if (btnHeaderSignin) btnHeaderSignin.style.display = 'none';
@@ -1504,6 +1752,14 @@ function updateTenantUI() {
         }
         if (state.currentUser && dom.userDisplay) {
             dom.userDisplay.textContent = `${state.currentUser.email}`;
+        }
+        const sidebarUserName = document.getElementById('sidebar-user-name');
+        const sidebarTenantName = document.getElementById('sidebar-tenant-name');
+        if (sidebarUserName && state.currentUser) {
+            sidebarUserName.textContent = state.currentUser.name || state.currentUser.email;
+        }
+        if (sidebarTenantName && state.currentTenant) {
+            sidebarTenantName.textContent = state.currentTenant.name;
         }
         if (dom.btnLogout) {
             dom.btnLogout.innerHTML = `
@@ -1520,13 +1776,51 @@ function updateTenantUI() {
 }
 
 async function checkAuthSession() {
-    // MANDATORY AUTHENTICATION: Keep dashboard locked with Google Login Modal on every visit
+    const savedToken = localStorage.getItem('aegis_auth_token');
+    const isGuest = localStorage.getItem('aegis_guest_mode') === 'true';
+
+    if (savedToken) {
+        if (isGuest) {
+            enterGuestDemoMode();
+            return true;
+        }
+
+        try {
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${savedToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                state.authToken = savedToken;
+                state.currentUser = data.user;
+                state.currentTenant = data.tenant;
+                hideLoginModal();
+                updateTenantUI();
+                await loadTenantData();
+                startAutopilotDaemon();
+                startEventPoller();
+                return true;
+            }
+        } catch(e) {
+            // Static / offline fallback
+            state.authToken = savedToken;
+            hideLoginModal();
+            updateTenantUI();
+            return true;
+        }
+    }
+
+    // Unauthenticated: protect dashboard
     state.currentUser = null;
     state.currentTenant = null;
     state.authToken = '';
-    localStorage.removeItem('aegis_auth_token');
-    showLoginModal();
     updateTenantUI();
+    showLoginModal();
+    if (window.location.hash === '#/signup') {
+        switchAuthTab('signup');
+    } else {
+        switchAuthTab('login');
+    }
     return false;
 }
 
@@ -1747,7 +2041,10 @@ window.handleGoogleCredentialResponse = function(response) {
 
 function logout() {
     state.authToken = '';
+    state.currentUser = null;
+    state.currentTenant = null;
     localStorage.removeItem('aegis_auth_token');
+    localStorage.removeItem('aegis_guest_mode');
 
     state.totalRuns = 0;
     state.errorRuns = 0;
@@ -1755,11 +2052,12 @@ function logout() {
     state.totalHoursSaved = 0.0;
     state.avgMttr = 0.0;
     updateBusinessMetricsUI();
-    dom.consoleLogs.innerHTML = '';
+    if (dom.consoleLogs) dom.consoleLogs.innerHTML = '';
 
-    enterPublicDemoMode();
-    showLoginModal();
-    logConsole('[AUTH] Switched to Public Live Demo Mode.', 'system');
+    updateTenantUI();
+    showLoginModal('You have been logged out. Please log in or create an account to access the dashboard.');
+    switchAuthTab('login');
+    logConsole('[AUTH] User signed out.', 'system');
 }
 
 async function loadTenantData() {
@@ -1978,7 +2276,10 @@ const router = {
         '#/hotfix': { pageId: 'page-hotfix', title: 'Code Hotfix Inspector', navId: 'nav-hotfix' },
         '#/copilot': { pageId: 'page-copilot', title: 'AI Copilot', navId: 'nav-copilot' },
         '#/observability': { pageId: 'page-observability', title: 'Observability & OTLP', navId: 'nav-observability' },
-        '#/settings': { pageId: 'page-settings', title: 'Settings & Workspace', navId: 'nav-settings' }
+        '#/settings': { pageId: 'page-settings', title: 'Settings & Workspace', navId: 'nav-settings' },
+        '#/login': { pageId: 'page-dashboard', title: 'Log In', navId: 'nav-dashboard', isAuthModal: true, authTab: 'login' },
+        '#/signup': { pageId: 'page-dashboard', title: 'Sign Up', navId: 'nav-dashboard', isAuthModal: true, authTab: 'signup' },
+        '#/logout': { pageId: 'page-dashboard', title: 'Log Out', navId: 'nav-dashboard', isLogout: true }
     },
 
     currentPage: '#/dashboard',
@@ -2088,6 +2389,16 @@ const router = {
         if (!this.routes[hash]) hash = '#/dashboard';
         this.currentPage = hash;
         const route = this.routes[hash];
+
+        if (route.isLogout) {
+            logout();
+            return;
+        }
+
+        if (route.isAuthModal) {
+            showLoginModal();
+            switchAuthTab(route.authTab || 'login');
+        }
 
         // 1. Hide all page views, show target page view
         document.querySelectorAll('.page-view').forEach(view => {
@@ -2494,14 +2805,82 @@ function registerEventListeners() {
     if (dom.linkGoToLogin) dom.linkGoToLogin.addEventListener('click', (e) => { e.preventDefault(); switchAuthTab('login'); });
 
     // Sign Up form submit
-    if (dom.signupForm) {
-        dom.signupForm.addEventListener('submit', (e) => {
+    const signupForm = dom.signupForm || document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = (dom.signupName && dom.signupName.value) || '';
-            const email = (dom.signupEmail && dom.signupEmail.value) || '';
-            const password = (dom.signupPassword && dom.signupPassword.value) || '';
-            const org = (dom.signupOrg && dom.signupOrg.value) || '';
-            signup(name, email, password, org);
+            const signupName = dom.signupName || document.getElementById('signup-name');
+            const signupEmail = dom.signupEmail || document.getElementById('signup-email');
+            const signupPassword = dom.signupPassword || document.getElementById('signup-password');
+            const signupConfirmPassword = dom.signupConfirmPassword || document.getElementById('signup-confirm-password');
+
+            const name = (signupName && signupName.value) || '';
+            const email = (signupEmail && signupEmail.value) || '';
+            const password = (signupPassword && signupPassword.value) || '';
+            const confirmPassword = (signupConfirmPassword && signupConfirmPassword.value) || '';
+            signup(name, email, password, confirmPassword);
+        });
+    }
+
+    // Real-time password match hint
+    const signupPasswordEl = dom.signupPassword || document.getElementById('signup-password');
+    const signupConfirmPasswordEl = dom.signupConfirmPassword || document.getElementById('signup-confirm-password');
+    const signupPassMatchHint = dom.signupPassMatchHint || document.getElementById('signup-pass-match-hint');
+
+    const checkPasswordMatch = () => {
+        if (!signupPassMatchHint || !signupConfirmPasswordEl) return;
+        const p1 = signupPasswordEl ? signupPasswordEl.value : '';
+        const p2 = signupConfirmPasswordEl.value;
+        if (!p2) {
+            signupPassMatchHint.innerHTML = '';
+        } else if (p1 === p2) {
+            signupPassMatchHint.innerHTML = '<span style="color: #34d399; font-weight: 600;">✓ Passwords match</span>';
+        } else {
+            signupPassMatchHint.innerHTML = '<span style="color: #f87171; font-weight: 600;">✕ Passwords do not match</span>';
+        }
+    };
+    if (signupConfirmPasswordEl) signupConfirmPasswordEl.addEventListener('input', checkPasswordMatch);
+    if (signupPasswordEl) signupPasswordEl.addEventListener('input', checkPasswordMatch);
+
+    // Sign up password visibility toggle
+    const btnToggleSignupPass = dom.btnToggleSignupPass || document.getElementById('btn-toggle-signup-pass');
+    if (btnToggleSignupPass && signupPasswordEl) {
+        btnToggleSignupPass.addEventListener('click', () => {
+            const isPassword = signupPasswordEl.type === 'password';
+            signupPasswordEl.type = isPassword ? 'text' : 'password';
+            btnToggleSignupPass.textContent = isPassword ? '🔒' : '👁';
+        });
+    }
+
+    // Sign up confirm password visibility toggle
+    const btnToggleSignupConfirmPass = dom.btnToggleSignupConfirmPass || document.getElementById('btn-toggle-signup-confirm-pass');
+    if (btnToggleSignupConfirmPass && signupConfirmPasswordEl) {
+        btnToggleSignupConfirmPass.addEventListener('click', () => {
+            const isPassword = signupConfirmPasswordEl.type === 'password';
+            signupConfirmPasswordEl.type = isPassword ? 'text' : 'password';
+            btnToggleSignupConfirmPass.textContent = isPassword ? '🔒' : '👁';
+        });
+    }
+
+    // Guest / Demo Mode triggers
+    const btnGuestModeLogin = dom.btnGuestModeLogin || document.getElementById('btn-guest-mode-login');
+    if (btnGuestModeLogin) {
+        btnGuestModeLogin.addEventListener('click', () => {
+            enterGuestDemoMode();
+        });
+    }
+    const btnGuestModeSignup = dom.btnGuestModeSignup || document.getElementById('btn-guest-mode-signup');
+    if (btnGuestModeSignup) {
+        btnGuestModeSignup.addEventListener('click', () => {
+            enterGuestDemoMode();
+        });
+    }
+
+    // Header Log Out trigger
+    const btnHeaderLogout = dom.btnHeaderLogout || document.getElementById('btn-header-logout');
+    if (btnHeaderLogout) {
+        btnHeaderLogout.addEventListener('click', () => {
+            logout();
         });
     }
 
